@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Visual Lab - Relatórios & Cruzamento de Dados</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #311042 70%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #6366f1; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #a855f7; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #ec4899; }
+
+    .container {
+      width: 100%;
+      max-width: 1150px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .label-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    select, input[type="text"], textarea {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 16px 20px;
+      color: #f8fafc;
+      font-size: 1.05rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select:focus, input[type="text"]:focus, textarea:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25), inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select option {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px;
+    }
+
+    .concept-explanation {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .concept-explanation b { color: #38bdf8; }
+    .concept-explanation code, .tbl-code {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.sql-guide-table, table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.sql-guide-table th, table.data-table th {
+      background: rgba(15, 23, 42, 0.85);
+      color: #38bdf8;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.sql-guide-table td, table.data-table td {
+      padding: 12px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+    }
+
+    table.sql-guide-table tr:hover, table.data-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .dual-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .dual-panel { grid-template-columns: 1fr; }
+    }
+
+    textarea.code-editor {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-weight: 600;
+      color: #38bdf8;
+      height: 200px;
+      resize: vertical;
+      line-height: 1.6;
+      tab-size: 4;
+    }
+
+    .schema-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 16px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .schema-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #a855f7;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      padding: 18px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(168, 85, 247, 0.6);
+      filter: brightness(1.1);
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-error {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .result-container {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 18px;
+      min-height: 140px;
+      max-height: 320px;
+      overflow: auto;
+    }
+
+    .query-meta {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      font-family: 'Fira Code', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>SQL Visual Lab</h1>
+      <p>Aprenda Álgebra Relacional, Junção de Tabelas e Cruzamento de Relatórios</p>
+    </header>
+
+    <div class="glass-card">
+      <div class="label-title">1. Escolha o Exercício / Consulta SQL</div>
+      <select id="lessonSelect">
+        <option value="ex1">Exercício 1: Seleção Básica e Filtro Simples (SELECT + WHERE)</option>
+        <option value="ex2">Exercício 2: Ordenação e Ranking dos Mais Valiosos (ORDER BY + LIMIT)</option>
+        <option value="ex3">Exercício 3: Cruzamento de Vendas com Clientes (INNER JOIN)</option>
+        <option value="ex4">Exercício 4: Identificando Clientes Sem Compras (LEFT JOIN)</option>
+        <option value="ex5">Exercício 5: Faturamento Total por Categoria (GROUP BY + SUM)</option>
+        <option value="ex6">Exercício 6: Contagem e Média de Gastos por Cliente (COUNT + AVG)</option>
+        <option value="ex7">Exercício 7: Filtrando Grupos de Alto Valor (HAVING)</option>
+        <option value="ex8">Exercício 8: Busca por Padrões de Texto e Cidades (LIKE + %)</option>
+        <option value="ex9">Exercício 9: Subconsultas para Isolar Compradores (WHERE IN)</option>
+        <option value="ex10">Exercício 10: Relatório Executivo Completo (JOIN + GROUP BY + ORDER BY)</option>
+      </select>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">2. Conceito e Desafio de Negócio</div>
+      <div id="conceptText" class="concept-explanation"></div>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">📖 Guia Rápido de Comandos SQL (Como Construir Consultas)</div>
+      <div class="table-wrapper">
+        <table class="sql-guide-table">
+          <thead>
+            <tr>
+              <th>Instrução</th>
+              <th>Função / Significado</th>
+              <th>Aplicação Prática</th>
+              <th>Exemplo de Código</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tbl-code">SELECT ... FROM</span></td>
+              <td>Escolhe as colunas e a tabela de origem</td>
+              <td>Exibir relatórios ou dados brutos.</td>
+              <td><span class="tbl-code">SELECT nome, cidade FROM clientes</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">WHERE</span></td>
+              <td>Filtra linhas com base em condições booleanas</td>
+              <td>Isolar clientes de SP ou vendas > R$ 500.</td>
+              <td><span class="tbl-code">WHERE valor > 500 AND cidade = 'SP'</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">INNER JOIN</span></td>
+              <td>Cruza registros onde há correspondência nas duas tabelas</td>
+              <td>Juntar Vendas com o Nome do Cliente.</td>
+              <td><span class="tbl-code">JOIN clientes ON vendas.cliente_id = clientes.id</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">LEFT JOIN</span></td>
+              <td>Mantém todos da tabela da esquerda, mesmo sem par na direita</td>
+              <td>Encontrar clientes inativos ou inadimplentes.</td>
+              <td><span class="tbl-code">LEFT JOIN vendas ON clientes.id = vendas.cliente_id</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">GROUP BY</span></td>
+              <td>Agrupa registros iguais para fazer cálculos coletivos</td>
+              <td>Somar vendas por categoria ou cliente.</td>
+              <td><span class="tbl-code">GROUP BY categoria</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">SUM() / AVG() / COUNT()</span></td>
+              <td>Funções agregadas: Soma, Média e Contagem</td>
+              <td>Calcular faturamento, ticket médio e total.</td>
+              <td><span class="tbl-code">SELECT SUM(valor), COUNT(*)</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">HAVING</span></td>
+              <td>Filtra o resultado DEPOIS do agrupamento (WHERE dos grupos)</td>
+              <td>Mostrar apenas categorias com total > R$ 2000.</td>
+              <td><span class="tbl-code">HAVING SUM(valor) > 2000</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">ORDER BY ... LIMIT</span></td>
+              <td>Ordena os resultados (ASC/DESC) e limita a quantidade</td>
+              <td>Rankings (Top 3 maiores vendas).</td>
+              <td><span class="tbl-code">ORDER BY valor DESC LIMIT 3</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="dual-panel">
+      <div class="glass-card">
+        <div class="label-title">3A. Console de Consulta SQL (Modifique o Comando)</div>
+        <textarea id="sqlEditor" class="code-editor" spellcheck="false"></textarea>
+      </div>
+
+      <div class="glass-card">
+        <div class="label-title">3B. Tabelas Existentes no Banco (Origem dos Dados)</div>
+        <div class="schema-box" style="margin-bottom: 12px;">
+          <div class="schema-title">Tabela: clientes</div>
+          <div id="tableSchemaClientes"></div>
+        </div>
+        <div class="schema-box">
+          <div class="schema-title">Tabela: vendas</div>
+          <div id="tableSchemaVendas"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="runBtn">
+      ⚡ Executar Consulta SQL e Gerar Relatório
+    </button>
+
+    <div class="glass-card">
+      <div class="label-title">
+        <span>Resultado do Relatório Processado</span>
+        <span id="statusBadge" class="status-badge status-success">Pronto para Consulta</span>
+      </div>
+      <div id="queryMetaInfo" class="query-meta">Aguardando execução...</div>
+      <div id="queryResultContainer" class="result-container">Aguardando consulta...</div>
+    </div>
+  </div>
+
+  <script>
+    const database = {
+      clientes: [
+        { id: 1, nome: "Ana Silva", cidade: "Rio de Janeiro", nivel: "VIP" },
+        { id: 2, nome: "Bruno Costa", cidade: "São Paulo", nivel: "Comum" },
+        { id: 3, nome: "Carla Souza", cidade: "Niterói", nivel: "VIP" },
+        { id: 4, nome: "Diego Lima", cidade: "São Paulo", nivel: "Comum" },
+        { id: 5, nome: "Elena Dias", cidade: "Curitiba", nivel: "Comum" }
+      ],
+      vendas: [
+        { id: 101, cliente_id: 1, produto: "Notebook Pro", categoria: "Eletrônicos", valor: 4500.00 },
+        { id: 102, cliente_id: 1, produto: "Mouse RGB", categoria: "Acessórios", valor: 150.00 },
+        { id: 103, cliente_id: 2, produto: "Cadeira Gamer", categoria: "Móveis", valor: 1200.00 },
+        { id: 104, cliente_id: 3, produto: "Monitor 4K", categoria: "Eletrônicos", valor: 2200.00 },
+        { id: 105, cliente_id: 3, produto: "Teclado Mecânico", categoria: "Acessórios", valor: 350.00 },
+        { id: 106, cliente_id: 1, produto: "Headset USB", categoria: "Acessórios", valor: 280.00 }
+      ]
+    };
+
+    const lessons = {
+      ex1: {
+        explanation: "O comando <code>SELECT</code> busca colunas de uma tabela, e o <code>WHERE</code> filtra apenas as linhas desejadas. Aqui isolamos os clientes cadastrados como <b>VIP</b>.",
+        sql: "SELECT id, nome, cidade, nivel \nFROM clientes \nWHERE nivel = 'VIP';"
+      },
+      ex2: {
+        explanation: "Com <code>ORDER BY ... DESC</code> colocamos os maiores valores no topo. O <code>LIMIT 3</code> restringe o resultado para os <b>3 produtos mais caros</b> comercializados.",
+        sql: "SELECT produto, categoria, valor \nFROM vendas \nORDER BY valor DESC \nLIMIT 3;"
+      },
+      ex3: {
+        explanation: "O <code>INNER JOIN</code> cruza a tabela de <b>vendas</b> com a de <b>clientes</b> através da chave de ligação (<code>cliente_id = clientes.id</code>), mostrando quem comprou cada item.",
+        sql: "SELECT clientes.nome, vendas.produto, vendas.categoria, vendas.valor \nFROM vendas \nINNER JOIN clientes ON vendas.cliente_id = clientes.id;"
+      },
+      ex4: {
+        explanation: "O <code>LEFT JOIN</code> preserva TODOS os clientes, mesmo aqueles sem nenhuma compra associada. Ao buscar por <code>vendas.id IS NULL</code>, encontramos os <b>clientes inativos</b>.",
+        sql: "SELECT clientes.id, clientes.nome, clientes.cidade, vendas.produto \nFROM clientes \nLEFT JOIN vendas ON clientes.id = vendas.cliente_id \nWHERE vendas.id IS NULL;"
+      },
+      ex5: {
+        explanation: "Usamos <code>GROUP BY</code> para agrupar as vendas por <b>categoria</b> e aplicamos <code>SUM(valor)</code> para obter o faturamento total acumulado em cada setor.",
+        sql: "SELECT categoria, SUM(valor) AS faturamento_total, COUNT(*) AS quantidade_vendas \nFROM vendas \nGROUP BY categoria;"
+      },
+      ex6: {
+        explanation: "Agrupamos por cliente para calcular o faturamento individual acumulado (<code>SUM</code>), o ticket médio gasto (<code>AVG</code>) e o total de compras (<code>COUNT</code>).",
+        sql: "SELECT clientes.nome, COUNT(vendas.id) AS total_pedidos, SUM(vendas.valor) AS gasto_total \nFROM clientes \nINNER JOIN vendas ON clientes.id = vendas.cliente_id \nGROUP BY clientes.nome;"
+      },
+      ex7: {
+        explanation: "O <code>WHERE</code> não consegue filtrar totais já somados. Para filtrar o resultado APÓS o agrupamento, usamos o <code>HAVING</code> para encontrar categorias com vendas > R$ 500.",
+        sql: "SELECT categoria, SUM(valor) AS total \nFROM vendas \nGROUP BY categoria \nHAVING SUM(valor) > 500;"
+      },
+      ex8: {
+        explanation: "O operador <code>LIKE '%São%'</code> permite buscar trechos de texto flexíveis. Usamos o coringa <code>%</code> para encontrar todos os clientes situados na cidade de São Paulo.",
+        sql: "SELECT id, nome, cidade, nivel \nFROM clientes \nWHERE cidade LIKE '%São%';"
+      },
+      ex9: {
+        explanation: "Ao usar <code>INNER JOIN</code>, você pode selecionar e exibir colunas de ambas as tabelas (como <code>c.nome</code>, <code>c.cidade</code> e <code>v.valor</code>) no mesmo relatório final!",
+        sql: "SELECT c.nome, c.cidade, v.valor \nFROM clientes c \nINNER JOIN vendas v ON c.id = v.cliente_id \nWHERE v.categoria = 'Eletrônicos';"
+      },
+      ex10: {
+        explanation: "Um relatório executivo completo unindo <code>JOIN</code>, agrupamento por cliente e ordenação decrescente para exibir o ranking final de faturamento por cliente.",
+        sql: "SELECT clientes.nome, clientes.nivel, SUM(vendas.valor) AS faturamento_total \nFROM clientes \nINNER JOIN vendas ON clientes.id = vendas.cliente_id \nGROUP BY clientes.nome, clientes.nivel \nORDER BY faturamento_total DESC;"
+      }
+    };
+
+    const lessonSelect = document.getElementById('lessonSelect');
+    const conceptText = document.getElementById('conceptText');
+    const sqlEditor = document.getElementById('sqlEditor');
+    const runBtn = document.getElementById('runBtn');
+    const queryMetaInfo = document.getElementById('queryMetaInfo');
+    const queryResultContainer = document.getElementById('queryResultContainer');
+    const statusBadge = document.getElementById('statusBadge');
+    const tableSchemaClientes = document.getElementById('tableSchemaClientes');
+    const tableSchemaVendas = document.getElementById('tableSchemaVendas');
+
+    function renderRawTablesSchema() {
+      tableSchemaClientes.innerHTML = renderSimpleHTMLTable(database.clientes);
+      tableSchemaVendas.innerHTML = renderSimpleHTMLTable(database.vendas);
+    }
+
+    function renderSimpleHTMLTable(arr) {
+      if (!arr || arr.length === 0) return "<small>Sem registros</small>";
+      const keys = Object.keys(arr[0]);
+      let html = `<table class="data-table"><thead><tr>`;
+      keys.forEach(k => html += `<th>${k}</th>`);
+      html += `</tr></thead><tbody>`;
+      arr.forEach(row => {
+        html += `<tr>`;
+        keys.forEach(k => html += `<td>${row[k] === null ? '<i>NULL</i>' : row[k]}</td>`);
+        html += `</tr>`;
+      });
+      html += `</tbody></table>`;
+      return html;
+    }
+
+    function loadLesson(key) {
+      const lesson = lessons[key];
+      if (!lesson) return;
+
+      conceptText.innerHTML = lesson.explanation;
+      sqlEditor.value = lesson.sql;
+      
+      statusBadge.textContent = "Pronto para Consulta";
+      statusBadge.className = "status-badge status-success";
+      queryMetaInfo.textContent = "Aguardando execução...";
+      queryResultContainer.innerHTML = "Aguardando consulta...";
+    }
+
+    function executeSQLQuery() {
+      const query = sqlEditor.value.trim();
+      const startTime = performance.now();
+
+      try {
+        let result = processSQL(query);
+        const endTime = performance.now();
+        const executionTime = (endTime - startTime).toFixed(2);
+
+        statusBadge.textContent = "Consulta Executada com Sucesso";
+        statusBadge.className = "status-badge status-success";
+        queryMetaInfo.textContent = `📊 Registros retornados: ${result.length} | Tempo de execução: ${executionTime}ms`;
+        
+        if (result.length > 0) {
+          queryResultContainer.innerHTML = renderSimpleHTMLTable(result);
+        } else {
+          queryResultContainer.innerHTML = "<p style='color: #94a3b8;'>Nenhum registro encontrado para os critérios informados.</p>";
+        }
+      } catch (err) {
+        statusBadge.textContent = "Erro na Consulta SQL";
+        statusBadge.className = "status-badge status-error";
+        queryMetaInfo.textContent = "Falha no processamento da instrução SQL.";
+        queryResultContainer.innerHTML = `<p style='color: #f87171; font-family: monospace;'>Erro de sintaxe ou execução: ${err.message}</p>`;
+      }
+    }
+
+    function stripAlias(str) {
+      return str.replace(/^[a-zA-Z0-9_]+\./, '').trim();
+    }
+
+    function normalizeText(str) {
+      return String(str || '').normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    }
+
+    function processSQL(sql) {
+      const cleanSQL = sql.trim().replace(/\s+/g, ' ');
+      const upperSQL = cleanSQL.toUpperCase();
+
+      let subqueryValues = null;
+      const inSubqueryMatch = cleanSQL.match(/IN\s*\(\s*(SELECT[\s\S]+?)\s*\)/i);
+      if (inSubqueryMatch) {
+        const subqueryStr = inSubqueryMatch[1];
+        const subResult = processSQL(subqueryStr);
+        if (subResult.length > 0) {
+          const firstKey = Object.keys(subResult[0])[0];
+          subqueryValues = subResult.map(r => r[firstKey]);
+        } else {
+          subqueryValues = [];
+        }
+      }
+
+      let data = [];
+      const hasExplicitJoin = upperSQL.includes('JOIN');
+      const hasImplicitJoin = (upperSQL.includes('FROM CLIENTES') && upperSQL.includes('VENDAS')) || (upperSQL.includes('FROM VENDAS') && upperSQL.includes('CLIENTES'));
+      const hasJoin = hasExplicitJoin || hasImplicitJoin;
+
+      if (hasJoin && upperSQL.includes('LEFT JOIN')) {
+        data = database.clientes.map(c => {
+          const v = database.vendas.find(venda => venda.cliente_id === c.id);
+          return {
+            id: c.id,
+            nome: c.nome,
+            cidade: c.cidade,
+            nivel: c.nivel,
+            produto: v ? v.produto : null,
+            categoria: v ? v.categoria : null,
+            valor: v ? v.valor : null
+          };
+        });
+      } else if (hasJoin) {
+        data = database.vendas.map(v => {
+          const cli = database.clientes.find(c => c.id === v.cliente_id) || {};
+          return {
+            id: v.id,
+            cliente_id: v.cliente_id,
+            nome: cli.nome || 'N/A',
+            cidade: cli.cidade || 'N/A',
+            nivel: cli.nivel || 'N/A',
+            produto: v.produto,
+            categoria: v.categoria,
+            valor: v.valor
+          };
+        });
+      } else if (upperSQL.includes('FROM CLIENTES')) {
+        data = JSON.parse(JSON.stringify(database.clientes));
+      } else {
+        data = JSON.parse(JSON.stringify(database.vendas));
+      }
+
+      // 3. Avaliação Dinâmica do WHERE (com suporte a aliases e normalização de acentos)
+      if (upperSQL.includes('WHERE')) {
+        const whereClauseMatch = cleanSQL.match(/WHERE\s+(.*?)(?=\s+GROUP|\s+ORDER|\s+LIMIT|$)/i);
+        if (whereClauseMatch) {
+          const whereText = whereClauseMatch[1].trim();
+
+          if (subqueryValues !== null) {
+            const whereInMatch = whereText.match(/([\w\.]+)\s+IN/i);
+            const field = whereInMatch ? stripAlias(whereInMatch[1]).toLowerCase() : 'id';
+            data = data.filter(r => {
+              const val = r[field] !== undefined ? r[field] : r.id;
+              return subqueryValues.includes(val);
+            });
+          } else if (/IS\s+NULL/i.test(whereText)) {
+            const nullMatch = whereText.match(/([\w\.]+)\s+IS\s+NULL/i);
+            const field = nullMatch ? stripAlias(nullMatch[1]).toLowerCase() : 'produto';
+            data = data.filter(r => r[field] === null || r[field] === undefined);
+          } else if (/LIKE/i.test(whereText)) {
+            const likeMatch = whereText.match(/([\w\.]+)\s+LIKE\s+['"]%?(.*?)%?['"]/i);
+            if (likeMatch) {
+              const field = stripAlias(likeMatch[1]).toLowerCase();
+              const val = normalizeText(likeMatch[2]);
+              data = data.filter(r => r[field] && normalizeText(r[field]).includes(val));
+            }
+          } else {
+            const compMatch = whereText.match(/([\w\.]+)\s*(=|!=|>|<|>=|<=)\s*['"]?(.*?)['"]?$/i);
+            if (compMatch) {
+              const field = stripAlias(compMatch[1]).toLowerCase();
+              const op = compMatch[2];
+              const val = compMatch[3].trim();
+
+              data = data.filter(r => {
+                if (r[field] === undefined) return false;
+                let rowVal = r[field];
+
+                if (typeof rowVal === 'number') {
+                  let numVal = parseFloat(val);
+                  if (op === '=') return rowVal === numVal;
+                  if (op === '!=') return rowVal !== numVal;
+                  if (op === '>') return rowVal > numVal;
+                  if (op === '<') return rowVal < numVal;
+                  if (op === '>=') return rowVal >= numVal;
+                  if (op === '<=') return rowVal <= numVal;
+                } else {
+                  let normRow = normalizeText(rowVal);
+                  let normTarget = normalizeText(val);
+                  if (op === '=') return normRow === normTarget;
+                  if (op === '!=') return normRow !== normTarget;
+                }
+                return true;
+              });
+            }
+          }
+        }
+      }
+
+      if (upperSQL.includes('GROUP BY')) {
+        if (upperSQL.includes('CATEGORIA')) {
+          const grouped = {};
+          data.forEach(r => {
+            const cat = r.categoria || 'Outros';
+            if (!grouped[cat]) grouped[cat] = { categoria: cat, faturamento_total: 0, quantidade_vendas: 0 };
+            grouped[cat].faturamento_total += (r.valor || 0);
+            grouped[cat].quantidade_vendas += 1;
+          });
+          data = Object.values(grouped);
+        } else if (upperSQL.includes('NOME')) {
+          const grouped = {};
+          data.forEach(r => {
+            const nome = r.nome || 'N/A';
+            if (!grouped[nome]) grouped[nome] = { nome: nome, nivel: r.nivel || 'Comum', total_pedidos: 0, faturamento_total: 0, gasto_total: 0 };
+            grouped[nome].total_pedidos += 1;
+            grouped[nome].faturamento_total += (r.valor || 0);
+            grouped[nome].gasto_total += (r.valor || 0);
+          });
+          data = Object.values(grouped);
+        }
+
+        if (upperSQL.includes('HAVING')) {
+          const havingMatch = cleanSQL.match(/HAVING\s+SUM\(valor\)\s*>\s*(\d+)/i);
+          if (havingMatch) {
+            const minSum = parseFloat(havingMatch[1]);
+            data = data.filter(r => (r.faturamento_total || r.total || 0) > minSum);
+          }
+        }
+      }
+
+      if (upperSQL.includes('ORDER BY')) {
+        const orderMatch = cleanSQL.match(/ORDER BY\s+([\w\.]+)(?:\s+(ASC|DESC))?/i);
+        if (orderMatch) {
+          let col = stripAlias(orderMatch[1]).toLowerCase();
+          const dir = (orderMatch[2] || 'ASC').toUpperCase();
+
+          data.sort((a, b) => {
+            let valA = a[col] !== undefined ? a[col] : (a.faturamento_total || a.valor || 0);
+            let valB = b[col] !== undefined ? b[col] : (b.faturamento_total || b.valor || 0);
+
+            if (typeof valA === 'string') {
+              return dir === 'ASC' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            }
+            return dir === 'ASC' ? valA - valB : valB - valA;
+          });
+        }
+      }
+
+      if (upperSQL.includes('LIMIT')) {
+        const limitMatch = cleanSQL.match(/LIMIT\s+(\d+)/i);
+        if (limitMatch) {
+          const limitNum = parseInt(limitMatch[1], 10);
+          data = data.slice(0, limitNum);
+        }
+      }
+
+      const selectMatch = cleanSQL.match(/^SELECT\s+(.*?)\s+FROM/i);
+      if (selectMatch && data.length > 0) {
+        const rawCols = selectMatch[1].trim();
+
+        if (rawCols !== '*') {
+          const requestedCols = rawCols.split(',').map(c => {
+            let colStr = c.trim();
+            let aliasMatch = colStr.match(/AS\s+([\w_]+)/i);
+            let alias = aliasMatch ? aliasMatch[1] : null;
+            let cleanField = stripAlias(colStr.replace(/\s+AS\s+.*/i, '')).toLowerCase();
+            return { raw: colStr, fieldName: cleanField, alias: alias };
+          });
+
+          data = data.map(row => {
+            const projectedRow = {};
+            const rowKeysMap = {};
+            Object.keys(row).forEach(k => rowKeysMap[k.toLowerCase()] = k);
+
+            requestedCols.forEach(colObj => {
+              const matchedKey = rowKeysMap[colObj.fieldName];
+              const displayKey = colObj.alias || (matchedKey ? rowKeysMap[colObj.fieldName] : colObj.fieldName);
+
+              if (matchedKey && row[matchedKey] !== undefined) {
+                projectedRow[displayKey] = row[matchedKey];
+              } else {
+                const fallbackKey = Object.keys(row).find(k => k.toLowerCase() === colObj.fieldName || k.toLowerCase() === (colObj.alias || '').toLowerCase());
+                if (fallbackKey) {
+                  projectedRow[colObj.alias || fallbackKey] = row[fallbackKey];
+                }
+              }
+            });
+
+            return Object.keys(projectedRow).length > 0 ? projectedRow : row;
+          });
+        }
+      }
+
+      return data;
+    }
+
+    lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+    runBtn.addEventListener('click', executeSQLQuery);
+
+    sqlEditor.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+      }
+    });
+
+    renderRawTablesSchema();
+    loadLesson('ex1');
+  </script>
+</body>
+</html>

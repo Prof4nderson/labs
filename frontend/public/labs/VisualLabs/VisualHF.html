@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hugging Face API Real Lab 🤗 - Estável</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #090d16 0%, #1c1303 35%, #2a1a08 70%, #090d16 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1; overflow: hidden; pointer-events: none;
+    }
+
+    .shape {
+      position: absolute; border-radius: 50%;
+      filter: blur(90px); opacity: 0.35;
+    }
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #f59e0b; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #ec4899; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #3b82f6; }
+
+    .container {
+      width: 100%;
+      max-width: 1150px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    header { text-align: center; margin-bottom: 35px; }
+    header h1 {
+      font-size: 2.5rem; font-weight: 800;
+      background: linear-gradient(135deg, #fbbf24 0%, #f472b6 50%, #60a5fa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px; margin-bottom: 8px;
+    }
+    header p { color: #9ca3af; font-size: 1.1rem; }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .label-title {
+      font-size: 0.95rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: #fbbf24; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+
+    select, input[type="text"], textarea {
+      width: 100%; background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px;
+      padding: 12px 16px; color: #f8fafc; font-size: 0.95rem; outline: none;
+    }
+    select:focus, input[type="text"]:focus, textarea:focus {
+      border-color: #fbbf24; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.25);
+    }
+
+    textarea { resize: vertical; min-height: 110px; font-family: inherit; }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 14px; margin-top: 10px;
+    }
+
+    .control-group {
+      display: flex; flex-direction: column; gap: 6px;
+      background: rgba(15, 23, 42, 0.5);
+      padding: 12px 14px; border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .control-group label {
+      font-size: 0.78rem; font-weight: 700; color: #cbd5e1;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .concept-explanation { color: #e2e8f0; font-size: 1.02rem; line-height: 1.75; }
+    .concept-explanation h3 { color: #fbbf24; font-size: 1.15rem; margin-top: 14px; margin-bottom: 6px; }
+    .concept-explanation strong { color: #38bdf8; }
+    .concept-explanation ul { margin-left: 20px; margin-bottom: 10px; }
+
+    .student-explanation-box {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 16px;
+      padding: 20px;
+      color: #f8fafc;
+      font-size: 0.98rem;
+      line-height: 1.7;
+    }
+
+    .student-explanation-box h4 {
+      color: #38bdf8;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #34d399);
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+
+    .dual-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .dual-panel { grid-template-columns: 1fr; } }
+
+    .console-box {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px; padding: 16px; height: 340px;
+      overflow-y: auto; font-family: Consolas, Monaco, monospace;
+      font-size: 0.88rem; color: #e2e8f0; display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .console-line { padding: 8px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.03); white-space: pre-wrap; word-break: break-all; }
+    .console-info { color: #38bdf8; border-left: 3px solid #38bdf8; }
+    .console-request { color: #fbbf24; border-left: 3px solid #fbbf24; }
+    .console-success { color: #34d399; background: rgba(52, 211, 153, 0.1); border-left: 3px solid #34d399; font-weight: bold; }
+    .console-error { color: #f87171; background: rgba(248, 113, 113, 0.1); border-left: 3px solid #f87171; font-weight: bold; }
+
+    .submit-btn {
+      width: 100%; background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
+      color: #ffffff; border: none; border-radius: 16px; padding: 18px 28px;
+      font-size: 1.2rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35); margin-bottom: 25px; transition: all 0.3s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    .status-success { background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+    .status-warning { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+    .status-error { background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+    
+    .meta-box { font-size: 0.85rem; color: #9ca3af; font-family: Consolas, Monaco, monospace; }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Hugging Face API Real Lab 🤗</h1>
+      <p>Curso Prático para Iniciantes: Testes em Tempo Real com Modelos Open-Source</p>
+    </header>
+
+    <!-- ALERTA DE AMBIENTE FILE:// -->
+    <div id="fileProtocolWarning" style="display:none; background: rgba(248, 113, 113, 0.15); border: 1px solid #f87171; border-radius: 16px; padding: 16px; margin-bottom: 20px; color: #fca5a5;">
+      ⚠️ <strong>Atenção:</strong> Você abriu o arquivo via <code>file:///</code>. Para evitar o erro <em>"Failed to fetch"</em> nos módulos 5 a 8, execute este arquivo através de um servidor local (ex: extensão <strong>Live Server</strong> no VS Code ou <code>python -m http.server</code>).
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">🔑 Token de Acesso do Hugging Face (hf_...)</div>
+      <input type="text" id="hfTokenInput" placeholder="Cole seu token aqui (ex: hf_xxxxxxxxxxxxxxxxxxxxxxxx)">
+      <p style="font-size: 0.82rem; color: #9ca3af; margin-top: 8px;">
+        💡 <strong>Obrigatório para os Módulos 5 a 8:</strong> Crie um token grátis em <a href="https://huggingface.co/settings/tokens" target="_blank" style="color: #fbbf24;">Hugging Face Tokens</a> (permissão <em>Read</em>) e cole acima!
+      </p>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">1. Escolha o Módulo da Aula</div>
+      <select id="lessonSelect">
+        <option value="m1">Módulo 1: Análise de Sentimento (DistilBERT SST-2)</option>
+        <option value="m2">Módulo 2: Classificação Zero-Shot sem Treino (BART MNLI)</option>
+        <option value="m3">Módulo 3: Similaridade Semântica de Frases (Sentence-MiniLM)</option>
+        <option value="m4">Módulo 4: Sumarização Automática de Texto (BART CNN)</option>
+        <option value="m5">Módulo 5: Tradução Neural Inglês -> Português (OPUS MT EN-PT)</option>
+        <option value="m6">Módulo 6: Reconhecimento de Entidades / NER (dslim BERT NER)</option>
+        <option value="m7">Módulo 7: Extração de Respostas em Texto / QA (RoBERTa SQuAD)</option>
+        <option value="m8">Módulo 8: Geração de Texto Autoregressiva (GPT-2)</option>
+      </select>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">2. Conteúdo Didático & Explicação Teórica</div>
+      <div id="conceptText" class="concept-explanation"></div>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">⚡ Parâmetros Pré-configurados da Requisição (Defaults Prontos)</div>
+      <div class="controls-grid">
+        <div class="control-group">
+          <label>Repositório do Modelo (Model Repo)</label>
+          <input type="text" id="paramModel" value="">
+        </div>
+        <div class="control-group">
+          <label id="labelExtra">Parâmetro Adicional / Configuração Extra</label>
+          <input type="text" id="paramExtra" value="">
+        </div>
+      </div>
+      <div class="control-group" style="margin-top: 14px;">
+        <label id="labelInputText">Texto de Entrada Enviado para a IA (inputs)</label>
+        <textarea id="paramInputText"></textarea>
+      </div>
+    </div>
+
+    <div class="dual-panel">
+      <div class="glass-card">
+        <div class="label-title">
+          <span>3A. Payload Enviado (HTTP Request JSON)</span>
+        </div>
+        <div id="requestPayloadBox" class="console-box">
+          <div class="console-line console-info">O JSON gerado aparecerá aqui ao disparar...</div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="label-title">
+          <span>3B. Resposta Bruta da API (JSON)</span>
+          <span id="statusBadge" class="status-badge status-warning">Aguardando</span>
+        </div>
+        <div id="consoleOutput" class="console-box">
+          <div class="console-line console-info">Aguardando envio da requisição...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">💡 Tradutor Didático / Explicação para os Alunos</div>
+      <div id="studentAnalysisBox" class="student-explanation-box">
+        Clique no botão abaixo para disparar a IA e ver a explicação contextualizada do resultado aqui!
+      </div>
+    </div>
+
+    <button class="submit-btn" id="runBtn">⚡ Disparar Inferência Real na Hugging Face</button>
+
+    <div class="glass-card">
+      <div class="label-title">Status da Conexão HTTP</div>
+      <div id="metaInfo" class="meta-box">Pressione o botão acima para testar a chamada de API.</div>
+    </div>
+  </div>
+
+  <script>
+    // Verifica se está rodando via file://
+    if (window.location.protocol === 'file:') {
+      document.getElementById('fileProtocolWarning').style.display = 'block';
+    }
+
+    const lessons = {
+      m1: {
+        modelRepo: "distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+        inputText: "I absolutely love this interactive AI lab! It is super fast, educational, and easy to use.",
+        extraParam: "",
+        labelExtra: "Configuração Extra (Não necessária)",
+        labelInputText: "Texto para Analisar Sentimento",
+        explanation: `
+          <h3>🎓 O que é Análise de Sentimento?</h3>
+          É uma técnica usada para identificar se um texto é <strong>POSITIVO</strong> ou <strong>NEGATIVO</strong> e qual o grau de certeza da IA.
+        `
+      },
+      m2: {
+        modelRepo: "facebook/bart-large-mnli",
+        inputText: "A nova placa de vídeo com inteligência artificial e arquitetura de 3 nanômetros quebrou recordes de velocidade em jogos.",
+        extraParam: "tecnologia, esportes, culinária, economia",
+        labelExtra: "Categorias de Teste (separadas por vírgula)",
+        labelInputText: "Texto para Classificar",
+        explanation: `
+          <h3>🎓 O que é Classificação Zero-Shot?</h3>
+          Permite classificar textos em <strong>qualquer categoria que você inventar na hora</strong>, sem ter treinado o modelo antes!
+        `
+      },
+      m3: {
+        modelRepo: "sentence-transformers/all-MiniLM-L6-v2",
+        inputText: "BOLO DE CENOURA",
+        extraParam: "Desenvolvimento de redes neurais e algoritmos de aprendizado, Receita de bolo de cenoura com chocolate",
+        labelExtra: "Frases para Comparar (separadas por vírgula)",
+        labelInputText: "Frase Principal (source_sentence)",
+        explanation: `
+          <h3>🎓 O que é Similaridade Semântica?</h3>
+          A IA compara uma frase principal com outras opções e dá uma <strong>nota de 0 a 1 (0% a 100%)</strong> indicando o grau de semelhança no significado!
+        `
+      },
+      m4: {
+        modelRepo: "facebook/bart-large-cnn",
+        inputText: "Artificial intelligence has advanced significantly in recent years, enabling the automation of complex processes across various industrial sectors. Modern platforms like Hugging Face provide access to thousands of pre-trained models that simplify the development of advanced computational solutions without requiring expensive local server infrastructure.",
+        extraParam: "",
+        labelExtra: "Configuração Extra (Não necessária)",
+        labelInputText: "Texto Longo para Sumarizar",
+        explanation: `
+          <h3>🎓 O que é Sumarização Neural?</h3>
+          A IA lê um texto longo e cria um resumo compacto preservando o significado original.
+        `
+      },
+      m5: {
+        modelRepo: "Helsinki-NLP/opus-mt-en-pt",
+        inputText: "Open source artificial intelligence empowers developers around the world to build innovative applications.",
+        extraParam: "",
+        labelExtra: "Configuração Extra (Não necessária)",
+        labelInputText: "Texto em Inglês para Traduzir",
+        explanation: `
+          <h3>🎓 O que é Tradução Neural dedicada (OPUS-MT)?</h3>
+          Converte textos do <strong>Inglês direto para o Português</strong>.
+        `
+      },
+      m6: {
+        modelRepo: "dslim/bert-base-NER",
+        inputText: "Elon Musk, CEO of Tesla and SpaceX, announced a new facility in Austin, Texas.",
+        extraParam: "",
+        labelExtra: "Configuração Extra (Não necessária)",
+        labelInputText: "Texto para Extrair Entidades",
+        explanation: `
+          <h3>🎓 O que é Reconhecimento de Entidades (NER)?</h3>
+          Destaca automaticamente nomes de Pessoas (PER), Empresas (ORG) e Locais (LOC) em um texto.
+        `
+      },
+      m7: {
+        modelRepo: "deepset/roberta-base-squad2",
+        inputText: "The capital of Brazil is Brasilia, a planned city inaugurated in 1960 by President Juscelino Kubitschek.",
+        extraParam: "Who inaugurated the capital of Brazil?",
+        labelExtra: "Pergunta sobre o texto",
+        labelInputText: "Texto Base (Contexto)",
+        explanation: `
+          <h3>🎓 O que é Question-Answering (QA)?</h3>
+          Você fornece um texto base e faz uma pergunta. A IA encontra a resposta exata no próprio texto!
+        `
+      },
+      m8: {
+        modelRepo: "openai-community/gpt2",
+        inputText: "Artificial Intelligence will change the future of software development by",
+        extraParam: "",
+        labelExtra: "Configuração Extra (Não necessária)",
+        labelInputText: "Início do Texto (Prompt)",
+        explanation: `
+          <h3>🎓 O que é Geração de Texto Autoregressiva?</h3>
+          O modelo recebe o início de uma frase e prevê palavra por palavra para continuar o texto.
+        `
+      }
+    };
+
+    const lessonSelect = document.getElementById('lessonSelect');
+    const conceptText = document.getElementById('conceptText');
+    const paramModel = document.getElementById('paramModel');
+    const paramExtra = document.getElementById('paramExtra');
+    const labelExtra = document.getElementById('labelExtra');
+    const labelInputText = document.getElementById('labelInputText');
+    const paramInputText = document.getElementById('paramInputText');
+    const requestPayloadBox = document.getElementById('requestPayloadBox');
+    const consoleOutput = document.getElementById('consoleOutput');
+    const studentAnalysisBox = document.getElementById('studentAnalysisBox');
+    const statusBadge = document.getElementById('statusBadge');
+    const metaInfo = document.getElementById('metaInfo');
+    const runBtn = document.getElementById('runBtn');
+    const hfTokenInput = document.getElementById('hfTokenInput');
+
+    function escapeHTML(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function loadLesson(key) {
+      const lesson = lessons[key];
+      if (!lesson) return;
+
+      conceptText.innerHTML = lesson.explanation;
+      paramModel.value = lesson.modelRepo;
+      paramInputText.value = lesson.inputText;
+      paramExtra.value = lesson.extraParam;
+      labelExtra.textContent = lesson.labelExtra;
+      labelInputText.textContent = lesson.labelInputText;
+
+      requestPayloadBox.innerHTML = '<div class="console-line console-info">O JSON gerado aparecerá aqui ao disparar...</div>';
+      consoleOutput.innerHTML = '<div class="console-line console-info">Aguardando envio da requisição...</div>';
+      studentAnalysisBox.innerHTML = 'Clique no botão abaixo para disparar a IA e ver a explicação contextualizada aqui!';
+      statusBadge.textContent = "Aguardando";
+      statusBadge.className = "status-badge status-warning";
+      metaInfo.textContent = "Pressione o botão para enviar a requisição HTTP.";
+    }
+
+    function generateStudentExplanation(lessonKey, payloadObj, data) {
+      let html = "";
+
+      if (lessonKey === 'm1') {
+        const results = Array.isArray(data[0]) ? data[0] : data;
+        html += `<h4>😃 Análise do Sentimento Detectado</h4>`;
+        results.forEach(item => {
+          const pct = (item.score * 100).toFixed(1);
+          const icon = item.label === 'POSITIVE' ? '🟢 POSITIVO' : '🔴 NEGATIVO';
+          html += `
+            <div class="result-item">
+              <div><strong>${icon}:</strong> Confiança em <strong>${pct}%</strong></div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${pct}%;"></div></div>
+            </div>`;
+        });
+      } 
+      else if (lessonKey === 'm2') {
+        const labels = data.labels || [];
+        const scores = data.scores || [];
+        html += `<h4>🏷️ Ranking de Categorias Identificadas</h4>`;
+        labels.forEach((label, idx) => {
+          const pct = (scores[idx] * 100).toFixed(1);
+          html += `
+            <div class="result-item">
+              <div><strong>${idx + 1}º Lugar:</strong> ${label.toUpperCase()} (${pct}%)</div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${pct}%;"></div></div>
+            </div>`;
+        });
+      }
+      else if (lessonKey === 'm3') {
+        const src = payloadObj.inputs.source_sentence;
+        const sentences = payloadObj.inputs.sentences;
+        const scores = Array.isArray(data) ? data : [];
+
+        html += `<h4>🎯 Comparando com a Frase Base: "<strong>${escapeHTML(src)}</strong>"</h4>`;
+        
+        scores.forEach((score, idx) => {
+          const pct = (score * 100).toFixed(1);
+          const isHigh = score > 0.5;
+          const statusText = isHigh ? '✅ Alta Similaridade' : '❌ Baixa Similaridade';
+          const colorClass = isHigh ? '#34d399' : '#f87171';
+
+          html += `
+            <div class="result-item">
+              <div><strong>Opção ${idx + 1}:</strong> "${escapeHTML(sentences[idx])}"</div>
+              <div style="margin-top:6px; color: ${colorClass}; font-weight:bold;">
+                Nota de Semelhança: ${pct}% — ${statusText}
+              </div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${pct}%; background:${colorClass};"></div></div>
+            </div>`;
+        });
+      }
+      else if (lessonKey === 'm4') {
+        const summary = data[0]?.summary_text || JSON.stringify(data);
+        html += `<h4>📝 Resumo Gerado pela IA</h4>
+          <div class="result-item" style="background:rgba(52, 211, 153, 0.1); border-color:#34d399;">
+            "${escapeHTML(summary)}"
+          </div>`;
+      }
+      else if (lessonKey === 'm5') {
+        const translation = data[0]?.translation_text || (Array.isArray(data) && data[0]?.generated_text) || JSON.stringify(data);
+        html += `<h4>🌐 Tradução Processada para o Português</h4>
+          <div class="result-item" style="background:rgba(56, 189, 248, 0.1); border-color:#38bdf8; font-size:1.1rem;">
+            👉 <strong>"${escapeHTML(translation)}"</strong>
+          </div>`;
+      }
+      else if (lessonKey === 'm6') {
+        html += `<h4>🔍 Entidades Extraídas do Texto</h4>`;
+        if (Array.isArray(data) && data.length > 0) {
+          data.forEach(item => {
+            html += `<div class="result-item">📌 <strong>${item.word}</strong> — Tipo: <code>${item.entity_group || item.entity}</code> (Confiança: ${(item.score * 100).toFixed(1)}%)</div>`;
+          });
+        } else {
+          html += `<div>Entidades identificadas com sucesso.</div>`;
+        }
+      }
+      else if (lessonKey === 'm7') {
+        const answer = data.answer || "Não identificada";
+        const score = data.score ? (data.score * 100).toFixed(1) : "N/A";
+        html += `<h4>❓ Resposta Extraída do Texto pela IA</h4>
+          <div class="result-item" style="font-size:1.1rem; color:#34d399;">
+            👉 Resposta: <strong>"${escapeHTML(answer)}"</strong> (Precisão: ${score}%)
+          </div>`;
+      }
+      else if (lessonKey === 'm8') {
+        const genText = data[0]?.generated_text || JSON.stringify(data);
+        html += `<h4>🤖 Continuação Exclusiva Gerada pela IA</h4>
+          <div class="result-item" style="background:rgba(251, 191, 36, 0.1); border-color:#fbbf24;">
+            <strong>Fragmento Gerado:</strong> "...${escapeHTML(genText)}"
+          </div>`;
+      }
+
+      studentAnalysisBox.innerHTML = html;
+    }
+
+    async function executeRealInference() {
+      const lessonKey = lessonSelect.value;
+      const modelRepo = paramModel.value.trim();
+      const inputText = paramInputText.value.trim();
+      const extraVal = paramExtra.value.trim();
+      const userToken = hfTokenInput.value.trim();
+
+      if (!userToken) {
+        alert("Atenção: Cole seu Token grátis (hf_...) no campo superior para evitar o bloqueio da API!");
+      }
+
+      if (!modelRepo || !inputText) {
+        alert("Por favor, preencha o modelo e o texto de entrada.");
+        return;
+      }
+
+      runBtn.disabled = true;
+      statusBadge.textContent = "Carregando...";
+      statusBadge.className = "status-badge status-warning";
+      metaInfo.textContent = "Conectando e disparando requisição para a Hugging Face...";
+      consoleOutput.innerHTML = '<div class="console-line console-info">🔄 Processando modelo na nuvem...</div>';
+      studentAnalysisBox.innerHTML = '⌛ Aguardando resposta do servidor da IA...';
+
+      // Usando a rota legada direta que possui suporte CORS nativo para inferências
+      const directEndpoint = `https://api-inference.huggingface.co/models/${modelRepo}`;
+
+      let payloadObj = {};
+
+      if (lessonKey === 'm2') {
+        const labels = extraVal ? extraVal.split(',').map(s => s.trim()) : ["tecnologia", "geral"];
+        payloadObj = {
+          inputs: inputText,
+          parameters: { candidate_labels: labels }
+        };
+      } else if (lessonKey === 'm3') {
+        const sentenceList = extraVal ? extraVal.split(',').map(s => s.trim()) : [inputText];
+        payloadObj = {
+          inputs: {
+            source_sentence: inputText,
+            sentences: sentenceList
+          }
+        };
+      } else if (lessonKey === 'm4') {
+        payloadObj = {
+          inputs: inputText,
+          parameters: { min_length: 20, max_length: 60 }
+        };
+      } else if (lessonKey === 'm7') {
+        payloadObj = {
+          inputs: {
+            question: extraVal || "Who inaugurated the capital?",
+            context: inputText
+          }
+        };
+      } else if (lessonKey === 'm8') {
+        payloadObj = {
+          inputs: inputText,
+          parameters: { max_new_tokens: 30, return_full_text: false }
+        };
+      } else {
+        payloadObj = { inputs: inputText };
+      }
+
+      requestPayloadBox.innerHTML = `
+        <div class="console-line console-request">📍 Endpoint:\n${directEndpoint}</div>
+        <div class="console-line console-request">📦 Body Enviado (JSON):\n${escapeHTML(JSON.stringify(payloadObj, null, 2))}</div>
+      `;
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (userToken) {
+        headers['Authorization'] = `Bearer ${userToken}`;
+      }
+
+      try {
+        const response = await fetch(directEndpoint, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(payloadObj)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          statusBadge.textContent = "200 OK - Sucesso";
+          statusBadge.className = "status-badge status-success";
+          metaInfo.textContent = `Resposta recebida com sucesso! Código HTTP: ${response.status}`;
+          
+          consoleOutput.innerHTML = `
+            <div class="console-line console-success">✅ Resposta Retornada pela API (JSON Bruto):</div>
+            <div class="console-line console-success">${escapeHTML(JSON.stringify(data, null, 2))}</div>
+          `;
+
+          generateStudentExplanation(lessonKey, payloadObj, data);
+
+        } else {
+          statusBadge.textContent = `${response.status} - Erro / Aviso`;
+          statusBadge.className = "status-badge status-error";
+
+          let msgErro = JSON.stringify(data, null, 2);
+          if (data.error && data.error.includes("currently loading")) {
+            metaInfo.textContent = "O servidor está ligando este modelo na GPU. Aguarde 15 segundos e clique no botão novamente!";
+          } else {
+            metaInfo.textContent = `A API retornou um aviso. Verifique se o Token foi informado corretamente.`;
+          }
+
+          consoleOutput.innerHTML = `
+            <div class="console-line console-error">⚠️ Retorno do Servidor:</div>
+            <div class="console-line console-error">${escapeHTML(msgErro)}</div>
+          `;
+          studentAnalysisBox.innerHTML = '⚠️ Não foi possível gerar a explicação porque a API retornou um erro.';
+        }
+
+      } catch (err) {
+        statusBadge.textContent = "Failed to Fetch / CORS";
+        statusBadge.className = "status-badge status-error";
+        metaInfo.textContent = "Erro de conexão detectado no navegador.";
+        
+        consoleOutput.innerHTML = `
+          <div class="console-line console-error">🚨 Falha na Requisição (Failed to fetch):</div>
+          <div class="console-line console-error">${escapeHTML(err.message)}</div>
+        `;
+
+        studentAnalysisBox.innerHTML = `
+          <div style="color: #f87171; font-weight: bold; margin-bottom: 8px;">🚨 Bloqueio de Segurança do Navegador (Failed to fetch)</div>
+          <div>Para resolver esse problema definitivamente:</div>
+          <ol style="margin-left: 20px; margin-top: 6px; line-height: 1.8;">
+            <li><strong>Cole o Token HF no topo:</strong> Modelos dos módulos 5 a 8 exigem token de autenticação ativo.</li>
+            <li><strong>Não abra via file:/// :</strong> Execute usando a extensão <em>Live Server</em> do VS Code ou um servidor local em <code>http://localhost</code>.</li>
+          </ol>
+        `;
+      } finally {
+        runBtn.disabled = false;
+      }
+    }
+
+    lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+    runBtn.addEventListener('click', executeRealInference);
+
+    loadLesson('m1');
+  </script>
+</body>
+</html>

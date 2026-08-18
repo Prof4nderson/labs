@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Igloo do Ártico - Aventura do Bailey (Glassmorphic Edition)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body {
+            overflow: hidden;
+            background: #08101e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 1000px;
+            height: 750px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 191, 255, 0.2);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        canvas { display: block; width: 100%; height: 100%; }
+
+        .ui-glass {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
+            padding: 12px 28px;
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .ui-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #d0f0ff;
+            font-weight: 600;
+        }
+
+        .ui-card span.valor {
+            font-size: 18px;
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(0, 191, 255, 0.6);
+            margin-top: 2px;
+        }
+
+        .barra-progresso {
+            width: 140px;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 4px;
+        }
+
+        .progresso {
+            height: 100%;
+            background: linear-gradient(90deg, #00bfff, #00ffcc);
+            width: 0%;
+            transition: width 0.3s ease-out;
+            box-shadow: 0 0 10px #00bfff;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(6, 15, 30, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            padding: 40px;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .overlay h1 {
+            font-size: 48px;
+            background: linear-gradient(180deg, #ffffff, #80d8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 20px rgba(0, 191, 255, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .overlay p {
+            color: #b0d8f0;
+            max-width: 550px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .btn-glass {
+            padding: 14px 36px;
+            background: rgba(0, 191, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            letter-spacing: 1px;
+        }
+
+        .btn-glass:hover {
+            background: rgba(0, 191, 255, 0.55);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 191, 255, 0.4);
+            border-color: #ffffff;
+        }
+
+        .escondido { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="gameContainer">
+        <div id="telaInicio" class="overlay">
+            <h1>❄️ IGLOO DO ÁRTICO ❄️</h1>
+            <p>Guie Bailey até ao topo da geleira vertical! Salte em blocos para recolher materiais do iglu, desvie-se de predadores do ártico e chegue em segurança à estrutura superior.</p>
+            <p><strong>Controles:</strong> Setas / A-D (Mover) | Espaço / W (Saltar)</p>
+            <button class="btn-glass" onclick="iniciarJogo()">Iniciar Aventura</button>
+        </div>
+
+        <div id="telaFim" class="overlay escondido">
+            <h1 id="textoResultado">Fim de Jogo</h1>
+            <p id="pontuacaoFinal"></p>
+            <button class="btn-glass" onclick="reiniciarJogo()">Tentar Novamente</button>
+        </div>
+
+        <div class="ui-glass" id="interface" style="display: none;">
+            <div class="ui-card">
+                <div>Construção Iglu</div>
+                <div class="barra-progresso"><div class="progresso" id="barraIglu"></div></div>
+            </div>
+            <div class="ui-card">
+                <div>Temperatura</div>
+                <span class="valor" id="temp">-5.0°C</span>
+            </div>
+            <div class="ui-card">
+                <div>Vidas</div>
+                <span class="valor" id="vidas">3</span>
+            </div>
+            <div class="ui-card">
+                <div>Pontuação</div>
+                <span class="valor" id="pontos">0</span>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="1000" height="750"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const MUNDO = {
+            largura: 1000,
+            altura: 2400,
+            aguaY: 2320
+        };
+
+        let jogoRodando = false;
+        let pontos = 0;
+        let vidas = 3;
+        let temperatura = -5.0;
+        let tempTimer;
+        let blocosConstruidos = 0;
+        const totalBlocosIglu = 16;
+
+        const camera = {
+            y: MUNDO.altura - canvas.height,
+            alvoY: MUNDO.altura - canvas.height,
+            suavizacao: 0.08,
+            atualizar(alvoY) {
+                this.alvoY = alvoY - canvas.height * 0.55;
+                if (this.alvoY > MUNDO.altura - canvas.height) this.alvoY = MUNDO.altura - canvas.height;
+                if (this.alvoY < 0) this.alvoY = 0;
+                this.y += (this.alvoY - this.y) * this.suavizacao;
+            }
+        };
+
+        const teclas = {};
+        let jumpBufferTimer = 0;
+        let coyoteTimer = 0;
+
+        window.addEventListener('keydown', e => {
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+                jumpBufferTimer = 6;
+            }
+            teclas[e.code] = true;
+        });
+
+        window.addEventListener('keyup', e => {
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+                if (bailey.velY < -3) bailey.velY *= 0.4;
+            }
+            teclas[e.code] = false;
+        });
+
+        const bailey = {
+            x: 500, y: 2200,
+            largura: 42, altura: 54,
+            velX: 0, velY: 0,
+            aceleracao: 1.2,
+            maxVelX: 7.5,
+            friccao: 0.82,
+            forcaPulo: -15,
+            noChao: false,
+
+            atualizar() {
+                if (teclas['ArrowLeft'] || teclas['KeyA']) {
+                    if (this.velX > -this.maxVelX) this.velX -= this.aceleracao;
+                } else if (teclas['ArrowRight'] || teclas['KeyD']) {
+                    if (this.velX < this.maxVelX) this.velX += this.aceleracao;
+                } else {
+                    this.velX *= this.friccao;
+                }
+
+                let g = this.velY > 0 ? 1.1 : 0.65;
+                this.velY += g;
+
+                if (this.noChao) coyoteTimer = 6;
+                else if (coyoteTimer > 0) coyoteTimer--;
+
+                if (jumpBufferTimer > 0) jumpBufferTimer--;
+
+                if (jumpBufferTimer > 0 && coyoteTimer > 0) {
+                    this.velY = this.forcaPulo;
+                    this.noChao = false;
+                    coyoteTimer = 0;
+                    jumpBufferTimer = 0;
+                }
+
+                this.x += this.velX;
+                this.y += this.velY;
+
+                if (this.x < 10) { this.x = 10; this.velX = 0; }
+                if (this.x + this.largura > MUNDO.largura - 10) {
+                    this.x = MUNDO.largura - 10 - this.largura;
+                    this.velX = 0;
+                }
+            },
+
+            desenhar() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                ctx.shadowColor = 'rgba(255, 204, 102, 0.6)';
+                ctx.shadowBlur = 12;
+
+                let grad = ctx.createLinearGradient(0, 0, this.largura, this.altura);
+                grad.addColorStop(0, 'rgba(255, 220, 130, 0.9)');
+                grad.addColorStop(1, 'rgba(230, 150, 40, 0.8)');
+                ctx.fillStyle = grad;
+
+                ctx.beginPath();
+                ctx.roundRect(0, 0, this.largura, this.altura, [12]);
+                ctx.fill();
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#1a1a1a';
+                let olharDir = this.velX >= 0 ? 4 : 0;
+                ctx.beginPath();
+                ctx.arc(12 + olharDir, 16, 3.5, 0, Math.PI * 2);
+                ctx.arc(26 + olharDir, 16, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        };
+
+        let placas = [];
+        function criarPlacas() {
+            placas = [];
+            const linhas = 22;
+            const espacamentoY = 95;
+
+            for (let linha = 0; linha < linhas; linha++) {
+                let dir = linha % 2 === 0 ? 1 : -1;
+                let numPlacasLinha = 3 + Math.floor(Math.random() * 2);
+                let velLinha = 1.0 + Math.random() * 1.5;
+
+                for (let i = 0; i < numPlacasLinha; i++) {
+                    placas.push({
+                        x: i * 300 + Math.random() * 80,
+                        y: MUNDO.altura - 200 - (linha * espacamentoY),
+                        largura: 140,
+                        altura: 26,
+                        direcao: dir,
+                        vel: velLinha,
+                        estado: 'branco'
+                    });
+                }
+            }
+        }
+
+        const igluTopo = {
+            x: MUNDO.largura / 2 - 80,
+            y: 80,
+            largura: 160,
+            altura: 110,
+            desenhar() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                ctx.shadowColor = 'rgba(0, 191, 255, 0.5)';
+                ctx.shadowBlur = 20;
+
+                let grad = ctx.createRadialGradient(80, 80, 10, 80, 80, 100);
+                grad.addColorStop(0, 'rgba(230, 255, 255, 0.85)');
+                grad.addColorStop(1, 'rgba(100, 200, 255, 0.4)');
+                ctx.fillStyle = grad;
+
+                ctx.beginPath();
+                ctx.arc(80, 100, 75, Math.PI, 0, false);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.fillStyle = 'rgba(10, 25, 50, 0.85)';
+                ctx.beginPath();
+                ctx.arc(80, 100, 25, Math.PI, 0, false);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.restore();
+            }
+        };
+
+        let inimigos = [];
+        function criarInimigos() {
+            inimigos = [];
+            for (let i = 0; i < 5; i++) {
+                inimigos.push({
+                    tipo: 'ganso',
+                    x: Math.random() * MUNDO.largura,
+                    y: 200 + i * 380,
+                    largura: 45, altura: 30,
+                    vel: 2.8, corGlow: 'rgba(255, 255, 255, 0.8)'
+                });
+            }
+            for (let i = 0; i < 4; i++) {
+                inimigos.push({
+                    tipo: 'urso',
+                    x: Math.random() * MUNDO.largura,
+                    y: 600 + i * 420,
+                    largura: 60, altura: 45,
+                    vel: 1.2, corGlow: 'rgba(220, 240, 255, 0.6)'
+                });
+            }
+            for (let i = 0; i < 5; i++) {
+                inimigos.push({
+                    tipo: 'caranguejo',
+                    x: Math.random() * MUNDO.largura,
+                    y: 1800 + i * 100,
+                    largura: 40, altura: 28,
+                    vel: 2.0, corGlow: 'rgba(255, 100, 50, 0.7)'
+                });
+            }
+        }
+
+        function iniciarJogo() {
+            document.getElementById('telaInicio').classList.add('escondido');
+            document.getElementById('telaFim').classList.add('escondido');
+            document.getElementById('interface').style.display = 'flex';
+
+            pontos = 0; vidas = 3; temperatura = -5.0;
+            blocosConstruidos = 0;
+
+            bailey.x = 500; bailey.y = 2200;
+            bailey.velX = 0; bailey.velY = 0;
+
+            criarPlacas();
+            criarInimigos();
+
+            jogoRodando = true;
+
+            clearInterval(tempTimer);
+            tempTimer = setInterval(() => {
+                if (temperatura < 0) temperatura += 0.1;
+                if (temperatura >= 0) fimDeJogo(false);
+                atualizarUI();
+            }, 1000);
+
+            requestAnimationFrame(loopJogo);
+        }
+
+        function reiniciarJogo() {
+            iniciarJogo();
+        }
+
+        function atualizarUI() {
+            document.getElementById('barraIglu').style.width = `${(blocosConstruidos / totalBlocosIglu) * 100}%`;
+            const tempEl = document.getElementById('temp');
+            tempEl.textContent = `${temperatura.toFixed(1)}°C`;
+            tempEl.style.color = temperatura > -1.5 ? '#ff5555' : '#ffffff';
+            document.getElementById('vidas').textContent = vidas;
+            document.getElementById('pontos').textContent = pontos;
+        }
+
+        function fimDeJogo(vitoria) {
+            jogoRodando = false;
+            clearInterval(tempTimer);
+            document.getElementById('interface').style.display = 'none';
+
+            const tela = document.getElementById('telaFim');
+            const texto = document.getElementById('textoResultado');
+            const pontEl = document.getElementById('pontuacaoFinal');
+
+            if (vitoria) {
+                texto.textContent = "🎉 Vitória! Bailey Construiu o Iglu! 🎉";
+            } else {
+                texto.textContent = "💀 Fim de Jogo! O Ártico Venceu... 💀";
+            }
+            pontEl.textContent = `Pontuação Total Conquistada: ${pontos}`;
+            tela.classList.remove('escondido');
+        }
+
+        function loopJogo() {
+            if (!jogoRodando) return;
+
+            bailey.atualizar();
+            camera.atualizar(bailey.y);
+
+            if (bailey.y > MUNDO.aguaY) {
+                vidas--;
+                if (vidas <= 0) {
+                    fimDeJogo(false);
+                    return;
+                } else {
+                    bailey.x = 500;
+                    bailey.y = camera.y + 300;
+                    bailey.velY = 0;
+                }
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(0, -Math.floor(camera.y));
+
+            let gradFundo = ctx.createLinearGradient(0, 0, 0, MUNDO.altura);
+            gradFundo.addColorStop(0, '#0a192f');
+            gradFundo.addColorStop(0.5, '#112240');
+            gradFundo.addColorStop(1, '#1e3a8a');
+            ctx.fillStyle = gradFundo;
+            ctx.fillRect(0, 0, MUNDO.largura, MUNDO.altura);
+
+            ctx.fillStyle = 'rgba(0, 150, 255, 0.6)';
+            ctx.fillRect(0, MUNDO.aguaY, MUNDO.largura, MUNDO.altura - MUNDO.aguaY);
+
+            igluTopo.desenhar();
+
+            if (blocosConstruidos >= totalBlocosIglu &&
+                bailey.x < igluTopo.x + igluTopo.largura && bailey.x + bailey.largura > igluTopo.x &&
+                bailey.y < igluTopo.y + igluTopo.altura && bailey.y + bailey.altura > igluTopo.y) {
+                fimDeJogo(true);
+                ctx.restore();
+                return;
+            }
+
+            bailey.noChao = false;
+
+            placas.forEach(p => {
+                p.x += p.direcao * p.vel;
+                if (p.x < 10 || p.x + p.largura > MUNDO.largura - 10) p.direcao *= -1;
+
+                if (p.y + p.altura >= camera.y && p.y <= camera.y + canvas.height) {
+                    ctx.save();
+
+                    let pPath = new Path2D();
+                    pPath.roundRect(p.x, p.y, p.largura, p.altura, [8]);
+
+                    if (p.estado === 'branco') {
+                        ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+                        ctx.shadowBlur = 10;
+                        ctx.fillStyle = 'rgba(240, 248, 255, 0.35)';
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+                    } else {
+                        ctx.shadowColor = 'rgba(0, 191, 255, 0.8)';
+                        ctx.shadowBlur = 16;
+                        ctx.fillStyle = 'rgba(0, 191, 255, 0.55)';
+                        ctx.strokeStyle = 'rgba(180, 240, 255, 0.9)';
+                    }
+
+                    ctx.fill(pPath);
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke(pPath);
+                    ctx.restore();
+                }
+
+                if (bailey.velY >= 0 &&
+                    bailey.x + bailey.largura > p.x && bailey.x < p.x + p.largura &&
+                    bailey.y + bailey.altura >= p.y && bailey.y + bailey.altura <= p.y + 12) {
+
+                    bailey.noChao = true;
+                    bailey.velY = 0;
+                    bailey.y = p.y - bailey.altura;
+                    bailey.x += p.direcao * p.vel;
+
+                    if (p.estado === 'branco') {
+                        p.estado = 'azul';
+                        pontos += 25;
+                        if (blocosConstruidos < totalBlocosIglu) blocosConstruidos++;
+                    }
+                }
+            });
+
+            inimigos.forEach(ini => {
+                ini.x += ini.vel;
+                if (ini.x < 10 || ini.x + ini.largura > MUNDO.largura - 10) ini.vel *= -1;
+
+                if (ini.y + ini.altura >= camera.y && ini.y <= camera.y + canvas.height) {
+                    ctx.save();
+                    ctx.shadowColor = ini.corGlow;
+                    ctx.shadowBlur = 14;
+
+                    ctx.fillStyle = ini.tipo === 'ganso' ? 'rgba(240, 240, 255, 0.8)' :
+                                   ini.tipo === 'urso' ? 'rgba(220, 225, 230, 0.85)' : 'rgba(230, 90, 40, 0.85)';
+
+                    ctx.beginPath();
+                    ctx.roundRect(ini.x, ini.y, ini.largura, ini.altura, [6]);
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                if (bailey.x < ini.x + ini.largura && bailey.x + bailey.largura > ini.x &&
+                    bailey.y < ini.y + ini.altura && bailey.y + bailey.altura > ini.y) {
+                    vidas--;
+                    if (vidas <= 0) {
+                        fimDeJogo(false);
+                        ctx.restore();
+                        return;
+                    } else {
+                        bailey.x = 500;
+                        bailey.y = camera.y + 300;
+                        bailey.velY = 0;
+                    }
+                }
+            });
+
+            bailey.desenhar();
+
+            ctx.restore();
+
+            atualizarUI();
+            requestAnimationFrame(loopJogo);
+        }
+    </script>
+</body>
+</html>

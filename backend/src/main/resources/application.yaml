@@ -1,0 +1,42 @@
+server:
+  port: 8081
+  error:
+    include-message: never
+    include-stacktrace: never
+  forward-headers-strategy: framework
+
+spring:
+  datasource:
+    # Todos os valores vem do ambiente (docker-compose / .env). Nada de credencial no repositorio.
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ai_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: false
+    open-in-view: false
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: false # desativado enquanto ddl-auto=update cuida do schema
+
+jwt:
+  # Sem valor padrao: a aplicacao nao sobe sem JWT_SECRET (minimo 32 caracteres).
+  secret: ${JWT_SECRET:}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+labs:
+  docs:
+    # Swagger/OpenAPI fica fechado em producao; habilite com LABS_DOCS_PUBLIC=true se precisar.
+    public: ${LABS_DOCS_PUBLIC:false}
+
+langchain4j:
+  open-ai:
+    chat-model:
+      api-key: ${OPENAI_API_KEY:demo}
+      model-name: ${OPENAI_CHAT_MODEL:gpt-4o-mini}

@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Motion, Transitions & Flexbox Lab</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #311042 70%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1; overflow: hidden; pointer-events: none;
+    }
+
+    .shape {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); opacity: 0.4;
+    }
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #6366f1; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #a855f7; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #ec4899; }
+
+    .container {
+      width: 100%;
+      max-width: 1150px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    header { text-align: center; margin-bottom: 35px; }
+    header h1 {
+      font-size: 2.5rem; font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px; margin-bottom: 8px;
+    }
+    header p { color: #94a3b8; font-size: 1.1rem; }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .label-title {
+      font-size: 0.95rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: #38bdf8; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+
+    .section-subtitle {
+      font-size: 0.82rem; font-weight: 700;
+      color: #a855f7; text-transform: uppercase;
+      letter-spacing: 0.8px; margin: 12px 0 8px 0;
+      width: 100%; display: block;
+      border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+      padding-bottom: 4px;
+    }
+
+    select, input[type="text"] {
+      width: 100%; background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px;
+      padding: 12px 16px; color: #f8fafc; font-size: 0.95rem; outline: none;
+    }
+    select:focus, input[type="text"]:focus {
+      border-color: #a855f7; box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25);
+    }
+
+    /* Painel Visual de Parâmetros */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px; margin-top: 10px;
+    }
+
+    .control-group {
+      display: flex; flex-direction: column; gap: 6px;
+      background: rgba(15, 23, 42, 0.5);
+      padding: 12px 14px; border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .control-group label {
+      font-size: 0.78rem; font-weight: 700; color: #cbd5e1;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      display: flex; justify-content: space-between;
+    }
+
+    .control-group select, .control-group input[type="range"] {
+      padding: 8px 10px; font-size: 0.88rem; border-radius: 8px;
+    }
+
+    .editor-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .color-picker-wrapper {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 12px; border-radius: 12px;
+    }
+    .color-picker-wrapper input[type="color"] {
+      -webkit-appearance: none; border: none; width: 28px; height: 28px;
+      border-radius: 6px; cursor: pointer; background: transparent;
+    }
+    .color-val {
+      font-family: Consolas, Monaco, monospace; font-size: 0.85rem; color: #cbd5e1; min-width: 65px;
+    }
+
+    .tool-btn {
+      background: rgba(56, 189, 248, 0.15); color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px;
+      padding: 7px 12px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+    }
+    .tool-btn:hover { background: rgba(56, 189, 248, 0.3); color: #ffffff; }
+
+    .concept-explanation { color: #e2e8f0; font-size: 1.05rem; line-height: 1.7; }
+    .concept-explanation code {
+      background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 3px 8px;
+      border-radius: 6px; font-family: Consolas, Monaco, monospace; font-weight: 600;
+    }
+
+    .dual-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .dual-panel { grid-template-columns: 1fr; } }
+
+    /* Editor com alinhamento absoluto sem desvio de cursor */
+    .editor-container-wrapper {
+      position: relative; width: 100%; height: 320px;
+      border-radius: 14px; overflow: hidden;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .editor-container-wrapper pre,
+    .editor-container-wrapper code,
+    .editor-container-wrapper textarea,
+    .editor-container-wrapper span {
+      font-family: Consolas, Monaco, 'Courier New', monospace !important;
+      font-size: 14px !important;
+      font-weight: 400 !important;
+      font-style: normal !important;
+      line-height: 20px !important;
+      letter-spacing: 0px !important;
+      word-spacing: 0px !important;
+      font-variant-ligatures: none !important;
+      tab-size: 2 !important; -moz-tab-size: 2 !important;
+      -webkit-font-smoothing: antialiased !important;
+    }
+
+    .editor-container-wrapper pre,
+    .editor-container-wrapper textarea {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      padding: 16px 20px !important; margin: 0 !important; border: 0 !important;
+      box-sizing: border-box !important; white-space: pre !important;
+      word-wrap: normal !important; overflow-wrap: normal !important;
+    }
+
+    .editor-container-wrapper pre { pointer-events: none; color: #f8fafc; z-index: 1; overflow: hidden !important; }
+    .editor-container-wrapper pre code { background: transparent !important; display: inline !important; color: inherit; }
+    .editor-container-wrapper textarea {
+      background: transparent; color: transparent; -webkit-text-fill-color: transparent;
+      caret-color: #38bdf8; resize: none; outline: none; z-index: 2; overflow: auto !important;
+    }
+
+    .editor-container-wrapper textarea::selection {
+      background: rgba(168, 85, 247, 0.45) !important; color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+
+    /* Regras de Sintaxe CSS sem negrito */
+    .hl-selector { color: #f472b6; }
+    .hl-property { color: #38bdf8; }
+    .hl-value { color: #fbbf24; }
+    .hl-comment { color: #64748b; }
+
+    .glass-card.editor-expanded {
+      position: fixed; top: 20px; left: 20px; right: 20px; bottom: 20px; z-index: 9999;
+      background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(25px);
+      border: 1px solid rgba(168, 85, 247, 0.4); display: flex; flex-direction: column;
+      margin: 0; border-radius: 24px;
+    }
+    .glass-card.editor-expanded .editor-container-wrapper { flex: 1; height: 100% !important; }
+
+    .preview-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px; padding: 20px; height: 320px;
+      display: flex; justify-content: center; align-items: center;
+      overflow: hidden; position: relative;
+    }
+
+    .submit-btn {
+      width: 100%; background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+      color: #ffffff; border: none; border-radius: 16px; padding: 18px 28px;
+      font-size: 1.2rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4); margin-bottom: 25px; transition: all 0.3s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+    .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    .status-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .status-error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .meta-box { font-size: 0.85rem; color: #94a3b8; font-family: Consolas, Monaco, monospace; }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>CSS Motion & Visual Controls Lab</h1>
+      <p>Aprenda Módulos de Layout Flex, Transições Suaves e Animações com Controles Interativos</p>
+    </header>
+
+    <!-- Exercícios -->
+    <div class="glass-card">
+      <div class="label-title">1. Selecione a Lição Prática</div>
+      <select id="lessonSelect">
+        <option value="ex1">Exercício 1: Flexbox Alignment (justify-content & align-items)</option>
+        <option value="ex2">Exercício 2: Flex Direction & Wrap (Organização em Grade Flexível)</option>
+        <option value="ex3">Exercício 3: Flex Grow & Shrink (Crescimento Dinâmico de Items)</option>
+        <option value="ex4">Exercício 4: Hover Transitions (Mudança de Cor e Escala Suave)</option>
+        <option value="ex5">Exercício 5: Easing Curves (linear vs ease-in-out vs cubic-bezier)</option>
+        <option value="ex6">Exercício 6: Keyframe Animations (Efeito de Pulsar e Brilhar)</option>
+        <option value="ex7">Exercício 7: Continuous Spin & Bounce (Loops Infinitos de Animação)</option>
+        <option value="ex8">Exercício 8: Transform 3D Hover Card (Efeito Perspectiva e Sombra)</option>
+        <option value="ex9">Exercício 9: UI Card Interativo (Flexbox + Transition + Micro-interação)</option>
+        <option value="ex10">Exercício 10: Loader Synthwave (Keyframes Complexos + Flex Center)</option>
+      </select>
+    </div>
+
+    <!-- Explicação do Conceito -->
+    <div class="glass-card">
+      <div class="label-title">2. Conceito Teórico</div>
+      <div id="conceptText" class="concept-explanation"></div>
+    </div>
+
+    <!-- Parametrização Visual Interativa -->
+    <div class="glass-card">
+      <div class="label-title">⚡ Parametrização Visual Interativa de Motion & Layout</div>
+      
+      <!-- Controles de Flexbox -->
+      <span class="section-subtitle">📦 Controles de Layout (Flexbox)</span>
+      <div class="controls-grid">
+        <div class="control-group">
+          <label>Justify Content</label>
+          <select id="paramJustify">
+            <option value="center">center</option>
+            <option value="flex-start">flex-start</option>
+            <option value="flex-end">flex-end</option>
+            <option value="space-between">space-between</option>
+            <option value="space-around">space-around</option>
+            <option value="space-evenly">space-evenly</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Align Items</label>
+          <select id="paramAlign">
+            <option value="center">center</option>
+            <option value="flex-start">flex-start</option>
+            <option value="flex-end">flex-end</option>
+            <option value="stretch">stretch</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Flex Direction</label>
+          <select id="paramDirection">
+            <option value="row">row</option>
+            <option value="column">column</option>
+            <option value="row-reverse">row-reverse</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Controles de Transition -->
+      <span class="section-subtitle">✨ Controles de Transição (CSS Transitions)</span>
+      <div class="controls-grid">
+        <div class="control-group">
+          <label>Propriedade (Property)</label>
+          <select id="paramTransProp">
+            <option value="all">all (todas)</option>
+            <option value="transform">transform</option>
+            <option value="background-color">background-color</option>
+            <option value="opacity">opacity</option>
+            <option value="box-shadow">box-shadow</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Duração Transição <span id="transDurVal">(0.4s)</span></label>
+          <input type="range" id="paramTransDur" min="0.1" max="2" step="0.1" value="0.4">
+        </div>
+
+        <div class="control-group">
+          <label>Aceleração (Easing)</label>
+          <select id="paramTransEase">
+            <option value="ease">ease</option>
+            <option value="linear">linear</option>
+            <option value="ease-in-out">ease-in-out</option>
+            <option value="cubic-bezier(0.68, -0.55, 0.265, 1.55)">cubic-bezier (Elastic)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Controles de Animation -->
+      <span class="section-subtitle">🎬 Controles de Animação (CSS Keyframe Animations)</span>
+      <div class="controls-grid">
+        <div class="control-group">
+          <label>Efeito (Keyframe Preset)</label>
+          <select id="paramAnimName">
+            <option value="none">none (Nenhuma)</option>
+            <option value="kf-pulse">Pulse (Pulsar)</option>
+            <option value="kf-spin">Spin (Girar 360°)</option>
+            <option value="kf-bounce">Bounce (Quicar)</option>
+            <option value="kf-float">Float (Flutuar Suave)</option>
+            <option value="kf-shake">Shake (Vibrar)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Duração Animação <span id="animDurVal">(1.0s)</span></label>
+          <input type="range" id="paramAnimDur" min="0.2" max="4" step="0.1" value="1.0">
+        </div>
+
+        <div class="control-group">
+          <label>Repetição (Iteration Count)</label>
+          <select id="paramAnimIter">
+            <option value="infinite">infinite (Infinita)</option>
+            <option value="1">1 Vez</option>
+            <option value="2">2 Vezes</option>
+            <option value="5">5 Vezes</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>Timing Animação</label>
+          <select id="paramAnimEase">
+            <option value="ease-in-out">ease-in-out</option>
+            <option value="linear">linear</option>
+            <option value="ease">ease</option>
+            <option value="cubic-bezier(0.68, -0.55, 0.265, 1.55)">cubic-bezier (Bounce)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel Duplo: Editor CSS + Live Preview -->
+    <div class="dual-panel">
+      <!-- Editor -->
+      <div class="glass-card" id="editorCard">
+        <div class="label-title">
+          <span>3A. Editor CSS em Tempo Real</span>
+          <div class="editor-toolbar">
+            <div class="color-picker-wrapper">
+              <input type="color" id="colorPicker" value="#a855f7">
+              <span id="colorVal" class="color-val">#A855F7</span>
+              <button class="tool-btn" id="insertColorBtn">🎨 Inserir</button>
+              <button class="tool-btn" id="copyColorBtn">📋 Copiar</button>
+            </div>
+            <button class="tool-btn" id="expandBtn">⤢ Expandir Editor</button>
+          </div>
+        </div>
+
+        <div class="editor-container-wrapper">
+          <pre id="highlightDisplay" aria-hidden="true"><code id="highlightCode"></code></pre>
+          <textarea id="cssEditor" spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <!-- Live Preview -->
+      <div class="glass-card">
+        <div class="label-title">
+          <span>3B. Renderização Visual Vivo</span>
+          <span id="statusBadge" class="status-badge status-success">CSS Ativo</span>
+        </div>
+        <div id="previewContainer" class="preview-box"></div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="runBtn">⚡ Aplicar e Testar Animação</button>
+
+    <div class="glass-card">
+      <div class="label-title">Status da Aplicação</div>
+      <div id="metaInfo" class="meta-box">Pronto para parametrização.</div>
+    </div>
+  </div>
+
+  <script>
+    const lessons = {
+      ex1: {
+        explanation: "O <code>Flexbox</code> centraliza e distribui elementos com facilidade. Use <code>justify-content</code> para o eixo principal e <code>align-items</code> para o eixo cruzado.",
+        html: `<div class="target-box flex-box">
+  <div class="item">1</div>
+  <div class="item">2</div>
+  <div class="item">3</div>
+</div>`,
+        css: `.flex-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 15px;
+  width: 100%;
+  height: 100%;
+}
+.item {
+  background: #a855f7;
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  transition: all 0.4s ease;
+  animation: none 1s ease-in-out infinite;
+}`
+      },
+      ex2: {
+        explanation: "Com <code>flex-direction: column</code> empilhamos itens na vertical. O atributo <code>flex-wrap: wrap</code> permite que itens adicionais quebrem a linha suavemente.",
+        html: `<div class="target-box flex-container">
+  <div class="card-item item">A</div>
+  <div class="card-item item">B</div>
+  <div class="card-item item">C</div>
+  <div class="card-item item">D</div>
+</div>`,
+        css: `.flex-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.card-item {
+  background: #38bdf8;
+  color: #0f172a;
+  padding: 20px 30px;
+  border-radius: 10px;
+  font-weight: bold;
+  transition: all 0.4s ease;
+  animation: none 1s ease-in-out infinite;
+}`
+      },
+      ex3: {
+        explanation: "O atributo <code>flex-grow</code> define quanto um item pode se expandir em relação aos outros para preencher todo o espaço disponível no contêiner.",
+        html: `<div class="target-box grow-box">
+  <div class="box box-1 item">Grow: 1</div>
+  <div class="box box-2 item">Grow: 2</div>
+  <div class="box box-1 item">Grow: 1</div>
+</div>`,
+        css: `.grow-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+  padding: 10px;
+}
+.box {
+  background: #ec4899;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  transition: all 0.4s ease;
+  animation: none 1s ease-in-out infinite;
+}
+.box-1 { flex-grow: 1; }
+.box-2 { flex-grow: 2; background: #6366f1; }`
+      },
+      ex4: {
+        explanation: "Propriedades de <code>transition</code> suavizam as alterações do estado normal para o estado <code>:hover</code>. Defina a propriedade, a duração e a curva de tempo.",
+        html: `<button class="hover-btn item">Passe o Mouse Aqui</button>`,
+        css: `.hover-btn {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 18px 36px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  animation: none 1s ease-in-out infinite;
+}
+.hover-btn:hover {
+  background: #ec4899;
+  transform: scale(1.15) rotate(-2deg);
+  box-shadow: 0 10px 25px rgba(236, 72, 153, 0.5);
+}`
+      },
+      ex5: {
+        explanation: "As curvas de aceleração (<code>transition-timing-function</code>) controlam a velocidade ao longo do tempo. Experimente <code>cubic-bezier</code> para criar pulos elásticos.",
+        html: `<div class="target-box race-track">
+  <div class="ball linear item">Linear</div>
+  <div class="ball ease item">Ease-In-Out</div>
+  <div class="ball elastic item">Elastic</div>
+</div>`,
+        css: `.race-track {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+.ball {
+  background: #38bdf8;
+  color: #0f172a;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  width: 120px;
+  transition: all 0.8s ease;
+  animation: none 1s ease-in-out infinite;
+}
+.race-track:hover .ball { transform: translateX(180px); }
+.linear { transition-timing-function: linear; }
+.ease { transition-timing-function: ease-in-out; }
+.elastic { transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55); }`
+      },
+      ex6: {
+        explanation: "A regra <code>@keyframes</code> permite declarar quadros de animação complexos, controlando opacidade, tamanho e cor em etapas percentuais (`0%`, `50%`, `100%`).",
+        html: `<div class="pulse-circle item"></div>`,
+        css: `.pulse-circle {
+  width: 80px;
+  height: 80px;
+  background: #a855f7;
+  border-radius: 50%;
+  transition: all 0.4s ease;
+  animation: kf-pulse 1s ease-in-out infinite;
+}`
+      },
+      ex7: {
+        explanation: "Loops contínuos são feitos definindo <code>animation-iteration-count: infinite</code>. Combine rotação e quique simultâneos com transformações.",
+        html: `<div class="spinner item"></div>`,
+        css: `.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #38bdf8;
+  border-radius: 50%;
+  transition: all 0.4s ease;
+  animation: kf-spin 1s linear infinite;
+}`
+      },
+      ex8: {
+        explanation: "Adicionar <code>perspective</code> ao elemento pai permite aplicar rotações no espaço 3D (`rotateX`, `rotateY`) criando um efeito fluido de profundidade visual.",
+        html: `<div class="card-3d-wrapper target-box">
+  <div class="card-3d item">PERSPECTIVA 3D</div>
+</div>`,
+        css: `.card-3d-wrapper {
+  perspective: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.card-3d {
+  width: 220px;
+  height: 120px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  animation: none 1s ease-in-out infinite;
+}
+.card-3d:hover {
+  transform: rotateY(20deg) rotateX(10deg) translateZ(30px);
+  box-shadow: -15px 15px 30px rgba(0,0,0,0.5);
+}`
+      },
+      ex9: {
+        explanation: "Combinação completa de layout Flexbox para o conteúdo interno com transições suaves de botão e elevação de sombra no estado hover.",
+        html: `<div class="product-card item">
+  <h3>Plano PRO</h3>
+  <p>Acesso ilimitado a todos os laboratórios interativos.</p>
+  <button>Assinar Agora</button>
+</div>`,
+        css: `.product-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 24px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 260px;
+  transition: all 0.3s ease;
+  animation: none 1s ease-in-out infinite;
+}
+.product-card:hover {
+  transform: translateY(-8px);
+  border-color: #a855f7;
+}
+.product-card h3 { color: #38bdf8; }
+.product-card p { color: #94a3b8; font-size: 0.9rem; }
+.product-card button {
+  background: #a855f7;
+  color: white; border: none;
+  padding: 10px; border-radius: 10px;
+  font-weight: bold; cursor: pointer;
+  transition: all 0.2s ease;
+}
+.product-card button:hover { background: #ec4899; }`
+      },
+      ex10: {
+        explanation: "Animações avançadas com múltiplos pontos de brilho, giros intercalados e alinhamento de contêiner usando Flexbox.",
+        html: `<div class="synth-loader item">
+  <div class="ring r1"></div>
+  <div class="ring r2"></div>
+</div>`,
+        css: `.synth-loader {
+  position: relative;
+  width: 80px; height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease;
+  animation: none 1s ease-in-out infinite;
+}
+.ring {
+  position: absolute;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 4px solid transparent;
+}
+.r1 {
+  border-top-color: #ec4899;
+  animation: spinLeft 1.2s infinite ease-in-out;
+}
+.r2 {
+  border-bottom-color: #38bdf8;
+  animation: spinRight 1.2s infinite ease-in-out;
+}
+@keyframes spinLeft {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes spinRight {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}`
+      }
+    };
+
+    // Preset Keyframes globais de Animação inseridos no preview
+    const globalKeyframeDefs = `
+<style>
+@keyframes kf-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); }
+  50% { transform: scale(1.15); box-shadow: 0 0 20px 10px rgba(168, 85, 247, 0.4); }
+}
+@keyframes kf-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes kf-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-25px); }
+}
+@keyframes kf-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(4deg); }
+}
+@keyframes kf-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-10px); }
+  40%, 80% { transform: translateX(10px); }
+}
+</style>
+`;
+
+    const lessonSelect = document.getElementById('lessonSelect');
+    const conceptText = document.getElementById('conceptText');
+    const cssEditor = document.getElementById('cssEditor');
+    const highlightDisplay = document.getElementById('highlightDisplay');
+    const highlightCode = document.getElementById('highlightCode');
+    const previewContainer = document.getElementById('previewContainer');
+    const statusBadge = document.getElementById('statusBadge');
+    const metaInfo = document.getElementById('metaInfo');
+
+    const colorPicker = document.getElementById('colorPicker');
+    const colorVal = document.getElementById('colorVal');
+    const copyColorBtn = document.getElementById('copyColorBtn');
+    const insertColorBtn = document.getElementById('insertColorBtn');
+    const expandBtn = document.getElementById('expandBtn');
+    const editorCard = document.getElementById('editorCard');
+
+    // Controles Visuais
+    const paramJustify = document.getElementById('paramJustify');
+    const paramAlign = document.getElementById('paramAlign');
+    const paramDirection = document.getElementById('paramDirection');
+
+    const paramTransProp = document.getElementById('paramTransProp');
+    const paramTransDur = document.getElementById('paramTransDur');
+    const transDurVal = document.getElementById('transDurVal');
+    const paramTransEase = document.getElementById('paramTransEase');
+
+    const paramAnimName = document.getElementById('paramAnimName');
+    const paramAnimDur = document.getElementById('paramAnimDur');
+    const animDurVal = document.getElementById('animDurVal');
+    const paramAnimIter = document.getElementById('paramAnimIter');
+    const paramAnimEase = document.getElementById('paramAnimEase');
+
+    let currentHTML = "";
+
+    function escapeHTML(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function updateHighlight() {
+      let code = cssEditor.value;
+      if (code.endsWith('\n')) code += ' ';
+      let escaped = escapeHTML(code);
+
+      escaped = escaped.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="hl-comment">$1</span>');
+      escaped = escaped.replace(/([^\r\n\{\}]+)(?=\s*\{)/g, '<span class="hl-selector">$1</span>');
+      escaped = escaped.replace(/([\w-]+)\s*:(?=[^;\}]+[;\}])/g, '<span class="hl-property">$1</span>');
+      escaped = escaped.replace(/:\s*([^;\}]+)/g, ': <span class="hl-value">$1</span>');
+
+      highlightCode.innerHTML = escaped;
+    }
+
+    function syncScroll() {
+      highlightDisplay.scrollTop = cssEditor.scrollTop;
+      highlightDisplay.scrollLeft = cssEditor.scrollLeft;
+    }
+
+    function renderCode() {
+      const css = cssEditor.value;
+      previewContainer.innerHTML = globalKeyframeDefs + `<style>${css}</style>${currentHTML}`;
+      statusBadge.textContent = "CSS Ativo";
+      statusBadge.className = "status-badge status-success";
+      metaInfo.textContent = "🎨 Código renderizado e parâmetros sincronizados com sucesso.";
+    }
+
+    function loadLesson(key) {
+      const lesson = lessons[key];
+      if (!lesson) return;
+      conceptText.innerHTML = lesson.explanation;
+      currentHTML = lesson.html;
+      cssEditor.value = lesson.css;
+      updateHighlight();
+      renderCode();
+      syncScroll();
+    }
+
+    // Injeta e atualiza os parâmetros visuais diretamente nas propriedades do CSS
+    function applyVisualParams() {
+      let code = cssEditor.value;
+
+      transDurVal.textContent = `(${paramTransDur.value}s)`;
+      animDurVal.textContent = `(${paramAnimDur.value}s)`;
+
+      // Sincroniza Flexbox
+      code = code.replace(/justify-content:\s*[^;]+;/, `justify-content: ${paramJustify.value};`);
+      code = code.replace(/align-items:\s*[^;]+;/, `align-items: ${paramAlign.value};`);
+      code = code.replace(/flex-direction:\s*[^;]+;/, `flex-direction: ${paramDirection.value};`);
+
+      // Sincroniza Transition
+      const transStr = `transition: ${paramTransProp.value} ${paramTransDur.value}s ${paramTransEase.value};`;
+      if (/transition:\s*[^;]+;/.test(code)) {
+        code = code.replace(/transition:\s*[^;]+;/, transStr);
+      } else {
+        code = code.replace(/(\.[\w-]+\s*\{)/, `$1\n  ${transStr}`);
+      }
+
+      // Sincroniza Animation
+      const animStr = `animation: ${paramAnimName.value} ${paramAnimDur.value}s ${paramAnimEase.value} ${paramAnimIter.value};`;
+      if (/animation:\s*[^;]+;/.test(code)) {
+        code = code.replace(/animation:\s*[^;]+;/, animStr);
+      } else {
+        code = code.replace(/(\.[\w-]+\s*\{)/, `$1\n  ${animStr}`);
+      }
+
+      cssEditor.value = code;
+      updateHighlight();
+      renderCode();
+    }
+
+    const allControls = [
+      paramJustify, paramAlign, paramDirection,
+      paramTransProp, paramTransDur, paramTransEase,
+      paramAnimName, paramAnimDur, paramAnimIter, paramAnimEase
+    ];
+
+    allControls.forEach(ctrl => {
+      ctrl.addEventListener('change', applyVisualParams);
+      ctrl.addEventListener('input', applyVisualParams);
+    });
+
+    colorPicker.addEventListener('input', (e) => {
+      colorVal.textContent = e.target.value.toUpperCase();
+    });
+
+    insertColorBtn.addEventListener('mousedown', (e) => e.preventDefault());
+    insertColorBtn.addEventListener('click', () => {
+      const hexCode = colorVal.textContent;
+      const start = cssEditor.selectionStart;
+      const end = cssEditor.selectionEnd;
+      cssEditor.setRangeText(hexCode, start, end, 'end');
+      cssEditor.focus();
+      updateHighlight();
+      renderCode();
+      syncScroll();
+    });
+
+    copyColorBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(colorVal.textContent).then(() => {
+        copyColorBtn.innerHTML = "✅ Copiado!";
+        setTimeout(() => { copyColorBtn.innerHTML = "📋 Copiar"; }, 1500);
+      });
+    });
+
+    expandBtn.addEventListener('click', () => {
+      editorCard.classList.toggle('editor-expanded');
+      if (editorCard.classList.contains('editor-expanded')) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        expandBtn.innerHTML = "⤓ Recolher Editor";
+      } else {
+        expandBtn.innerHTML = "⤢ Expandir Editor";
+        editorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      syncScroll();
+    });
+
+    ['input', 'keyup', 'keydown', 'scroll', 'click', 'paste'].forEach(evt => {
+      cssEditor.addEventListener(evt, () => {
+        updateHighlight();
+        renderCode();
+        syncScroll();
+      });
+    });
+
+    cssEditor.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 2;
+        updateHighlight();
+        syncScroll();
+      }
+    });
+
+    lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+    document.getElementById('runBtn').addEventListener('click', renderCode);
+
+    loadLesson('ex1');
+  </script>
+</body>
+</html>

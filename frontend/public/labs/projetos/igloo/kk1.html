@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keystone Kapers - Glass Edition</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f0c20 0%, #15103a 50%, #060412 100%);
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff007f;
+            --neon-gold: #ffd700;
+            --neon-green: #00ff88;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 960px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        /* Glass HUD Header */
+        .hud {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .hud-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 12px 16px;
+            text-align: center;
+        }
+
+        .hud-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 4px;
+        }
+
+        .hud-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .val-score { color: var(--neon-blue); }
+        .val-time { color: var(--neon-gold); }
+        .val-lives { color: var(--neon-pink); }
+        .val-floor { color: var(--neon-green); }
+
+        /* Game Display Viewport */
+        .game-viewport {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            background: rgba(10, 8, 25, 0.6);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Overlays */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(8, 6, 20, 0.85);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .overlay h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+
+        .overlay p {
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 400px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .btn-glass {
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.2), rgba(255, 0, 127, 0.2));
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-glass:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 243, 255, 0.4);
+            border-color: #fff;
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 12px 20px;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-ctrl {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            touch-action: manipulation;
+        }
+
+        .btn-ctrl:active {
+            background: rgba(0, 243, 255, 0.3);
+            transform: scale(0.95);
+        }
+
+        /* Hidden SVG Sprites Definition */
+        .svg-defs {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SVG Vector Definitions -->
+    <svg class="svg-defs">
+        <defs>
+            <!-- Officer Kelly Sprite -->
+            <g id="svg-officer">
+                <circle cx="16" cy="10" r="7" fill="#ffdbac"/>
+                <path d="M8,8 C8,3 24,3 24,8 L26,10 L6,10 Z" fill="#00f3ff"/>
+                <rect x="10" y="17" width="12" height="15" rx="3" fill="#0077ff"/>
+                <rect x="12" y="32" width="3" height="8" fill="#111"/>
+                <rect x="17" y="32" width="3" height="8" fill="#111"/>
+                <circle cx="16" cy="22" r="2" fill="#ffd700"/>
+            </g>
+
+            <!-- Thief Harry Sprite -->
+            <g id="svg-thief">
+                <circle cx="16" cy="10" r="7" fill="#ffdbac"/>
+                <path d="M9,4 C9,4 23,4 23,4 L24,10 L8,10 Z" fill="#222"/>
+                <rect x="10" y="10" width="12" height="4" fill="#222"/>
+                <rect x="10" y="17" width="12" height="15" rx="2" fill="#888"/>
+                <line x1="10" y1="21" x2="22" y2="21" stroke="#222" stroke-width="2"/>
+                <line x1="10" y1="26" x2="22" y2="26" stroke="#222" stroke-width="2"/>
+                <rect x="12" y="32" width="3" height="8" fill="#111"/>
+                <rect x="17" y="32" width="3" height="8" fill="#111"/>
+            </g>
+
+            <!-- Bouncing Ball -->
+            <g id="svg-ball">
+                <circle cx="12" cy="12" r="10" fill="url(#ballGlow)"/>
+            </g>
+            <radialGradient id="ballGlow" cx="30%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#ff007f"/>
+                <stop offset="100%" stop-color="#7000ff"/>
+            </radialGradient>
+
+            <!-- Radio Obstacle -->
+            <g id="svg-radio">
+                <rect x="2" y="6" width="20" height="14" rx="2" fill="#ffd700" opacity="0.9"/>
+                <circle cx="7" cy="13" r="3" fill="#111"/>
+                <rect x="13" y="10" width="6" height="2" fill="#111"/>
+                <rect x="13" y="14" width="6" height="2" fill="#111"/>
+                <line x1="18" y1="6" x2="21" y2="1" stroke="#ffd700" stroke-width="2"/>
+            </g>
+
+            <!-- Shopping Cart -->
+            <g id="svg-cart">
+                <path d="M2,4 L6,4 L10,18 L22,18 L24,8 L8,8" fill="none" stroke="#00f3ff" stroke-width="2"/>
+                <circle cx="11" cy="21" r="2" fill="#00f3ff"/>
+                <circle cx="21" cy="21" r="2" fill="#00f3ff"/>
+            </g>
+
+            <!-- Cash Bag Loot -->
+            <g id="svg-loot">
+                <path d="M6,18 C4,10 8,6 12,6 C16,6 20,10 18,18 Z" fill="#00ff88"/>
+                <path d="M9,6 L15,6 L14,3 L10,3 Z" fill="#00b359"/>
+                <text x="9" y="15" font-size="8" font-weight="bold" fill="#060412">$</text>
+            </g>
+        </defs>
+    </svg>
+
+    <div class="app-container">
+        <!-- HUD Dashboard -->
+        <div class="hud">
+            <div class="hud-card">
+                <div class="hud-label">Pontuação</div>
+                <div class="hud-value val-score" id="scoreVal">00000</div>
+            </div>
+            <div class="hud-card">
+                <div class="hud-label">Tempo</div>
+                <div class="hud-value val-time" id="timerVal">050s</div>
+            </div>
+            <div class="hud-card">
+                <div class="hud-label">Vidas</div>
+                <div class="hud-value val-lives" id="livesVal">3</div>
+            </div>
+            <div class="hud-card">
+                <div class="hud-label">Andar do Ladrão</div>
+                <div class="hud-value val-floor" id="thiefFloorVal">L3</div>
+            </div>
+        </div>
+
+        <!-- Canvas Game Screen -->
+        <div class="game-viewport">
+            <canvas id="gameCanvas" width="900" height="480"></canvas>
+            
+            <!-- Glass Menu Overlay -->
+            <div class="overlay" id="menuOverlay">
+                <h1>KEYSTONE KAPERS</h1>
+                <p>Ajude o Policial Kelly a capturar o Ladrão Harry na loja de departamentos antes que o tempo acabe!</p>
+                <button class="btn-glass" id="startBtn">INICIAR JOGO</button>
+            </div>
+        </div>
+
+        <!-- Touch Controls / Key Legend -->
+        <div class="controls-panel">
+            <div class="control-group">
+                <button class="btn-ctrl" id="btnLeft">◄</button>
+                <button class="btn-ctrl" id="btnRight">►</button>
+            </div>
+            <div style="font-size:0.85rem; color: rgba(255,255,255,0.5);">
+                Controles: Setas / W-A-S-D | Espaço para Pular
+            </div>
+            <div class="control-group">
+                <button class="btn-ctrl" id="btnJump">▲</button>
+                <button class="btn-ctrl" id="btnDuck">▼</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Overlay & HUD Elements
+        const menuOverlay = document.getElementById('menuOverlay');
+        const startBtn = document.getElementById('startBtn');
+        const scoreVal = document.getElementById('scoreVal');
+        const timerVal = document.getElementById('timerVal');
+        const livesVal = document.getElementById('livesVal');
+        const thiefFloorVal = document.getElementById('thiefFloorVal');
+
+        // SVG Sprite Caching Engine
+        const svgCache = {};
+        function generateSvgSprite(id, width, height) {
+            if (svgCache[id]) return svgCache[id];
+            const symbol = document.getElementById(id);
+            const xml = new XMLSerializer().serializeToString(symbol);
+            const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${xml}</svg>`;
+            const img = new Image();
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgStr);
+            svgCache[id] = img;
+            return img;
+        }
+
+        // Load Sprites
+        const imgOfficer = generateSvgSprite('svg-officer', 32, 40);
+        const imgThief = generateSvgSprite('svg-thief', 32, 40);
+        const imgBall = generateSvgSprite('svg-ball', 24, 24);
+        const imgRadio = generateSvgSprite('svg-radio', 24, 20);
+        const imgCart = generateSvgSprite('svg-cart', 26, 24);
+        const imgLoot = generateSvgSprite('svg-loot', 24, 24);
+
+        // Game Constants
+        const FLOORS = 3;
+        const FLOOR_HEIGHT = 120;
+        const GROUND_Y = [380, 260, 140]; // Y positions for floor 1, 2, 3
+
+        // State variables
+        let gameState = 'MENU'; // MENU, PLAYING, GAMEOVER, WIN
+        let score = 0;
+        let lives = 3;
+        let timer = 50;
+        let timerInterval = null;
+
+        // Key Listener state
+        const keys = { left: false, right: false, jump: false, duck: false };
+
+        // Entities
+        const player = {
+            x: 50,
+            floor: 0,
+            y: GROUND_Y[0] - 40,
+            vx: 0,
+            vy: 0,
+            width: 32,
+            height: 40,
+            isJumping: false,
+            isDucking: false,
+            direction: 1
+        };
+
+        const thief = {
+            x: 700,
+            floor: 2,
+            y: GROUND_Y[2] - 40,
+            vx: -2,
+            width: 32,
+            height: 40,
+            direction: -1
+        };
+
+        let obstacles = [];
+        let loots = [];
+        let elevator = { y: 100, vy: 1.5, minY: 120, maxY: 380, x: 430, width: 40, height: 10 };
+
+        function initGame() {
+            score = 0;
+            lives = 3;
+            timer = 50;
+            player.x = 50;
+            player.floor = 0;
+            player.y = GROUND_Y[0] - player.height;
+            player.vx = 0;
+            player.vy = 0;
+
+            thief.x = 750;
+            thief.floor = 2;
+            thief.y = GROUND_Y[2] - thief.height;
+
+            spawnEntities();
+            updateHUD();
+
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (gameState === 'PLAYING') {
+                    timer--;
+                    updateHUD();
+                    if (timer <= 0) handleGameOver('O tempo acabou!');
+                }
+            }, 1000);
+        }
+
+        function spawnEntities() {
+            obstacles = [
+                { type: 'ball', x: 300, floor: 0, vy: -4, bounceY: GROUND_Y[0] - 24, width: 24, height: 24 },
+                { type: 'radio', x: 600, floor: 1, vx: -2.5, width: 24, height: 20 },
+                { type: 'cart', x: 200, floor: 2, vx: 3, width: 26, height: 24 }
+            ];
+
+            loots = [
+                { x: 250, floor: 0, taken: false },
+                { x: 550, floor: 1, taken: false },
+                { x: 150, floor: 2, taken: false }
+            ];
+        }
+
+        // Input Handlers
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+            if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') keys.jump = true;
+            if (e.key === 'ArrowDown' || e.key === 's') keys.duck = true;
+        });
+
+        window.addEventListener('keyup', e => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') keys.jump = false;
+            if (e.key === 'ArrowDown' || e.key === 's') keys.duck = false;
+        });
+
+        // Touch Control Binding
+        const bindBtn = (id, key) => {
+            const btn = document.getElementById(id);
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
+            btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+            btn.addEventListener('mousedown', () => keys[key] = true);
+            btn.addEventListener('mouseup', () => keys[key] = false);
+        };
+        bindBtn('btnLeft', 'left');
+        bindBtn('btnRight', 'right');
+        bindBtn('btnJump', 'jump');
+        bindBtn('btnDuck', 'duck');
+
+        startBtn.addEventListener('click', () => {
+            gameState = 'PLAYING';
+            menuOverlay.classList.add('hidden');
+            initGame();
+        });
+
+        // Main Update Loop
+        function update() {
+            if (gameState !== 'PLAYING') return;
+
+            // Player Horizontal Control
+            if (keys.left) {
+                player.vx = -3.5;
+                player.direction = -1;
+            } else if (keys.right) {
+                player.vx = 3.5;
+                player.direction = 1;
+            } else {
+                player.vx = 0;
+            }
+
+            // Player Jump
+            if (keys.jump && !player.isJumping) {
+                player.isJumping = true;
+                player.vy = -8.5;
+            }
+
+            // Ducking
+            player.isDucking = keys.duck && !player.isJumping;
+
+            // Gravity & Physics
+            player.x += player.vx;
+            player.y += player.vy;
+
+            const currentGround = GROUND_Y[player.floor] - player.height;
+            if (player.isJumping) {
+                player.vy += 0.45; // Gravity
+                if (player.y >= currentGround) {
+                    player.y = currentGround;
+                    player.isJumping = false;
+                    player.vy = 0;
+                }
+            }
+
+            // Boundaries
+            if (player.x < 10) player.x = 10;
+            if (player.x > canvas.width - 40) player.x = canvas.width - 40;
+
+            // Escalators Logic (Transitions between floors at ends)
+            if (player.x > 820) {
+                if (player.floor < 2) {
+                    player.floor++;
+                    player.x = 800;
+                    player.y = GROUND_Y[player.floor] - player.height;
+                }
+            } else if (player.x < 30) {
+                if (player.floor > 0) {
+                    player.floor--;
+                    player.x = 50;
+                    player.y = GROUND_Y[player.floor] - player.height;
+                }
+            }
+
+            // Elevator movement
+            elevator.y += elevator.vy;
+            if (elevator.y <= elevator.minY || elevator.y >= elevator.maxY) elevator.vy *= -1;
+
+            // Thief Logic (AI patrol/flee)
+            thief.x += thief.vx;
+            if (thief.x < 40 || thief.x > 820) thief.vx *= -1;
+
+            // Obstacles Animation & Physics
+            obstacles.forEach(obs => {
+                if (obs.type === 'ball') {
+                    obs.y += obs.vy;
+                    obs.vy += 0.2; // Gravity
+                    if (obs.y >= obs.bounceY) {
+                        obs.y = obs.bounceY;
+                        obs.vy = -5.5;
+                    }
+                } else if (obs.type === 'radio' || obs.type === 'cart') {
+                    obs.x += obs.vx;
+                    if (obs.x < 20 || obs.x > 840) obs.vx *= -1;
+                }
+
+                // Hit Detection
+                if (obs.floor === player.floor) {
+                    const obsY = obs.type === 'ball' ? obs.y : GROUND_Y[obs.floor] - obs.height;
+                    if (checkCollision(player, { x: obs.x, y: obsY, width: obs.width, height: obs.height })) {
+                        if (!player.isDucking || obs.type === 'ball') {
+                            handleHit();
+                        }
+                    }
+                }
+            });
+
+            // Loot Collection
+            loots.forEach(loot => {
+                if (!loot.taken && loot.floor === player.floor) {
+                    if (checkCollision(player, { x: loot.x, y: GROUND_Y[loot.floor] - 30, width: 24, height: 24 })) {
+                        loot.taken = true;
+                        score += 100;
+                        updateHUD();
+                    }
+                }
+            });
+
+            // Thief Catch Check
+            if (player.floor === thief.floor && checkCollision(player, thief)) {
+                score += 1000 + timer * 20;
+                handleWin();
+            }
+
+            thiefFloorVal.textContent = `L${thief.floor + 1}`;
+        }
+
+        function checkCollision(r1, r2) {
+            return !(r2.x > r1.x + r1.width ||
+                     r2.x + r2.width < r1.x ||
+                     r2.y > r1.y + r1.height ||
+                     r2.y + r2.height < r1.y);
+        }
+
+        function handleHit() {
+            lives--;
+            updateHUD();
+            if (lives <= 0) {
+                handleGameOver('Você perdeu todas as vidas!');
+            } else {
+                player.x = 50;
+                player.y = GROUND_Y[player.floor] - player.height;
+            }
+        }
+
+        function updateHUD() {
+            scoreVal.textContent = String(score).padStart(5, '0');
+            timerVal.textContent = `${String(timer).padStart(3, '0')}s`;
+            livesVal.textContent = lives;
+        }
+
+        function handleGameOver(msg) {
+            gameState = 'GAMEOVER';
+            clearInterval(timerInterval);
+            menuOverlay.querySelector('h1').textContent = 'FIM DE JOGO';
+            menuOverlay.querySelector('p').textContent = `${msg} Pontuação Final: ${score}`;
+            startBtn.textContent = 'JOGAR NOVAMENTE';
+            menuOverlay.classList.remove('hidden');
+        }
+
+        function handleWin() {
+            gameState = 'WIN';
+            clearInterval(timerInterval);
+            menuOverlay.querySelector('h1').textContent = 'LADRÃO PRESO!';
+            menuOverlay.querySelector('p').textContent = `Excelente trabalho! Pontuação Final: ${score}`;
+            startBtn.textContent = 'JOGAR NOVAMENTE';
+            menuOverlay.classList.remove('hidden');
+        }
+
+        // Render Glass Visuals & World
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Store Background & Floors
+            for (let i = 0; i < FLOORS; i++) {
+                const y = GROUND_Y[i];
+
+                // Floor Glass Bar
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+                ctx.fillRect(0, y, canvas.width, 12);
+
+                ctx.strokeStyle = 'rgba(0, 243, 255, 0.4)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+
+                // Escalators Visual Indicator
+                ctx.fillStyle = 'rgba(255, 0, 127, 0.3)';
+                ctx.fillRect(830, y - 40, 40, 40);
+                ctx.fillRect(10, y - 40, 40, 40);
+            }
+
+            // Draw Elevator Shaft
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.fillRect(elevator.x, 100, elevator.width, 300);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.strokeRect(elevator.x, 100, elevator.width, 300);
+
+            // Draw Moving Elevator
+            ctx.fillStyle = 'rgba(0, 243, 255, 0.6)';
+            ctx.fillRect(elevator.x - 5, elevator.y, elevator.width + 10, elevator.height);
+
+            // Draw Loot Items
+            loots.forEach(loot => {
+                if (!loot.taken) {
+                    ctx.drawImage(imgLoot, loot.x, GROUND_Y[loot.floor] - 28, 24, 24);
+                }
+            });
+
+            // Draw Obstacles
+            obstacles.forEach(obs => {
+                if (obs.type === 'ball') {
+                    ctx.drawImage(imgBall, obs.x, obs.y, 24, 24);
+                } else if (obs.type === 'radio') {
+                    ctx.drawImage(imgRadio, obs.x, GROUND_Y[obs.floor] - 20, 24, 20);
+                } else if (obs.type === 'cart') {
+                    ctx.drawImage(imgCart, obs.x, GROUND_Y[obs.floor] - 24, 26, 24);
+                }
+            });
+
+            // Draw Thief
+            ctx.drawImage(imgThief, thief.x, thief.y, thief.width, thief.height);
+
+            // Draw Officer Kelly
+            ctx.save();
+            if (player.direction === -1) {
+                ctx.translate(player.x + player.width, player.y);
+                ctx.scale(-1, 1);
+                ctx.drawImage(imgOfficer, 0, player.isDucking ? 10 : 0, player.width, player.height);
+            } else {
+                ctx.drawImage(imgOfficer, player.x, player.y + (player.isDucking ? 10 : 0), player.width, player.height);
+            }
+            ctx.restore();
+        }
+
+        // Game Loop
+        function loop() {
+            update();
+            render();
+            requestAnimationFrame(loop);
+        }
+
+        requestAnimationFrame(loop);
+    </script>
+</body>
+</html>

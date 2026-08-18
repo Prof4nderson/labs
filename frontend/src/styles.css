@@ -1,0 +1,235 @@
+@import "tailwindcss" source(none);
+@import "./holographic-theme.css";
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Liquid Crystal Glass design system.
+ * All colors in oklch. Glass surfaces come from the .glass / .glass-strong
+ * utilities below — never hardcode colors in components.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-aqua: var(--aqua);
+  --color-violet-glow: var(--violet-glow);
+  --color-amber-glow: var(--amber-glow);
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 1rem;
+  --background: oklch(0.17 0.045 250);
+  --foreground: oklch(0.97 0.008 240);
+  --card: oklch(0.24 0.05 250 / 45%);
+  --card-foreground: oklch(0.97 0.008 240);
+  --popover: oklch(0.22 0.05 250);
+  --popover-foreground: oklch(0.97 0.008 240);
+  --primary: oklch(0.82 0.14 195);
+  --primary-foreground: oklch(0.18 0.05 250);
+  --secondary: oklch(0.32 0.05 250 / 60%);
+  --secondary-foreground: oklch(0.97 0.008 240);
+  --muted: oklch(0.3 0.04 250 / 55%);
+  --muted-foreground: oklch(0.76 0.03 240);
+  --accent: oklch(0.72 0.15 300);
+  --accent-foreground: oklch(0.98 0.005 240);
+  --destructive: oklch(0.65 0.2 20);
+  --destructive-foreground: oklch(0.98 0.005 240);
+  --border: oklch(0.98 0.01 240 / 16%);
+  --input: oklch(0.98 0.01 240 / 12%);
+  --ring: oklch(0.82 0.14 195);
+  --aqua: oklch(0.85 0.13 190);
+  --violet-glow: oklch(0.7 0.17 300);
+  --amber-glow: oklch(0.83 0.14 80);
+
+  --glass-tint: linear-gradient(
+    145deg,
+    oklch(1 0 0 / 14%) 0%,
+    oklch(1 0 0 / 5%) 40%,
+    oklch(0.6 0.12 250 / 8%) 100%
+  );
+  --glass-shadow: 0 24px 60px -24px oklch(0.05 0.05 250 / 85%);
+  --glass-inner: inset 0 1px 0 0 oklch(1 0 0 / 30%),
+    inset 0 -1px 0 0 oklch(1 0 0 / 8%);
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ---------- Liquid crystal glass surfaces ---------- */
+
+@utility glass {
+  background-image: var(--glass-tint);
+  background-color: oklch(0.3 0.05 250 / 22%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid oklch(1 0 0 / 16%);
+  box-shadow: var(--glass-shadow), var(--glass-inner);
+  border-radius: var(--radius-2xl);
+}
+
+@utility glass-strong {
+  background-image: var(--glass-tint);
+  background-color: oklch(0.28 0.05 250 / 42%);
+  backdrop-filter: blur(34px) saturate(200%);
+  border: 1px solid oklch(1 0 0 / 22%);
+  box-shadow: var(--glass-shadow), var(--glass-inner);
+  border-radius: var(--radius-3xl);
+}
+
+@utility glass-hover {
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease,
+    border-color 0.4s ease;
+  &:hover {
+    transform: translateY(-6px);
+    border-color: oklch(0.85 0.13 190 / 45%);
+    box-shadow:
+      0 30px 70px -28px oklch(0.05 0.05 250 / 90%),
+      0 0 0 1px oklch(0.85 0.13 190 / 20%),
+      0 0 48px -14px oklch(0.85 0.13 190 / 45%),
+      var(--glass-inner);
+  }
+}
+
+@utility crystal-edge {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      115deg,
+      oklch(1 0 0 / 0%) 30%,
+      oklch(1 0 0 / 12%) 46%,
+      oklch(1 0 0 / 0%) 60%
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  &:hover::after {
+    opacity: 1;
+  }
+}
+
+@utility text-prism {
+  background: linear-gradient(
+    100deg,
+    var(--aqua),
+    oklch(0.92 0.06 220),
+    var(--violet-glow)
+  );
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility aurora-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      60rem 40rem at 12% -10%,
+      oklch(0.6 0.16 195 / 34%),
+      transparent 65%
+    ),
+    radial-gradient(
+      55rem 38rem at 95% 8%,
+      oklch(0.55 0.18 300 / 30%),
+      transparent 60%
+    ),
+    radial-gradient(
+      50rem 40rem at 50% 110%,
+      oklch(0.6 0.14 220 / 26%),
+      transparent 62%
+    );
+}
+
+@utility grid-field {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(oklch(1 0 0 / 6%) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(1 0 0 / 6%) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(circle at 50% 20%, black, transparent 78%);
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -28px, 0) scale(1.06);
+  }
+}
+
+@utility orb {
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(70px);
+  animation: float-slow 16s ease-in-out infinite;
+}

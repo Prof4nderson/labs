@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aventuras na Programação - 10 Exercícios Interativos</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #311042 70%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+    }
+
+    .shape-1 {
+      top: -10%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: #6366f1;
+    }
+
+    .shape-2 {
+      bottom: -10%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: #a855f7;
+    }
+
+    .shape-3 {
+      top: 40%;
+      left: 60%;
+      width: 350px;
+      height: 350px;
+      background: #ec4899;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .label-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    select, input[type="text"], textarea {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 16px 20px;
+      color: #f8fafc;
+      font-size: 1.1rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select:focus, input[type="text"]:focus, textarea:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25), inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select option {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px;
+    }
+
+    .concept-explanation {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .concept-explanation b {
+      color: #38bdf8;
+    }
+
+    .concept-explanation code {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+    }
+
+    textarea.code-editor {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-weight: 600;
+      color: #38bdf8;
+      height: 220px;
+      resize: vertical;
+      line-height: 1.6;
+      tab-size: 4;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      padding: 18px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(168, 85, 247, 0.6);
+      filter: brightness(1.1);
+    }
+
+    .submit-btn:active {
+      transform: translateY(1px);
+    }
+
+    .match-status-banner {
+      padding: 16px 20px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .banner-success {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+    }
+
+    .banner-error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    .banner-empty {
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #94a3b8;
+    }
+
+    .output-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 20px;
+      min-height: 120px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 1.05rem;
+      color: #4ade80;
+      line-height: 1.7;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-ready {
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Aventuras na Programação</h1>
+      <p>10 Exercícios Práticos para Dominar os Fundamentos do Código</p>
+    </header>
+
+    <div class="glass-card">
+      <div class="label-title">1. Escolha o Exercício / Conceito</div>
+      <select id="lessonSelect">
+        <option value="ex1">Exercício 1: O Alto-falante do Computador (print)</option>
+        <option value="ex2">Exercício 2: O Baú Mágico de Itens (variáveis)</option>
+        <option value="ex3">Exercício 3: A Recepção do Castelo (input)</option>
+        <option value="ex4">Exercício 4: A Calculadora de Danos (operadores)</option>
+        <option value="ex5">Exercício 5: O Guardião da Masmorra (if / else)</option>
+        <option value="ex6">Exercício 6: O Placar do Torneio (if / elif / else)</option>
+        <option value="ex7">Exercício 7: O Contador de Treino (for / range)</option>
+        <option value="ex8">Exercício 8: A Bateria do Robô (while loop)</option>
+        <option value="ex9">Exercício 9: A Mochila de Itens (listas / arrays)</option>
+        <option value="ex10">Exercício 10: A Fábrica de Feitiços (funções / def)</option>
+      </select>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">2. Conceito e Missão do Código</div>
+      <div id="conceptText" class="concept-explanation"></div>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">
+        <span>3. Editor de Código (Modifique à vontade)</span>
+        <span class="status-badge status-ready">Pronto para Modificação</span>
+      </div>
+      <textarea id="codeEditor" class="code-editor" spellcheck="false"></textarea>
+    </div>
+
+    <button class="submit-btn" id="runBtn">
+      🚀 Executar Código e Ver Resultado
+    </button>
+
+    <div id="statusBanner" class="match-status-banner banner-empty">
+      <span>ℹ️ Clique no botão acima para rodar as instruções.</span>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">
+        <span>Console do Computador (Saída)</span>
+      </div>
+      <div id="consoleOutput" class="output-box">Aguardando execução...</div>
+    </div>
+  </div>
+
+  <script>
+    const lessons = {
+      ex1: {
+        explanation: "O comando <code>print()</code> é o <b>alto-falante</b> do seu programa. Ele serve para mostrar textos, números e até desenhos em arte ASCII na tela.",
+        defaultCode: 'print("=== BEM-VINDO AO CASTELO DIGITAL ===")\nprint("   /\\\\   ")\nprint("  /  \\\\  ")\nprint(" /____\\\\ ")\nprint("Missão: Aprender os segredos da programação!")'
+      },
+      ex2: {
+        explanation: "Variáveis são como <b>baús com etiquetas</b>. Elas guardam valores na memória para você usar e alterar quando quiser durante o programa.",
+        defaultCode: 'nome_heroi = "Arthur"\nnivel = 5\nouro = 120.50\n\nprint("Herói: " + nome_heroi)\nprint("Nível do jogador:")\nprint(nivel)\nprint("Moedas de Ouro:")\nprint(ouro)'
+      },
+      ex3: {
+        explanation: "O comando <code>input()</code> é o <b>ouvido</b> do computador. Ele faz o programa pausar, pedir uma informação ao usuário e guardar a resposta.",
+        defaultCode: 'nome = input("Digite o nome do seu guerreiro:")\nclasse = input("Escolha a classe (Mago, Guerreiro, Arqueiro):")\n\nprint("--- PERSONAGEM CRIADO ---")\nprint("Nome: " + nome)\nprint("Classe: " + classe)'
+      },
+      ex4: {
+        explanation: "Usamos operadores matemáticos (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>) para realizar cálculos em tempo real, como calcular danos e bônus em um jogo.",
+        defaultCode: 'ataque_base = 30\nbonus_espada = 15\ndano_total = ataque_base + bonus_espada\ndano_critico = dano_total * 2\n\nprint("Ataque Normal: " + dano_total)\nprint("Ataque CRÍTICO (Dobrado): " + dano_critico)'
+      },
+      ex5: {
+        explanation: "O <code>if</code> (SE) e o <code>else</code> (SENÃO) funcionam como um <b>guardião na porta</b>. Se a condição for verdadeira, ele libera a passagem; senão, toma outro caminho.",
+        defaultCode: 'idade = 18\n\nif idade >= 18:\n    print(" Acesso liberado para a Masmorra Secreta!")\nelse:\n    print(" Acesso negado! Você precisa ter pelo menos 18 anos.")'
+      },
+      ex6: {
+        explanation: "O <code>elif</code> (SENÃO SE) permite criar <b>múltiplos caminhos alternativos</b>. O computador testa cada opção na ordem até encontrar a verdadeira.",
+        defaultCode: 'pontuacao = 85\n\nif pontuacao >= 90:\n    print(" Medalha de OURO!")\nelif pontuacao >= 70:\n    print(" Medalha de PRATA!")\nelif pontuacao >= 50:\n    print(" Medalha de BRONZE!")\nelse:\n    print(" Treine mais para ganhar uma medalha!")'
+      },
+      ex7: {
+        explanation: "O laço <code>for</code> com <code>range()</code> é uma <b>máquina de repetição</b>. Ele executa o mesmo bloco de código um número exato de vezes sem se cansar.",
+        defaultCode: 'print("Iniciando rotina de treinos...")\n\nfor repetição in range(1, 6):\n    print("Flexão número: " + repetição)\n\nprint(" Treino concluído com sucesso!")'
+      },
+      ex8: {
+        explanation: "O laço <code>while</code> repete um bloco de código <b>ENQUANTO</b> uma condição for verdadeira. Cuidado para não criar um loop infinito!",
+        defaultCode: 'bateria = 4\n\nwhile bateria > 0:\n    print("Robô trabalhando... Nível de bateria: " + bateria)\n    bateria = bateria - 1\n\nprint(" Bateria descarregada! Conecte o robô ao carregador.")'
+      },
+      ex9: {
+        explanation: "Listas guardam <b>múltiplos itens em um único lugar</b> dentro de colchetes <code>[]</code>. Podemos percorrer cada item da lista facilmente usando o <code>for</code>.",
+        defaultCode: 'mochila = ["Poção de Vida", "Escudo de Aço", "Chave Dourada", "Mapa do Tesouro"]\n\nprint("--- ITENS DENTRO DA SUA MOCHILA ---")\nfor item in mochila:\n    print("- " + item)'
+      },
+      ex10: {
+        explanation: "Funções criadas com <code>def</code> são <b>fábricas de comandos personalizados</b>. Você escreve uma rotina uma vez e pode reutilizá-la quantas vezes quiser.",
+        defaultCode: 'def lancar_feitico(nome_feitico, poder):\n    print(" Lançando feitiço: " + nome_feitico)\n    print("Poder do impacto: " + poder + " pontos!")\n    print("---------------------------------")\n\nlancar_feitico("Bola de Fogo", 80)\nlancar_feitico("Raio Congelante", 55)'
+      }
+    };
+
+    const lessonSelect = document.getElementById('lessonSelect');
+    const conceptText = document.getElementById('conceptText');
+    const codeEditor = document.getElementById('codeEditor');
+    const runBtn = document.getElementById('runBtn');
+    const statusBanner = document.getElementById('statusBanner');
+    const consoleOutput = document.getElementById('consoleOutput');
+
+    function loadLesson(key) {
+      const lesson = lessons[key];
+      if (!lesson) return;
+
+      conceptText.innerHTML = lesson.explanation;
+      codeEditor.value = lesson.defaultCode;
+      
+      statusBanner.className = "match-status-banner banner-empty";
+      statusBanner.innerHTML = "<span>ℹ️ Clique no botão acima para rodar as instruções.</span>";
+      consoleOutput.textContent = "Aguardando execução...";
+    }
+
+    function runUserCode() {
+      const userCode = codeEditor.value;
+      const logs = [];
+
+      function __print__(...args) {
+        logs.push(args.map(arg => {
+          if (typeof arg === 'object') return JSON.stringify(arg);
+          return String(arg);
+        }).join(' '));
+      }
+
+      function __input__(promptText) {
+        const response = prompt(promptText || "Digite um valor:");
+        const finalVal = response !== null ? response : "Exemplo";
+        logs.push(`[Entrada do Usuário]: ${finalVal}`);
+        return finalVal;
+      }
+
+      try {
+        const jsCode = transpilePythonToJS(userCode);
+        const executionFunc = new Function('print', 'input', 'range', jsCode);
+        executionFunc(__print__, __input__, pythonRange);
+
+        statusBanner.className = "match-status-banner banner-success";
+        statusBanner.innerHTML = "✅ <b>Sucesso!</b> Código executado perfeitamente sem erros.";
+        consoleOutput.textContent = logs.length > 0 ? logs.join('\n') : "(O código rodou mas não gerou nenhuma saída no print)";
+
+      } catch (err) {
+        statusBanner.className = "match-status-banner banner-error";
+        statusBanner.innerHTML = "❌ <b>Erro no Código!</b> Verifique a sintaxe ou identação.";
+        consoleOutput.textContent = "Detalhes do Erro:\n" + err.message;
+      }
+    }
+
+    function pythonRange(start, stop, step) {
+      if (stop === undefined) {
+        stop = start;
+        start = 0;
+      }
+      step = step || 1;
+      const arr = [];
+      if (step > 0) {
+        for (let i = start; i < stop; i += step) arr.push(i);
+      } else {
+        for (let i = start; i > stop; i += step) arr.push(i);
+      }
+      return arr;
+    }
+
+    function transpilePythonToJS(pyCode) {
+      const lines = pyCode.split('\n');
+      const jsLines = [];
+      const indentStack = [0];
+      const declaredVars = new Set();
+
+      for (let rawLine of lines) {
+        if (!rawLine.trim() || rawLine.trim().startsWith('#')) {
+          continue;
+        }
+
+        let indent = rawLine.search(/\S/);
+        if (indent === -1) indent = 0;
+        let line = rawLine.trim();
+
+        line = line.replace(/(["'])(.*?)\1/g, (match, quote, content) => {
+          return quote + content.replace(/\\/g, '\\\\') + quote;
+        });
+
+        while (indent < indentStack[indentStack.length - 1]) {
+          indentStack.pop();
+          jsLines.push('}');
+        }
+
+        if (/^def\s+\w+\s*\(.*\)\s*:/.test(line)) {
+          line = line.replace(/^def\s+(\w+)\s*\((.*)\)\s*:/, 'function $1($2) {');
+          indentStack.push(indent + 4);
+        }
+        else if (/^if\s+.*:$/.test(line)) {
+          let cond = transformCondition(line.slice(3, -1).trim());
+          line = `if (${cond}) {`;
+          indentStack.push(indent + 4);
+        } else if (/^elif\s+.*:$/.test(line)) {
+          let cond = transformCondition(line.slice(5, -1).trim());
+          line = `else if (${cond}) {`;
+          indentStack.push(indent + 4);
+        } else if (/^else\s*:$/.test(line)) {
+          line = `else {`;
+          indentStack.push(indent + 4);
+        }
+        else if (/^for\s+\w+\s+in\s+range\s*\(.*\)\s*:/.test(line)) {
+          let match = line.match(/^for\s+(\w+)\s+in\s+range\s*\((.*)\)\s*:/);
+          let varName = match[1];
+          let rangeArgs = match[2];
+          line = `for (var ${varName} of range(${rangeArgs})) {`;
+          indentStack.push(indent + 4);
+        }
+        else if (/^for\s+\w+\s+in\s+.*:/.test(line)) {
+          let match = line.match(/^for\s+(\w+)\s+in\s+(.*):/);
+          let varName = match[1];
+          let listExpr = match[2].trim();
+          line = `for (var ${varName} of ${listExpr}) {`;
+          indentStack.push(indent + 4);
+        }
+        else if (/^while\s+.*:$/.test(line)) {
+          let cond = transformCondition(line.slice(6, -1).trim());
+          line = `while (${cond}) {`;
+          indentStack.push(indent + 4);
+        }
+        else if (/^[a-zA-Z_]\w*\s*[\+\-\*\/]?=\s*.*/.test(line) && !line.startsWith('return')) {
+          let varName = line.split(/[\+\-\*\/]?=/)[0].trim();
+          if (!declaredVars.has(varName)) {
+            declaredVars.add(varName);
+            line = `var ${line}`;
+          }
+        }
+
+        jsLines.push(line + ';');
+      }
+
+      while (indentStack.length > 1) {
+        indentStack.pop();
+        jsLines.push('}');
+      }
+
+      return jsLines.join('\n');
+    }
+
+    function transformCondition(cond) {
+      return cond
+        .replace(/\band\b/g, '&&')
+        .replace(/\bor\b/g, '||')
+        .replace(/\bnot\b/g, '!');
+    }
+
+    lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+    runBtn.addEventListener('click', runUserCode);
+
+    codeEditor.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+      }
+    });
+
+    loadLesson('ex1');
+  </script>
+</body>
+</html>

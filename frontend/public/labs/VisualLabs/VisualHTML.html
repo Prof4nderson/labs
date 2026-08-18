@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML & CSS Visual Lab - Layouts, Divs e Estilização</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #311042 70%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #6366f1; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #a855f7; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #ec4899; }
+
+    .container {
+      width: 100%;
+      max-width: 1150px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .label-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    select, input[type="text"], textarea {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 16px 20px;
+      color: #f8fafc;
+      font-size: 1.05rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select:focus, input[type="text"]:focus, textarea:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25), inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select option {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px;
+    }
+
+    .concept-explanation {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .concept-explanation b { color: #38bdf8; }
+    .concept-explanation code, .tbl-code {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Grid de Cores e Avatares */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .color-chip {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .color-chip:hover {
+      transform: translateY(-2px);
+      border-color: #a855f7;
+    }
+
+    .color-swatch {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .color-info {
+      font-size: 0.8rem;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .color-info span {
+      display: block;
+      color: #94a3b8;
+      font-size: 0.7rem;
+    }
+
+    .resources-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .resources-grid, .dual-panel { grid-template-columns: 1fr; }
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.guide-table th {
+      background: rgba(15, 23, 42, 0.85);
+      color: #38bdf8;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.guide-table td {
+      padding: 12px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+    }
+
+    table.guide-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .dual-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    textarea.code-editor {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-weight: 600;
+      color: #38bdf8;
+      height: 280px;
+      resize: vertical;
+      line-height: 1.6;
+      tab-size: 2;
+    }
+
+    .preview-wrapper {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      height: 280px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    iframe.preview-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      padding: 18px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(168, 85, 247, 0.6);
+      filter: brightness(1.1);
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-error {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .meta-box {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-family: 'Fira Code', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>HTML & CSS Visual Lab</h1>
+      <p>Aprenda Estrutura de Divs, Estilização, Box Model e Layouts Modernos</p>
+    </header>
+
+    <!-- Seleção de Exercícios -->
+    <div class="glass-card">
+      <div class="label-title">1. Escolha o Exercício / Componente Web</div>
+      <select id="lessonSelect">
+        <option value="ex1">Exercício 1: Cartão de Perfil & Box Model (div, padding, border-radius)</option>
+        <option value="ex2">Exercício 2: Botão Gamer Neon Interativo (:hover, box-shadow, transition)</option>
+        <option value="ex3">Exercício 3: Barra de Progresso / HP de Game (Aninhamento de divs, width %)</option>
+        <option value="ex4">Exercício 4: Galeria Flexbox (display: flex, gap, flex-wrap)</option>
+        <option value="ex5">Exercício 5: Dashboard de Métricas em Grid (display: grid, fr)</option>
+        <option value="ex6">Exercício 6: Efeito Glassmorphism / Vidro FOSCO (backdrop-filter, rgba)</option>
+        <option value="ex7">Exercício 7: Crachá com Badge de Status (position: relative e absolute)</option>
+        <option value="ex8">Exercício 8: O "Santo Graal" do Alinhamento (Centralização Total com Flex)</option>
+        <option value="ex9">Exercício 9: Tabela de Planos VIP com Destaque (transform: scale)</option>
+        <option value="ex10">Exercício 10: Interface de Terminal Futurista (Scrollbar, Monospace e Inputs)</option>
+      </select>
+    </div>
+
+    <!-- Explicação do Conceito -->
+    <div class="glass-card">
+      <div class="label-title">2. Conceito e Desafio de Interface</div>
+      <div id="conceptText" class="concept-explanation"></div>
+    </div>
+
+    <!-- Recursos de Apoio: Cores + Fontes de Avatares -->
+    <div class="resources-grid">
+      <!-- Paleta de Cores -->
+      <div class="glass-card">
+        <div class="label-title">🎨 Paleta de Cores Neon & Dark (Hex)</div>
+        <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:10px;">Clique nos códigos para copiar para o editor:</p>
+        <div class="color-grid">
+          <div class="color-chip" onclick="copyToClipboard('#a855f7')">
+            <div class="color-swatch" style="background:#a855f7;"></div>
+            <div class="color-info">#a855f7<span>Roxo Neon</span></div>
+          </div>
+          <div class="color-chip" onclick="copyToClipboard('#38bdf8')">
+            <div class="color-swatch" style="background:#38bdf8;"></div>
+            <div class="color-info">#38bdf8<span>Azul Ciano</span></div>
+          </div>
+          <div class="color-chip" onclick="copyToClipboard('#ec4899')">
+            <div class="color-swatch" style="background:#ec4899;"></div>
+            <div class="color-info">#ec4899<span>Rosa Pink</span></div>
+          </div>
+          <div class="color-chip" onclick="copyToClipboard('#4ade80')">
+            <div class="color-swatch" style="background:#4ade80;"></div>
+            <div class="color-info">#4ade80<span>Verde Neon</span></div>
+          </div>
+          <div class="color-chip" onclick="copyToClipboard('#f59e0b')">
+            <div class="color-swatch" style="background:#f59e0b;"></div>
+            <div class="color-info">#f59e0b<span>Laranja Cyber</span></div>
+          </div>
+          <div class="color-chip" onclick="copyToClipboard('#0f172a')">
+            <div class="color-swatch" style="background:#0f172a; border:1px solid #ffffff33;"></div>
+            <div class="color-info">#0f172a<span>Fundo Escuro</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Onde Encontrar Avatares e Ícones -->
+      <div class="glass-card">
+        <div class="label-title">🖼️ Onde Encontrar Avatares e Ícones</div>
+        <ul style="font-size:0.88rem; color:#e2e8f0; line-height:1.6; padding-left:18px;">
+          <li><b>Emojis Nativos (Mais Rápido):</b> Pressione <span class="tbl-code">Win + .</span> (Windows) ou <span class="tbl-code">Cmd + Ctrl + Espaço</span> (Mac) para usar emojis como ⚡, 👨‍💻, 👩‍💻, 🚀, 👾, 🤖, 🛡️.</li>
+          <li><b>APIs de Avatares Prontos (Via &lt;img&gt;):</b>
+            <br>• <i>DiceBear:</i> <span class="tbl-code">https://api.dicebear.com/7.x/bottts/svg?seed=Dev</span>
+            <br>• <i>Robohash:</i> <span class="tbl-code">https://robohash.org/mariana.png</span>
+            <br>• <i>UI Avatars:</i> <span class="tbl-code">https://ui-avatars.com/api/?name=Mariana+Dev</span>
+          </li>
+          <li><b>Repositórios Grátis de Ícones SVG:</b> Lucide Icons, FontAwesome, Flaticon, Tabler Icons e unDraw.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Guia Rápido de Conceitos HTML & CSS -->
+    <div class="glass-card">
+      <div class="label-title">📖 Guia Rápido de Tags HTML e Regras CSS</div>
+      <div class="table-wrapper">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Sintaxe / Propriedade</th>
+              <th>Função / O que Faz</th>
+              <th>Aplicação Prática</th>
+              <th>Exemplo de Código</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tbl-code">&lt;div&gt;</span></td>
+              <td>Bloco genérico de divisão / contêiner de elementos</td>
+              <td>Agrupar textos, botões e imagens.</td>
+              <td><span class="tbl-code">&lt;div class="card"&gt;...&lt;/div&gt;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">padding</span> vs <span class="tbl-code">margin</span></td>
+              <td>Espaçamento interno (padding) vs externo (margin)</td>
+              <td>Dar respiro ao conteúdo ou afastar caixas.</td>
+              <td><span class="tbl-code">padding: 20px; margin-bottom: 10px;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">display: flex</span></td>
+              <td>Ativa o modelo de layout flexível unidimensional</td>
+              <td>Alinhar itens em linha ou coluna.</td>
+              <td><span class="tbl-code">display: flex; gap: 15px;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">display: grid</span></td>
+              <td>Ativa o modelo de grid bidimensional (linhas e colunas)</td>
+              <td>Criar dashboards e galerias complexas.</td>
+              <td><span class="tbl-code">grid-template-columns: 1fr 1fr;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">position: absolute</span></td>
+              <td>Posiciona um elemento em relação ao pai <span class="tbl-code">relative</span></td>
+              <td>Criar badges fixas nos cantos de cartões.</td>
+              <td><span class="tbl-code">top: -10px; right: 10px;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">box-shadow</span></td>
+              <td>Aplica sombras externas ou brilhos neon</td>
+              <td>Dar profundidade visual e efeitos de brilho.</td>
+              <td><span class="tbl-code">box-shadow: 0 0 15px #a855f7;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">:hover</span></td>
+              <td>Pseudo-classe para acionar estilos ao passar o mouse</td>
+              <td>Mudar cores, botões e aplicar animações.</td>
+              <td><span class="tbl-code">.btn:hover { transform: scale(1.05); }</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">transition</span></td>
+              <td>Suaviza a transformação entre estados CSS</td>
+              <td>Evitar mudanças bruscas ao passar o mouse.</td>
+              <td><span class="tbl-code">transition: all 0.3s ease;</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Painel Duplo: Editor HTML/CSS + Live Preview Iframe -->
+    <div class="dual-panel">
+      <!-- Painel Esquerdo: Código -->
+      <div class="glass-card">
+        <div class="label-title">3A. Editor de Código (HTML + CSS)</div>
+        <textarea id="codeEditor" class="code-editor" spellcheck="false"></textarea>
+      </div>
+
+      <!-- Painel Direito: Renderização em Iframe -->
+      <div class="glass-card">
+        <div class="label-title">
+          <span>3B. Renderização do Navegador</span>
+          <span id="statusBadge" class="status-badge status-success">Ativo</span>
+        </div>
+        <div class="preview-wrapper">
+          <iframe id="previewIframe" class="preview-frame"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão de Atualização -->
+    <button class="submit-btn" id="runBtn">
+      ⚡ Renderizar Componente Web
+    </button>
+
+    <!-- Rodapé com Informações -->
+    <div class="glass-card">
+      <div class="label-title">
+        <span>Status da Renderização</span>
+      </div>
+      <div id="metaInfo" class="meta-box">Aguardando edições no código.</div>
+    </div>
+  </div>
+
+  <script>
+    // Banco com os 10 Exercícios Práticos de HTML & CSS
+    const lessons = {
+      ex1: {
+        explanation: "O <b>Box Model</b> é a base do CSS. Cada <code>&lt;div&gt;</code> é uma caixa composta por conteúdo, <code>padding</code> (espaçamento interno), <code>border</code> (borda) e <code>margin</code> (espaçamento externo). Experimente trocar a imagem da URL ou o emoji do avatar!",
+        code: `<style>
+  body {
+    background: #0f172a;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .card-perfil {
+    background: #1e293b;
+    color: #f8fafc;
+    width: 260px;
+    padding: 24px;
+    border-radius: 16px;
+    border: 2px solid #38bdf8;
+    text-align: center;
+  }
+  .avatar-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 12px;
+    border: 2px solid #a855f7;
+  }
+</style>
+
+<div class="card-perfil">
+  <!-- Avatar de API dinâmico ou Emoji -->
+  <img class="avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=Mariana" alt="Avatar">
+  <h3 style="margin: 0 0 6px 0;">Mariana Dev</h3>
+  <p style="color: #94a3b8; font-size: 14px; margin: 0;">Engenheira de Frontend</p>
+</div>`
+      },
+      ex2: {
+        explanation: "Efeitos interativos usam a pseudo-classe <code>:hover</code>. A propriedade <code>transition</code> garante que o brilho no <code>box-shadow</code> e a elevação no <code>transform</code> ocorram de forma suave.",
+        code: `<style>
+  body {
+    background: #090d16;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: sans-serif;
+  }
+  .btn-gamer {
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    color: #ffffff;
+    padding: 16px 36px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+  }
+  .btn-gamer:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 0 25px #a855f7, 0 0 40px #6366f1;
+  }
+</style>
+
+<button class="btn-gamer">START GAME 🚀</button>`
+      },
+      ex3: {
+        explanation: "Barras de progresso são feitas com <b>divs aninhadas</b>: a div pai define a largura máxima e o fundo (`#334155`), enquanto a div filho controla o percentual preenchido (`width: 75%`).",
+        code: `<style>
+  body {
+    background: #0f172a;
+    color: #fff;
+    font-family: sans-serif;
+    padding: 40px 20px;
+  }
+  .bar-container {
+    background: #334155;
+    border-radius: 20px;
+    height: 24px;
+    width: 100%;
+    overflow: hidden;
+    border: 2px solid #475569;
+  }
+  .bar-fill {
+    background: linear-gradient(90deg, #ec4899, #f59e0b);
+    height: 100%;
+    width: 75%;
+    border-radius: 20px;
+    transition: width 0.5s ease;
+  }
+</style>
+
+<h4 style="margin-bottom: 8px;">Nível de XP: 75%</h4>
+<div class="bar-container">
+  <div class="bar-fill"></div>
+</div>`
+      },
+      ex4: {
+        explanation: "O <code>display: flex</code> alinha caixas lado a lado. Usamos <code>gap</code> para criar espaço entre elas e <code>flex-wrap: wrap</code> para quebrar a linha automaticamente em telas menores.",
+        code: `<style>
+  body {
+    background: #0f172a;
+    font-family: sans-serif;
+    padding: 20px;
+  }
+  .gallery {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .card {
+    background: #1e293b;
+    color: #38bdf8;
+    flex: 1;
+    min-width: 90px;
+    padding: 20px 10px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #334155;
+    font-weight: bold;
+  }
+</style>
+
+<div class="gallery">
+  <div class="card">HTML5</div>
+  <div class="card">CSS3</div>
+  <div class="card">JS</div>
+  <div class="card">REACT</div>
+</div>`
+      },
+      ex5: {
+        explanation: "O <code>display: grid</code> divide o espaço em colunas e linhas bidimensionais. A unidade <code>1fr</code> significa '1 fração do espaço disponível'.",
+        code: `<style>
+  body {
+    background: #0b0f19;
+    color: #fff;
+    font-family: sans-serif;
+    padding: 20px;
+  }
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+  .box {
+    background: #1e1b4b;
+    border: 1px solid #6366f1;
+    padding: 16px;
+    border-radius: 12px;
+  }
+  .val {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4ade80;
+    margin-top: 6px;
+  }
+</style>
+
+<div class="grid-container">
+  <div class="box">Vendas<div class="val">R$ 4.200</div></div>
+  <div class="box">Clientes<div class="val">+128</div></div>
+</div>`
+      },
+      ex6: {
+        explanation: "O efeito de vidro fosco (<b>Glassmorphism</b>) é criado com cores semi-transparentes em <code>rgba()</code> e a propriedade <code>backdrop-filter: blur(10px)</code>.",
+        code: `<style>
+  body {
+    background: linear-gradient(135deg, #ec4899, #6366f1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: sans-serif;
+  }
+  .glass {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 30px;
+    border-radius: 20px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+</style>
+
+<div class="glass">
+  <h2 style="margin:0 0 10px 0;">Glass Card</h2>
+  <p style="margin:0; opacity:0.9;">Efeito translúcido em CSS puro!</p>
+</div>`
+      },
+      ex7: {
+        explanation: "Para sobrepor elementos (como a bolinha de status 'ONLINE'), usamos <code>position: relative</code> no contêiner pai e <code>position: absolute</code> na badge.",
+        code: `<style>
+  body {
+    background: #0f172a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: sans-serif;
+  }
+  .badge-box {
+    position: relative;
+    background: #1e293b;
+    padding: 20px 30px;
+    border-radius: 12px;
+    color: white;
+    border: 1px solid #334155;
+  }
+  .status-dot {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 16px;
+    height: 16px;
+    background: #22c55e;
+    border-radius: 50%;
+    border: 3px solid #0f172a;
+  }
+</style>
+
+<div class="badge-box">
+  <div class="status-dot"></div>
+  <b>Servidor Node.js</b>
+</div>`
+      },
+      ex8: {
+        explanation: "Centralizar um bloco horizontal e verticalmente na tela era o terror do CSS clássico. Hoje, basta usar <code>display: flex</code>, <code>justify-content: center</code> e <code>align-items: center</code> na tag pai.",
+        code: `<style>
+  body {
+    background: #020617;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+  }
+  .target-box {
+    background: #ec4899;
+    color: white;
+    padding: 24px;
+    border-radius: 16px;
+    font-weight: bold;
+    box-shadow: 0 0 20px #ec4899;
+  }
+</style>
+
+<div class="target-box">
+  🎯 Totalmente Centralizado!
+</div>`
+      },
+      ex9: {
+        explanation: "Para destacar um cartão principal em uma tabela de preços, combinamos uma borda diferenciada com <code>transform: scale(1.08)</code> para que ele salte em relação aos outros.",
+        code: `<style>
+  body {
+    background: #0f172a;
+    font-family: sans-serif;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .plan {
+    background: #1e293b;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 100px;
+    text-align: center;
+  }
+  .plan.featured {
+    border: 2px solid #a855f7;
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  }
+</style>
+
+<div class="plan">Básico<br><b>R$ 19</b></div>
+<div class="plan featured">PRO<br><b>R$ 49</b></div>
+<div class="plan">DEV<br><b>R$ 99</b></div>`
+      },
+      ex10: {
+        explanation: "Uma interface estilo terminal hacker combinando tipografia <code>font-family: monospace</code>, prompt de comando estilizado e cores verdes clássicas no fundo escuro.",
+        code: `<style>
+  body {
+    background: #050505;
+    color: #22c55e;
+    font-family: monospace;
+    padding: 20px;
+  }
+  .terminal {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.15);
+  }
+  .prompt { color: #38bdf8; }
+  .cmd { color: #f8fafc; }
+</style>
+
+<div class="terminal">
+  <div><span class="prompt">root@system:~#</span> <span class="cmd">npm run deploy</span></div>
+  <div style="margin-top: 8px; color: #94a3b8;">[1/3] Building assets...</div>
+  <div style="color: #22c55e;">[SUCCESS] Live at https://app.dev/</div>
+</div>`
+      }
+    };
+
+    // Elementos do DOM
+    const lessonSelect = document.getElementById('lessonSelect');
+    const conceptText = document.getElementById('conceptText');
+    const codeEditor = document.getElementById('codeEditor');
+    const runBtn = document.getElementById('runBtn');
+    const previewIframe = document.getElementById('previewIframe');
+    const statusBadge = document.getElementById('statusBadge');
+    const metaInfo = document.getElementById('metaInfo');
+
+    function loadLesson(key) {
+      const lesson = lessons[key];
+      if (!lesson) return;
+
+      conceptText.innerHTML = lesson.explanation;
+      codeEditor.value = lesson.code;
+      renderPreview();
+    }
+
+    function renderPreview() {
+      const code = codeEditor.value.trim();
+
+      try {
+        const doc = previewIframe.contentDocument || previewIframe.contentWindow.document;
+        doc.open();
+        doc.write(code);
+        doc.close();
+
+        statusBadge.textContent = "Renderizado";
+        statusBadge.className = "status-badge status-success";
+        metaInfo.textContent = `⚡ Código HTML/CSS processado e isolado no navegador.`;
+      } catch (err) {
+        statusBadge.textContent = "Erro no Código";
+        statusBadge.className = "status-badge status-error";
+        metaInfo.textContent = "Falha de renderização: " + err.message;
+      }
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+      metaInfo.textContent = `📋 Código ${text} copiado para a área de transferência!`;
+    }
+
+    // Listeners
+    lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+    runBtn.addEventListener('click', renderPreview);
+
+    // Suporte à tecla TAB no editor de código
+    codeEditor.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 2;
+      }
+    });
+
+    // Renderização automática ao digitar
+    codeEditor.addEventListener('input', renderPreview);
+
+    // Inicialização
+    loadLesson('ex1');
+  </script>
+</body>
+</html>

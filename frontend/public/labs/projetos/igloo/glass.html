@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Glass Runner - Personagens Grandes</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e1b4b, #311042);
+      color: #fff;
+    }
+
+    /* Container do Jogo */
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Painéis e Telas em Glassmorphism */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    /* HUD (Placar) */
+    #hud {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      padding: 12px 28px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .hud-item {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* Modais / Overlays */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      transition: opacity 0.3s ease;
+    }
+
+    .overlay-content {
+      padding: 40px 50px;
+      text-align: center;
+      max-width: 480px;
+      width: 90%;
+    }
+
+    h1 {
+      margin: 0 0 10px 0;
+      font-size: 2.5rem;
+      background: linear-gradient(90deg, #38bdf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    p {
+      color: #e2e8f0;
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #fff;
+      padding: 14px 32px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 6px 20px rgba(192, 132, 252, 0.4);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <!-- Canvas Principal -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Placar (HUD) -->
+    <div id="hud" class="glass-panel">
+      <div class="hud-item">PONTOS: <span id="scoreText">0</span></div>
+      <div class="hud-item">RECORDE: <span id="highScoreText">0</span></div>
+    </div>
+
+    <!-- Tela Inicial -->
+    <div id="startScreen" class="overlay">
+      <div class="overlay-content glass-panel">
+        <h1>Glass Runner</h1>
+        <p>Pule os obstáculos e colete as gemas brilhantes! Use personagens grandes com visual translúcido.</p>
+        <p><b>Controles:</b> Espaço / Seta para Cima / Toque na Tela</p>
+        <button class="btn" onclick="startGame()">JOGAR AGORA</button>
+      </div>
+    </div>
+
+    <!-- Tela de Game Over -->
+    <div id="gameOverScreen" class="overlay hidden">
+      <div class="overlay-content glass-panel">
+        <h1 style="background: linear-gradient(90deg, #f87171, #fb923c); -webkit-background-clip: text;">Fim de Jogo!</h1>
+        <p>Pontuação Final: <b id="finalScore">0</b></p>
+        <button class="btn" onclick="startGame()">TENTAR NOVAMENTE</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Referências da Interface
+    const scoreText = document.getElementById('scoreText');
+    const highScoreText = document.getElementById('highScoreText');
+    const finalScore = document.getElementById('finalScore');
+    const startScreen = document.getElementById('startScreen');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+
+    // Variáveis Globais do Jogo
+    let gameLoopId;
+    let isPlaying = false;
+    let score = 0;
+    let highScore = localStorage.getItem('glass_runner_highscore') || 0;
+    highScoreText.innerText = highScore;
+
+    let gameSpeed = 6;
+    let gravity = 0.65;
+    let frameCount = 0;
+
+    // Ajuste do Canvas
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Entidades do Jogo
+    let player;
+    let obstacles = [];
+    let gems = [];
+    let particles = [];
+
+    // --- CLASSE DO JOGADOR (PERSONAGEM GRANDE) ---
+    class Player {
+      constructor() {
+        this.width = 80;   // Personagem Grande
+        this.height = 100;
+        this.x = 100;
+        this.y = canvas.height - this.height - 80;
+        this.velocityY = 0;
+        this.jumpForce = -15;
+        this.groundY = canvas.height - this.height - 80;
+        this.isGrounded = false;
+        this.rotation = 0;
+      }
+
+      update() {
+        this.groundY = canvas.height - this.height - 80;
+        
+        // Aplicação de Física
+        this.velocityY += gravity;
+        this.y += this.velocityY;
+
+        // Limite do Chão
+        if (this.y >= this.groundY) {
+          this.y = this.groundY;
+          this.velocityY = 0;
+          this.isGrounded = true;
+          this.rotation = 0;
+        } else {
+          this.isGrounded = false;
+          this.rotation += 0.05;
+        }
+      }
+
+      jump() {
+        if (this.isGrounded) {
+          this.velocityY = this.jumpForce;
+          createParticles(this.x + this.width / 2, this.y + this.height, '#c084fc', 12);
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+        ctx.rotate(this.rotation);
+
+        // Corpo do Personagem (Glassmorphism no Canvas)
+        const gradient = ctx.createLinearGradient(-this.width/2, -this.height/2, this.width/2, this.height/2);
+        gradient.addColorStop(0, 'rgba(192, 132, 252, 0.6)');
+        gradient.addColorStop(1, 'rgba(56, 189, 248, 0.3)');
+
+        ctx.fillStyle = gradient;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = 3;
+
+        // Desenhar forma arredondada
+        ctx.beginPath();
+        ctx.roundRect(-this.width/2, -this.height/2, this.width, this.height, 20);
+        ctx.fill();
+        ctx.stroke();
+
+        // Olhos do Personagem Grandes
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-12, -15, 10, 0, Math.PI * 2);
+        ctx.arc(16, -15, 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(-10, -15, 5, 0, Math.PI * 2);
+        ctx.arc(18, -15, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sorriso
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(2, 10, 12, 0.1, Math.PI - 0.1);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    // --- CLASSE DE OBSTÁCULOS GRANDES ---
+    class Obstacle {
+      constructor() {
+        this.width = 65;
+        this.height = 90 + Math.random() * 30; // Obstáculos grandes
+        this.x = canvas.width;
+        this.y = canvas.height - this.height - 80;
+        this.colorGradient = ['rgba(248, 113, 113, 0.6)', 'rgba(251, 146, 60, 0.3)'];
+      }
+
+      update() {
+        this.x -= gameSpeed;
+      }
+
+      draw() {
+        ctx.save();
+        const grad = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y + this.height);
+        grad.addColorStop(0, this.colorGradient[0]);
+        grad.addColorStop(1, this.colorGradient[1]);
+
+        ctx.fillStyle = grad;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.roundRect(this.x, this.y, this.width, this.height, 15);
+        ctx.fill();
+        ctx.stroke();
+
+        // Detalhe de Vidro Transparente
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.beginPath();
+        ctx.moveTo(this.x + 10, this.y + 10);
+        ctx.lineTo(this.x + this.width - 20, this.y + 10);
+        ctx.lineTo(this.x + 10, this.y + this.height - 20);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // --- CLASSE DE GEMAS/COLETÁVEIS ---
+    class Gem {
+      constructor() {
+        this.size = 35;
+        this.x = canvas.width;
+        this.y = canvas.height - 180 - Math.random() * 120;
+        this.collected = false;
+      }
+
+      update() {
+        this.x -= gameSpeed;
+      }
+
+      draw() {
+        if (this.collected) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.7)';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(0, -this.size/2);
+        ctx.lineTo(this.size/2, 0);
+        ctx.lineTo(0, this.size/2);
+        ctx.lineTo(-this.size/2, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    // --- SISTEMA DE PARTÍCULAS ---
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.size = Math.random() * 6 + 2;
+        this.speedX = (Math.random() - 0.5) * 6;
+        this.speedY = (Math.random() - 0.5) * 6;
+        this.color = color;
+        this.alpha = 1;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.alpha -= 0.02;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.alpha);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function createParticles(x, y, color, count = 8) {
+      for (let i = 0; i < count; i++) {
+        particles.push(new Particle(x, y, color));
+      }
+    }
+
+    // --- DESENHO DO CENÁRIO (GLASS STYLE) ---
+    function drawEnvironment() {
+      // Linha do Chão em Vidro Transparente
+      const groundY = canvas.height - 80;
+      
+      ctx.save();
+      const groundGrad = ctx.createLinearGradient(0, groundY, 0, canvas.height);
+      groundGrad.addColorStop(0, 'rgba(255, 255, 255, 0.25)');
+      groundGrad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+
+      ctx.fillStyle = groundGrad;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.rect(0, groundY, canvas.width, 80);
+      ctx.fill();
+      ctx.stroke();
+
+      // Círculos Decorativos ao Fundo (Efeito de Néon/Glow)
+      ctx.fillStyle = 'rgba(192, 132, 252, 0.15)';
+      ctx.beginPath();
+      ctx.arc(canvas.width * 0.2, canvas.height * 0.3, 180, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+      ctx.beginPath();
+      ctx.arc(canvas.width * 0.8, canvas.height * 0.4, 220, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // --- COLISÕES ---
+    function checkCollisions() {
+      // Colisão com Obstáculos
+      for (let obs of obstacles) {
+        if (
+          player.x < obs.x + obs.width &&
+          player.x + player.width > obs.x &&
+          player.y < obs.y + obs.height &&
+          player.y + player.height > obs.y
+        ) {
+          endGame();
+        }
+      }
+
+      // Colisão com Gemas
+      for (let gem of gems) {
+        if (!gem.collected) {
+          const dist = Math.hypot((player.x + player.width / 2) - gem.x, (player.y + player.height / 2) - gem.y);
+          if (dist < player.width / 2 + gem.size / 2) {
+            gem.collected = true;
+            score += 50;
+            scoreText.innerText = score;
+            createParticles(gem.x, gem.y, '#38bdf8', 15);
+          }
+        }
+      }
+    }
+
+    // --- LOOP PRINCIPAL DO JOGO ---
+    function update() {
+      if (!isPlaying) return;
+
+      frameCount++;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Desenhar Fundo
+      drawEnvironment();
+
+      // Atualizar Jogador
+      player.update();
+      player.draw();
+
+      // Dificuldade Progressiva
+      gameSpeed = 6 + Math.floor(score / 150);
+
+      // Gerar Obstáculos
+      if (frameCount % Math.max(80, 140 - gameSpeed * 5) === 0) {
+        obstacles.push(new Obstacle());
+      }
+
+      // Gerar Gemas
+      if (frameCount % 110 === 0) {
+        gems.push(new Gem());
+      }
+
+      // Atualizar/Desenhar Obstáculos
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        obstacles[i].update();
+        obstacles[i].draw();
+
+        if (obstacles[i].x + obstacles[i].width < 0) {
+          obstacles.splice(i, 1);
+          score += 10;
+          scoreText.innerText = score;
+        }
+      }
+
+      // Atualizar/Desenhar Gemas
+      for (let i = gems.length - 1; i >= 0; i--) {
+        gems[i].update();
+        gems[i].draw();
+
+        if (gems[i].x + gems[i].size < 0) {
+          gems.splice(i, 1);
+        }
+      }
+
+      // Partículas
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].draw();
+        if (particles[i].alpha <= 0) particles.splice(i, 1);
+      }
+
+      checkCollisions();
+
+      gameLoopId = requestAnimationFrame(update);
+    }
+
+    // --- CONTROLES E INICIALIZAÇÃO ---
+    function startGame() {
+      isPlaying = true;
+      score = 0;
+      gameSpeed = 6;
+      frameCount = 0;
+      obstacles = [];
+      gems = [];
+      particles = [];
+
+      scoreText.innerText = '0';
+      startScreen.classList.add('hidden');
+      gameOverScreen.classList.add('hidden');
+
+      player = new Player();
+
+      if (gameLoopId) cancelAnimationFrame(gameLoopId);
+      update();
+    }
+
+    function endGame() {
+      isPlaying = false;
+      createParticles(player.x + player.width / 2, player.y + player.height / 2, '#f87171', 30);
+
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('glass_runner_highscore', highScore);
+        highScoreText.innerText = highScore;
+      }
+
+      finalScore.innerText = score;
+      gameOverScreen.classList.remove('hidden');
+    }
+
+    // Eventos de Entrada (Teclado e Toque)
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        if (isPlaying) player.jump();
+        else if (!startScreen.classList.contains('hidden') || !gameOverScreen.classList.contains('hidden')) {
+          startGame();
+        }
+      }
+    });
+
+    window.addEventListener('touchstart', (e) => {
+      if (isPlaying) {
+        player.jump();
+      }
+    });
+  </script>
+</body>
+</html>

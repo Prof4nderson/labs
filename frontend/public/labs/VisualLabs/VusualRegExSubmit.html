@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regex Glass - Testador com Botão Submeter</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #311042 70%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+    }
+
+    .shape-1 {
+      top: -10%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: #6366f1;
+    }
+
+    .shape-2 {
+      bottom: -10%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: #a855f7;
+    }
+
+    .shape-3 {
+      top: 40%;
+      left: 60%;
+      width: 350px;
+      height: 350px;
+      background: #ec4899;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .label-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    select, input[type="text"], textarea {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 16px 20px;
+      color: #f8fafc;
+      font-size: 1.1rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select:focus, input[type="text"]:focus, textarea:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25), inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select option {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px;
+    }
+
+    .regex-input-container {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .regex-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .regex-wrapper input {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-weight: 600;
+      padding-left: 35px;
+      color: #38bdf8;
+    }
+
+    .regex-slash {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      font-family: monospace;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .flags-group {
+      display: flex;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .flag-btn {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .flag-btn.active {
+      background: #a855f7;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-valid {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-invalid {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    textarea {
+      height: 120px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    /* Botão Principal de Submeter Entrada */
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      padding: 18px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(168, 85, 247, 0.6);
+      filter: brightness(1.1);
+    }
+
+    .submit-btn:active {
+      transform: translateY(1px);
+    }
+
+    .match-status-banner {
+      padding: 16px 20px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .banner-match {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #4ade80;
+    }
+
+    .banner-nomatch {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    .banner-empty {
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      color: #94a3b8;
+    }
+
+    .output-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 20px;
+      min-height: 100px;
+      max-height: 250px;
+      overflow-y: auto;
+      font-size: 1.1rem;
+      line-height: 1.7;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    mark {
+      background: rgba(236, 72, 153, 0.4);
+      color: #ffffff;
+      border-radius: 4px;
+      padding: 2px 6px;
+      border: 1px solid rgba(236, 72, 153, 0.6);
+      box-shadow: 0 0 8px rgba(236, 72, 153, 0.3);
+      font-weight: 600;
+    }
+
+    .matches-list {
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .match-item {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-family: monospace;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      .regex-input-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .flags-group {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Expressões Regulares</h1>
+      <p>Submeta seu texto e avalie contra a Expressão Regular escolhida</p>
+    </header>
+
+    <!-- Seleção de Presets -->
+    <div class="glass-card">
+      <div class="label-title">1. Escolha uma Expressão Regular Pronta</div>
+      <select id="presetSelect">
+        <option value="email">Validar E-mail (Ex: usuário@dominio.com)</option>
+        <option value="phone">Telefone BR (Ex: (11) 98765-4321)</option>
+        <option value="cpf">CPF Formatado (Ex: 123.456.789-00)</option>
+        <option value="cep">CEP BR (Ex: 01001-000)</option>
+        <option value="url">URL / Link Web (Ex: https://site.com)</option>
+        <option value="date">Data (DD/MM/AAAA)</option>
+        <option value="numbers">Extrair Apenas Números</option>
+      </select>
+    </div>
+
+    <!-- Padrão e Flags -->
+    <div class="glass-card">
+      <div class="label-title">
+        <span>2. Configurar Padrão Regex</span>
+        <span id="statusBadge" class="status-badge status-valid">Sintaxe Válida</span>
+      </div>
+      <div class="regex-input-container">
+        <div class="regex-wrapper">
+          <span class="regex-slash">/</span>
+          <input type="text" id="regexInput" value="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" placeholder="Digite sua regex...">
+        </div>
+        <div class="flags-group">
+          <button class="flag-btn active" data-flag="g" title="Global (buscar todas)">g</button>
+          <button class="flag-btn active" data-flag="i" title="Case-insensitive (ignorar maiúsculas/minúsculas)">i</button>
+          <button class="flag-btn" data-flag="m" title="Multiline (multilinha)">m</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input de Texto do Usuário -->
+    <div class="glass-card">
+      <div class="label-title">3. Digite o Texto de Entrada do Usuário</div>
+      <textarea id="targetText" placeholder="Insira o texto que você deseja testar..."></textarea>
+    </div>
+
+    <!-- Botão de Submeter -->
+    <button class="submit-btn" id="submitBtn">
+      ⚡ Submeter Entrada e Avaliar
+    </button>
+
+    <!-- Banner de Resultado da Avaliação -->
+    <div id="resultBanner" class="match-status-banner banner-empty">
+      <span>ℹ️ Digite o texto e clique em "Submeter Entrada" para avaliar.</span>
+    </div>
+
+    <!-- Detalhes do Resultado e Destaques -->
+    <div class="glass-card" id="resultCard">
+      <div class="label-title">
+        <span>Resultado Detalhado</span>
+      </div>
+      
+      <div class="label-title" style="font-size: 0.85rem; color: #94a3b8; margin-top: 10px;">Texto com Destaque:</div>
+      <div id="outputContainer" class="output-box">Aguardando submissão...</div>
+
+      <div id="matchesWrapper" style="display: none; margin-top: 20px;">
+        <div class="label-title" style="font-size: 0.85rem; color: #94a3b8;">Valores Extraídos:</div>
+        <div id="matchesList" class="matches-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const presets = {
+      email: {
+        pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+        flags: "gi",
+        text: "usuario@email.com.br"
+      },
+      phone: {
+        pattern: "\(?\d{2}\)?\s?\d{4,5}-?\d{4}",
+        flags: "g",
+        text: "(11) 98765-4321"
+      },
+      cpf: {
+        pattern: "\d{3}\.\d{3}\.\d{3}-\d{2}",
+        flags: "g",
+        text: "123.456.789-00"
+      },
+      cep: {
+        pattern: "\d{5}-?\d{3}",
+        flags: "g",
+        text: "01001-000"
+      },
+      url: {
+        pattern: "https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)",
+        flags: "gi",
+        text: "https://www.exemplo.com.br"
+      },
+      date: {
+        pattern: "\b(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}\b",
+        flags: "g",
+        text: "15/08/2026"
+      },
+      numbers: {
+        pattern: "\d+",
+        flags: "g",
+        text: "Pedido numero 48123 com 5 itens."
+      }
+    };
+
+    const presetSelect = document.getElementById('presetSelect');
+    const regexInput = document.getElementById('regexInput');
+    const targetText = document.getElementById('targetText');
+    const submitBtn = document.getElementById('submitBtn');
+    const outputContainer = document.getElementById('outputContainer');
+    const statusBadge = document.getElementById('statusBadge');
+    const resultBanner = document.getElementById('resultBanner');
+    const matchesWrapper = document.getElementById('matchesWrapper');
+    const matchesList = document.getElementById('matchesList');
+    const flagBtns = document.querySelectorAll('.flag-btn');
+
+    function init() {
+      loadPreset('email');
+
+      presetSelect.addEventListener('change', (e) => loadPreset(e.target.value));
+      regexInput.addEventListener('input', validateRegexSyntax);
+
+      flagBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.classList.toggle('active');
+          validateRegexSyntax();
+        });
+      });
+
+      // AVALIAÇÃO OCORRE APENAS AO SUBMETER
+      submitBtn.addEventListener('click', evaluateRegex);
+    }
+
+    function getFlags() {
+      let flags = '';
+      flagBtns.forEach(btn => {
+        if (btn.classList.contains('active')) {
+          flags += btn.dataset.flag;
+        }
+      });
+      return flags;
+    }
+
+    function setFlags(flagsStr) {
+      flagBtns.forEach(btn => {
+        if (flagsStr.includes(btn.dataset.flag)) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    function loadPreset(key) {
+      const p = presets[key];
+      if (!p) return;
+      regexInput.value = p.pattern;
+      targetText.value = p.text;
+      setFlags(p.flags);
+      validateRegexSyntax();
+    }
+
+    function validateRegexSyntax() {
+      const pattern = regexInput.value;
+      const flags = getFlags();
+      try {
+        new RegExp(pattern, flags);
+        statusBadge.textContent = "Sintaxe Válida";
+        statusBadge.className = "status-badge status-valid";
+        return true;
+      } catch (e) {
+        statusBadge.textContent = "Sintaxe Inválida";
+        statusBadge.className = "status-badge status-invalid";
+        return false;
+      }
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Função executada ao clicar no botão Submeter
+    function evaluateRegex() {
+      const pattern = regexInput.value;
+      const text = targetText.value;
+      const flags = getFlags();
+
+      if (!validateRegexSyntax()) {
+        resultBanner.className = "match-status-banner banner-nomatch";
+        resultBanner.innerHTML = "❌ <b>Erro:</b> A expressão regular inserida tem sintaxe inválida.";
+        outputContainer.textContent = "Corrija a Regex antes de submeter.";
+        matchesWrapper.style.display = "none";
+        return;
+      }
+
+      if (!text.trim()) {
+        resultBanner.className = "match-status-banner banner-empty";
+        resultBanner.innerHTML = "⚠️ <b>Atenção:</b> Digite algum texto no campo de entrada.";
+        outputContainer.textContent = "Texto vazio.";
+        matchesWrapper.style.display = "none";
+        return;
+      }
+
+      const regex = new RegExp(pattern, flags);
+      const isExactMatch = regex.test(text);
+      const matches = text.match(regex) || [];
+
+      // Atualiza Banner do Resultado da Avaliação
+      if (matches.length > 0) {
+        resultBanner.className = "match-status-banner banner-match";
+        resultBanner.innerHTML = `✅ <b>SUCESSO!</b> A entrada corresponde à Regex (${matches.length} ocorrência(s) encontrada(s)).`;
+      } else {
+        resultBanner.className = "match-status-banner banner-nomatch";
+        resultBanner.innerHTML = "❌ <b>FALHA!</b> A entrada NÃO corresponde à Expressão Regular.";
+      }
+
+      // Renderiza Texto Com Destaque
+      let highlighted = '';
+      let lastIndex = 0;
+
+      if (regex.global) {
+        let match;
+        regex.lastIndex = 0;
+        while ((match = regex.exec(text)) !== null) {
+          if (match.index === regex.lastIndex) {
+            regex.lastIndex++;
+          }
+          highlighted += escapeHtml(text.substring(lastIndex, match.index));
+          highlighted += `<mark>${escapeHtml(match[0])}</mark>`;
+          lastIndex = match.index + match[0].length;
+        }
+        highlighted += escapeHtml(text.substring(lastIndex));
+      } else {
+        const match = regex.exec(text);
+        if (match) {
+          highlighted += escapeHtml(text.substring(0, match.index));
+          highlighted += `<mark>${escapeHtml(match[0])}</mark>`;
+          highlighted += escapeHtml(text.substring(match.index + match[0].length));
+        } else {
+          highlighted = escapeHtml(text);
+        }
+      }
+
+      outputContainer.innerHTML = highlighted;
+
+      // Lista os valores encontrados individualmente
+      if (matches.length > 0) {
+        matchesWrapper.style.display = "block";
+        matchesList.innerHTML = matches.map((m, idx) => `<span class="match-item">#${idx+1}: "${escapeHtml(m)}"</span>`).join('');
+      } else {
+        matchesWrapper.style.display = "none";
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

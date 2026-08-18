@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SVG Visual Lab - Arte e Vetores com Código</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #311042 70%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #6366f1; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #a855f7; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #ec4899; }
+
+    .container {
+      width: 100%;
+      max-width: 1150px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .label-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 16px 20px;
+      color: #f8fafc;
+      font-size: 1.05rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25), inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select option {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .color-picker-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 12px;
+      border-radius: 12px;
+    }
+
+    .color-picker-wrapper input[type="color"] {
+      -webkit-appearance: none;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .color-picker-wrapper input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .color-picker-wrapper input[type="color"]::-webkit-color-swatch {
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 6px;
+    }
+
+    .color-val {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      min-width: 65px;
+    }
+
+    .tool-btn {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .tool-btn:hover {
+      background: rgba(56, 189, 248, 0.3);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .concept-explanation {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .concept-explanation b { color: #38bdf8; }
+    .concept-explanation code, .tbl-code {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: Consolas, Monaco, monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.svg-guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.svg-guide-table th {
+      background: rgba(15, 23, 42, 0.85);
+      color: #38bdf8;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.svg-guide-table td {
+      padding: 12px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+    }
+
+    table.svg-guide-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .dual-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .dual-panel { grid-template-columns: 1fr; }
+    }
+
+    /* Estrutura do Editor com Métricas Idênticas sem Negrito/Itálico */
+    .editor-container-wrapper {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+      transition: height 0.3s ease;
+    }
+
+    .editor-container-wrapper pre,
+    .editor-container-wrapper code,
+    .editor-container-wrapper textarea,
+    .editor-container-wrapper span {
+      font-family: Consolas, Monaco, 'Courier New', monospace !important;
+      font-size: 14px !important;
+      font-weight: 400 !important;
+      font-style: normal !important;
+      line-height: 20px !important;
+      letter-spacing: 0px !important;
+      word-spacing: 0px !important;
+      font-variant-ligatures: none !important;
+      tab-size: 2 !important;
+      -moz-tab-size: 2 !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      text-rendering: optimizeLegibility !important;
+    }
+
+    .editor-container-wrapper pre,
+    .editor-container-wrapper textarea {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 16px 20px !important;
+      margin: 0 !important;
+      border: 0 !important;
+      box-sizing: border-box !important;
+      white-space: pre !important;
+      word-wrap: normal !important;
+      overflow-wrap: normal !important;
+    }
+
+    .editor-container-wrapper pre {
+      pointer-events: none;
+      color: #f8fafc;
+      z-index: 1;
+      overflow: hidden !important;
+    }
+
+    .editor-container-wrapper pre code {
+      background: transparent !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      display: inline !important;
+      color: inherit;
+    }
+
+    .editor-container-wrapper textarea {
+      background: transparent;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      caret-color: #38bdf8;
+      resize: none;
+      outline: none;
+      z-index: 2;
+      overflow: auto !important;
+    }
+
+    .editor-container-wrapper textarea::selection {
+      background: rgba(168, 85, 247, 0.45) !important;
+      color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+
+    .editor-container-wrapper textarea::-moz-selection {
+      background: rgba(168, 85, 247, 0.45) !important;
+      color: transparent !important;
+    }
+
+    /* Cores de Sintaxe sem Negrito/Itálico para Alinhamento Perfeito */
+    .hl-tag { color: #f472b6; }
+    .hl-attr { color: #38bdf8; }
+    .hl-val { color: #fbbf24; }
+    .hl-comment { color: #64748b; }
+
+    .glass-card.editor-expanded {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      bottom: 20px;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.85);
+      border-radius: 24px;
+    }
+
+    .glass-card.editor-expanded .editor-container-wrapper {
+      flex: 1;
+      height: 100% !important;
+    }
+
+    .preview-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 20px;
+      height: 250px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .preview-box svg {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      padding: 18px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(168, 85, 247, 0.6);
+      filter: brightness(1.1);
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-error {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .meta-box {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-family: Consolas, Monaco, monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>SVG Visual Lab</h1>
+      <p>Aprenda a Criar Desenhos Vetoriais, Ícones e Gráficos no Navegador</p>
+    </header>
+
+    <div class="glass-card">
+      <div class="label-title">1. Escolha o Exercício / Arte Vetorial</div>
+      <select id="lessonSelect">
+        <option value="ex1">Exercício 1: Cartão Neon (<rect> + cantos arredondados rx/ry)</option>
+        <option value="ex2">Exercício 2: Radar Cibernético (<circle> + traços pontilhados)</option>
+        <option value="ex3">Exercício 3: Planeta Saturno e Anéis (<ellipse> + <line>)</option>
+        <option value="ex4">Exercício 4: Gema / Diamante Vetorial (<polygon> + <polyline>)</option>
+        <option value="ex5">Exercício 5: Tipografia e Logo Neon (<text> + preenchimentos)</option>
+        <option value="ex6">Exercício 6: Sol Synthwave com Degradê (<defs> + <linearGradient>)</option>
+        <option value="ex7">Exercício 7: Raio e Trajetórias Retas (<path> M e L)</option>
+        <option value="ex8">Exercício 8: Onda Senoidal / Áudio Wave (<path> com Curvas Bézier Q e T)</option>
+        <option value="ex9">Exercício 9: Constelação de Estrelas (<g> + reutilização com <use>)</option>
+        <option value="ex10">Exercício 10: Badge Dev Completo (Escudo, Texto e Ícone Integrados)</option>
+      </select>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">2. Conceito e Desafio de Design</div>
+      <div id="conceptText" class="concept-explanation"></div>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">📖 Guia Rápido de Tags & Atributos SVG</div>
+      <div class="table-wrapper">
+        <table class="svg-guide-table">
+          <thead>
+            <tr>
+              <th>Elemento / Atributo</th>
+              <th>Função / O que Desenha</th>
+              <th>Propriedades Principais</th>
+              <th>Exemplo Prático</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tbl-code">&lt;rect&gt;</span></td>
+              <td>Retângulos e quadrados</td>
+              <td><span class="tbl-code">x, y, width, height, rx, ry</span></td>
+              <td><span class="tbl-code">&lt;rect width="100" height="50" rx="10" /&gt;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">&lt;circle&gt;</span></td>
+              <td>Círculos e esferas</td>
+              <td><span class="tbl-code">cx, cy</span> (centro), <span class="tbl-code">r</span> (raio)</td>
+              <td><span class="tbl-code">&lt;circle cx="50" cy="50" r="40" /&gt;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">&lt;ellipse&gt;</span></td>
+              <td>Elipses e formas ovaladas</td>
+              <td><span class="tbl-code">cx, cy, rx</span> (raio X), <span class="tbl-code">ry</span> (raio Y)</td>
+              <td><span class="tbl-code">&lt;ellipse cx="100" cy="50" rx="80" ry="20" /&gt;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">&lt;line&gt;</span> / <span class="tbl-code">&lt;polyline&gt;</span></td>
+              <td>Linhas retas isoladas ou conectadas</td>
+              <td><span class="tbl-code">x1, y1, x2, y2</span> ou <span class="tbl-code">points</span></td>
+              <td><span class="tbl-code">&lt;line x1="0" y1="0" x2="100" y2="100" /&gt;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">&lt;polygon&gt;</span></td>
+              <td>Formas fechadas multipartes (triângulos, gemas)</td>
+              <td><span class="tbl-code">points="x1,y1 x2,y2 x3,y3..."</span></td>
+              <td><span class="tbl-code">&lt;polygon points="50,0 100,100 0,100" /&gt;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">&lt;path&gt;</span></td>
+              <td>Caminhos complexos, raios e curvas Bézier</td>
+              <td><span class="tbl-code">d="M... L... Q... Z"</span> (Move, Line, Quad, Close)</td>
+              <td><span class="tbl-code">&lt;path d="M 10,10 L 90,90 Z" /&gt;</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">fill</span> / <span class="tbl-code">stroke</span></td>
+              <td>Cor de preenchimento e cor do contorno</td>
+              <td>Cores hex, RGB, <span class="tbl-code">none</span> ou <span class="tbl-code">url(#id)</span></td>
+              <td><span class="tbl-code">fill="#a855f7" stroke="#38bdf8"</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">stroke-width</span> / <span class="tbl-code">dasharray</span></td>
+              <td>Espessura e padrão pontilhado/tracejado do contorno</td>
+              <td>Números em pixels ou padrões de linha</td>
+              <td><span class="tbl-code">stroke-width="3" stroke-dasharray="5,5"</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="dual-panel">
+      <div class="glass-card" id="editorCard">
+        <div class="label-title">
+          <span>3A. Editor de Código SVG</span>
+          <div class="editor-toolbar">
+            <div class="color-picker-wrapper">
+              <input type="color" id="colorPicker" value="#38bdf8" title="Clique para escolher uma cor">
+              <span id="colorVal" class="color-val">#38BDF8</span>
+              <button class="tool-btn" id="insertColorBtn" title="Substitui o texto selecionado pela cor escolhida">🎨 Inserir na Posição</button>
+              <button class="tool-btn" id="copyColorBtn" title="Copiar código Hexadecimal">📋 Copiar Cor</button>
+            </div>
+            <button class="tool-btn" id="expandBtn" title="Expandir área do editor">⤢ Expandir Editor</button>
+          </div>
+        </div>
+
+        <div class="editor-container-wrapper">
+          <pre id="highlightDisplay" aria-hidden="true"><code id="highlightCode"></code></pre>
+          <textarea id="svgEditor" spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="label-title">
+          <span>3B. Renderização Vetorial Vivo</span>
+          <span id="statusBadge" class="status-badge status-success">Renderizado</span>
+        </div>
+        <div id="svgPreviewContainer" class="preview-box"></div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="runBtn">
+      ⚡ Renderizar Desenho SVG
+    </button>
+
+    <div class="glass-card">
+      <div class="label-title">
+        <span>Status e Dimensões do Canvas</span>
+      </div>
+      <div id="metaInfo" class="meta-box">Pronto para edições.</div>
+    </div>
+  </div>
+
+  <script>
+    const lessons = {
+      ex1: {
+        explanation: "Desenhamos retângulos com a tag <code>&lt;rect&gt;</code>. Os atributos <code>rx</code> e <code>ry</code> criam bordas arredondadas e o <code>stroke-width</code> define o contorno neon.",
+        code: `<svg width="100%" height="220" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo do Cartão -->
+  <rect x="20" y="20" width="360" height="180" rx="20" fill="#1e1b4b" stroke="#38bdf8" stroke-width="3" />
+  
+  <!-- Chip do Cartão -->
+  <rect x="60" y="55" width="50" height="40" rx="8" fill="#a855f7" stroke="#ffffff" stroke-width="1" />
+  
+  <!-- Número do Cartão -->
+  <text x="60" y="145" fill="#ffffff" font-family="monospace" font-size="20" letter-spacing="4">4812 3456 8901 2026</text>
+  <text x="60" y="175" fill="#38bdf8" font-family="sans-serif" font-size="12">DEV CARD / VIP ACCESS</text>
+</svg>`
+      },
+      ex2: {
+        explanation: "Círculos são criados com <code>&lt;circle&gt;</code> usando <code>cx</code> e <code>cy</code> como centro. O atributo <code>stroke-dasharray</code> cria o efeito de linha tracejada do radar.",
+        code: `<svg width="100%" height="220" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <!-- Anéis do Radar -->
+  <circle cx="200" cy="110" r="90" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="8 4" />
+  <circle cx="200" cy="110" r="60" fill="none" stroke="#a855f7" stroke-width="3" />
+  <circle cx="200" cy="110" r="30" fill="none" stroke="#ec4899" stroke-width="1" />
+  
+  <!-- Centro e Alvos Detectados -->
+  <circle cx="200" cy="110" r="6" fill="#ec4899" />
+  <circle cx="230" cy="80" r="8" fill="#4ade80" />
+  <circle cx="160" cy="140" r="5" fill="#4ade80" opacity="0.6" />
+</svg>`
+      },
+      ex3: {
+        explanation: "Usamos <code>&lt;ellipse&gt;</code> para criar o anel inclinado com raios <code>rx</code> (largura) e <code>ry</code> (altura) diferentes, sobrepondo o planeta desenhado com <code>&lt;circle&gt;</code>.",
+        code: `<svg width="100%" height="220" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <!-- Linha de Órbita de Fundo -->
+  <line x1="40" y1="110" x2="360" y2="110" stroke="#38bdf8" stroke-width="1" stroke-dasharray="4 4" />
+  
+  <!-- Anel Traseiro -->
+  <ellipse cx="200" cy="110" rx="140" ry="35" fill="none" stroke="#ec4899" stroke-width="8" opacity="0.8" />
+  
+  <!-- Corpo do Planeta -->
+  <circle cx="200" cy="110" r="55" fill="#6366f1" stroke="#a855f7" stroke-width="4" />
+  
+  <!-- Anel Dianteiro -->
+  <ellipse cx="200" cy="110" rx="140" ry="35" fill="none" stroke="#38bdf8" stroke-width="3" />
+</svg>`
+      },
+      ex4: {
+        explanation: "A tag <code>&lt;polygon&gt;</code> conecta múltiplos pontos <code>(x,y)</code> para fechar uma forma geométrica perfeita como um diamante de vetor.",
+        code: `<svg width="100%" height="220" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <!-- Corpo Principal da Gema -->
+  <polygon points="200,20 280,70 200,200 120,70" fill="#a855f7" stroke="#38bdf8" stroke-width="3" />
+  
+  <!-- Facetas de Brilho Internas -->
+  <polygon points="200,20 230,70 200,200 170,70" fill="#ec4899" opacity="0.5" />
+  <polyline points="120,70 200,95 280,70" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.7" />
+  <line x1="200" y1="20" x2="200" y2="200" stroke="#ffffff" stroke-width="2" opacity="0.4" />
+</svg>`
+      },
+      ex5: {
+        explanation: "A tag <code>&lt;text&gt;</code> permite aplicar tipografia vetorial no SVG. Podemos combinar preenchimentos vazios (<code>fill=&quot;none&quot;</code>) com traços para efeitos neon.",
+        code: `<svg width="100%" height="220" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <!-- Texto com Contorno Neon -->
+  <text x="200" y="110" font-family="'Segoe UI', sans-serif" font-size="46" font-weight="900" fill="none" stroke="#38bdf8" stroke-width="3" text-anchor="middle">DEV LAB</text>
+
+  <!-- Texto de Brilho Sobreposto -->
+  <text x="200" y="110" font-family="'Segoe UI', sans-serif" font-size="46" font-weight="900" fill="#ec4899" text-anchor="middle" opacity="0.6">DEV LAB</text>
+
+  <!-- Subtítulo Vetorial -->
+  <text x="200" y="155" font-family="monospace" font-size="14" fill="#4ade80" letter-spacing="6" text-anchor="middle">&lt;VECTOR POWERED /&gt;</text>
+</svg>`
+      },
+      ex6: {
+        explanation: "Dentro de <code>&lt;defs&gt;</code> definimos um <code>&lt;linearGradient&gt;</code>. Em seguida, aplicamos o gradiente no preenchimento com <code>fill=&quot;url(#solGrad)&quot;</code>.",
+        code: `<svg width="100%" height="220" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="solGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ec4899" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+  </defs>
+
+  <!-- Sol Synthwave -->
+  <circle cx="200" cy="110" r="70" fill="url(#solGrad)" />
+
+  <!-- Recortes de Grade do Sol -->
+  <line x1="120" y1="120" x2="280" y2="120" stroke="#0f172a" stroke-width="6" />
+  <line x1="130" y1="138" x2="270" y2="138" stroke="#0f172a" stroke-width="8" />
+  <line x1="145" y1="154" x2="255" y2="154" stroke="#0f172a" stroke-width="10" />
+</svg>`
+      },
+      ex7: {
+        explanation: "A tag <code>&lt;path&gt;</code> é o comando mais poderoso do SVG. Usamos <code>M x y</code> (Move To) para mover a caneta e <code>L x y</code> (Line To) para desenhar os segmentos do raio.",
+        code: `<svg width="100%" height="220" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <!-- Desenho do Raio com Path -->
+  <path d="M 215,15 L 145,110 L 200,110 L 180,205 L 265,95 L 210,95 Z" 
+        fill="#38bdf8" 
+        stroke="#ffffff" 
+        stroke-width="3" 
+        stroke-linejoin="round" />
+</svg>`
+      },
+      ex8: {
+        explanation: "Curvas Bézier quadráticas usam o comando <code>Q cx cy x y</code> para definir um ponto de controle <code>(cx,cy)</code> que puxa a curva de áudio suavemente.",
+        code: `<svg width="100%" height="220" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <!-- Onda de Áudio Principal -->
+  <path d="M 30,110 Q 110,20 190,110 T 350,110" fill="none" stroke="#a855f7" stroke-width="5" stroke-linecap="round" />
+
+  <!-- Onda Secundária Espelhada -->
+  <path d="M 30,110 Q 110,200 190,110 T 350,110" fill="none" stroke="#ec4899" stroke-width="3" stroke-dasharray="6 4" />
+</svg>`
+      },
+      ex9: {
+        explanation: "Agrupamos uma forma vetorial dentro de <code>&lt;g id=&quot;...&quot;&gt;</code> e a duplicamos várias vezes em posições e escalas diferentes usando <code>&lt;use href=&quot;#id&quot;&gt;</code>.",
+        code: `<svg width="100%" height="220" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Definição da Estrela Reutilizável -->
+    <g id="estrela">
+      <polygon points="0,-12 3,-4 12,0 3,4 0,12 -3,4 -12,0 -3,-4" fill="#38bdf8" />
+    </g>
+  </defs>
+
+  <!-- Reutilizando a mesma estrela com tamanhos e cores diferentes -->
+  <use href="#estrela" x="70" y="50" transform="scale(1.2)" />
+  <use href="#estrela" x="180" y="100" transform="scale(2)" />
+  <use href="#estrela" x="290" y="150" transform="scale(0.9)" fill="#ec4899" />
+  <use href="#estrela" x="100" y="160" transform="scale(1.4)" fill="#4ade80" />
+</svg>`
+      },
+      ex10: {
+        explanation: "Combinação completa de um escudo vetorial desenhado com <code>&lt;path&gt;</code>, gradientes, ícone de código <code>&lt;/&gt;</code> e tipografia para formar um crachá de desenvolvedor.",
+        code: `<svg width="100%" height="220" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#a855f7" />
+    </linearGradient>
+  </defs>
+
+  <!-- Escudo do Badge -->
+  <path d="M 200,20 L 290,60 V 130 C 290,180 200,205 200,205 C 200,205 110,180 110,130 V 60 Z" fill="url(#shieldGrad)" stroke="#38bdf8" stroke-width="4" />
+
+  <!-- Moldura e Ícone Central -->
+  <circle cx="200" cy="95" r="28" fill="#0f172a" stroke="#4ade80" stroke-width="3" />
+  <text x="200" y="103" font-family="monospace" font-size="20" font-weight="bold" fill="#4ade80" text-anchor="middle">&lt;/&gt;</text>
+
+  <!-- Texto do Titular -->
+  <text x="200" y="155" font-family="'Segoe UI', sans-serif" font-size="15" font-weight="800" fill="#ffffff" letter-spacing="2" text-anchor="middle">MASTER DEV</text>
+</svg>`
+      }
+    };
+
+    const lessonSelect = document.getElementById('lessonSelect');
+    const conceptText = document.getElementById('conceptText');
+    const svgEditor = document.getElementById('svgEditor');
+    const highlightDisplay = document.getElementById('highlightDisplay');
+    const highlightCode = document.getElementById('highlightCode');
+    const runBtn = document.getElementById('runBtn');
+    const svgPreviewContainer = document.getElementById('svgPreviewContainer');
+    const statusBadge = document.getElementById('statusBadge');
+    const metaInfo = document.getElementById('metaInfo');
+
+    const colorPicker = document.getElementById('colorPicker');
+    const colorVal = document.getElementById('colorVal');
+    const copyColorBtn = document.getElementById('copyColorBtn');
+    const insertColorBtn = document.getElementById('insertColorBtn');
+    const expandBtn = document.getElementById('expandBtn');
+    const editorCard = document.getElementById('editorCard');
+
+    function escapeHTML(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function updateCodeHighlight() {
+      let code = svgEditor.value;
+
+      if (code.endsWith('\n')) {
+        code += ' ';
+      }
+
+      let escaped = escapeHTML(code);
+
+      escaped = escaped.replace(/&lt;!--[\s\S]*?--&gt;/g, '<span class="hl-comment">$&</span>');
+      escaped = escaped.replace(/&lt;(\/?[a-zA-Z0-9:-]+)([^&>]*?)&gt;/g, function(match, tagName, attrs) {
+        let highlightedAttrs = attrs.replace(/([a-zA-Z0-9:-]+)=("[^"]*"|'[^']*'|[^\s>]+)/g, function(m, attrName, attrVal) {
+          return `<span class="hl-attr">${attrName}</span>=<span class="hl-val">${attrVal}</span>`;
+        });
+        return `&lt;<span class="hl-tag">${tagName}</span>${highlightedAttrs}&gt;`;
+      });
+
+      highlightCode.innerHTML = escaped;
+    }
+
+    function syncScroll() {
+      highlightDisplay.scrollTop = svgEditor.scrollTop;
+      highlightDisplay.scrollLeft = svgEditor.scrollLeft;
+    }
+
+    colorPicker.addEventListener('input', (e) => {
+      colorVal.textContent = e.target.value.toUpperCase();
+    });
+
+    insertColorBtn.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+    });
+
+    insertColorBtn.addEventListener('click', () => {
+      const hexCode = colorVal.textContent;
+      const start = svgEditor.selectionStart;
+      const end = svgEditor.selectionEnd;
+
+      svgEditor.setRangeText(hexCode, start, end, 'end');
+      svgEditor.focus();
+
+      updateCodeHighlight();
+      renderSVG();
+      syncScroll();
+    });
+
+    copyColorBtn.addEventListener('click', () => {
+      const hexCode = colorVal.textContent;
+      navigator.clipboard.writeText(hexCode).then(() => {
+        const originalText = copyColorBtn.innerHTML;
+        copyColorBtn.innerHTML = "✅ Copiado!";
+        copyColorBtn.style.background = "rgba(74, 222, 128, 0.3)";
+        copyColorBtn.style.color = "#4ade80";
+
+        setTimeout(() => {
+          copyColorBtn.innerHTML = originalText;
+          copyColorBtn.style.background = "";
+          copyColorBtn.style.color = "";
+        }, 1800);
+      });
+    });
+
+    expandBtn.addEventListener('click', () => {
+      editorCard.classList.toggle('editor-expanded');
+      if (editorCard.classList.contains('editor-expanded')) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        expandBtn.innerHTML = "⤓ Recolher Editor";
+        expandBtn.style.background = "rgba(239, 68, 68, 0.2)";
+        expandBtn.style.color = "#f87171";
+      } else {
+        expandBtn.innerHTML = "⤢ Expandir Editor";
+        expandBtn.style.background = "";
+        expandBtn.style.color = "";
+        editorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      syncScroll();
+    });
+
+    function loadLesson(key) {
+      const lesson = lessons[key];
+      if (!lesson) return;
+
+      conceptText.innerHTML = lesson.explanation;
+      svgEditor.value = lesson.code;
+      updateCodeHighlight();
+      renderSVG();
+      syncScroll();
+    }
+
+    function renderSVG() {
+      const code = svgEditor.value.trim();
+
+      try {
+        svgPreviewContainer.innerHTML = code;
+        const svgElement = svgPreviewContainer.querySelector('svg');
+
+        if (svgElement) {
+          statusBadge.textContent = "SVG Válido";
+          statusBadge.className = "status-badge status-success";
+          metaInfo.textContent = `🎨 Elementos detectados: ${svgElement.querySelectorAll('*').length} | Canvas ativado com sucesso.`;
+        } else {
+          statusBadge.textContent = "Erro de Tag";
+          statusBadge.className = "status-badge status-error";
+          metaInfo.textContent = "Nenhuma tag <svg> encontrada no código.";
+        }
+      } catch (err) {
+        statusBadge.textContent = "Erro de Renderização";
+        statusBadge.className = "status-badge status-error";
+        metaInfo.textContent = "Erro na sintaxe XML do SVG: " + err.message;
+      }
+    }
+
+    lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+    runBtn.addEventListener('click', renderSVG);
+
+    ['input', 'keyup', 'keydown', 'scroll', 'click', 'paste'].forEach(evt => {
+      svgEditor.addEventListener(evt, () => {
+        updateCodeHighlight();
+        renderSVG();
+        syncScroll();
+      });
+    });
+
+    svgEditor.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 2;
+        updateCodeHighlight();
+        syncScroll();
+      }
+    });
+
+    loadLesson('ex1');
+  </script>
+</body>
+</html>

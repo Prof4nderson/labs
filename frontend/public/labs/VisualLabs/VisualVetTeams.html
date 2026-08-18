@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escudos de Futebol SVG - RJ, SP, MG</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 40px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #94a3b8;
+    }
+
+    .state-section {
+      max-width: 1100px;
+      margin: 0 auto 40px auto;
+    }
+
+    .state-title {
+      font-size: 1.3rem;
+      color: #38bdf8;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: #a855f7;
+    }
+
+    .svg-container {
+      width: 120px;
+      height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .svg-container svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.4));
+    }
+
+    .team-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .copy-btn {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #38bdf8;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Escudos Vetoriais de Futebol (SVG)</h1>
+    <p>Rio de Janeiro, São Paulo e Minas Gerais</p>
+  </header>
+
+  <!-- RIO DE JANEIRO -->
+  <div class="state-section">
+    <h2 class="state-title">Rio de Janeiro</h2>
+    <div class="grid">
+
+      <!-- Flamengo -->
+      <div class="card">
+        <div class="svg-container" id="svg-flamengo">
+          <svg viewBox="0 0 100 120">
+            <path d="M10,10 L90,10 L90,70 Q90,110 50,115 Q10,110 10,70 Z" fill="#c8102e"/>
+            <path d="M10,25 L90,25 M10,40 L90,40 M10,55 L90,55 M10,70 L90,70 M10,85 Q28,103 50,108 M50,108 Q72,103 90,85" stroke="#000" stroke-width="8" fill="none"/>
+            <rect x="15" y="15" width="30" height="30" fill="#000" rx="3"/>
+            <text x="21" y="37" font-family="sans-serif" font-weight="900" font-size="18" fill="#fff">CRF</text>
+          </svg>
+        </div>
+        <div class="team-name">Flamengo</div>
+        <button class="copy-btn" onclick="copySvg('svg-flamengo')">Copiar SVG</button>
+      </div>
+
+      <!-- Vasco -->
+      <div class="card">
+        <div class="svg-container" id="svg-vasco">
+          <svg viewBox="0 0 100 120">
+            <path d="M10,10 L90,10 L90,70 Q90,110 50,115 Q10,110 10,70 Z" fill="#000" stroke="#fff" stroke-width="3"/>
+            <line x1="85" y1="15" x2="15" y2="105" stroke="#fff" stroke-width="16"/>
+            <!-- Cruz de Malta estilizada -->
+            <path d="M50,45 L55,35 L50,38 L45,35 Z M50,45 L60,50 L57,45 L60,40 Z M50,45 L55,55 L50,52 L45,55 Z M50,45 L40,50 L43,45 L40,40 Z" fill="#c8102e" transform="scale(1.8) translate(-22, -12)"/>
+          </svg>
+        </div>
+        <div class="team-name">Vasco da Gama</div>
+        <button class="copy-btn" onclick="copySvg('svg-vasco')">Copiar SVG</button>
+      </div>
+
+      <!-- Fluminense -->
+      <div class="card">
+        <div class="svg-container" id="svg-fluminense">
+          <svg viewBox="0 0 100 120">
+            <path d="M10,10 L90,10 L90,70 Q90,110 50,115 Q10,110 10,70 Z" fill="#800020" stroke="#fff" stroke-width="3"/>
+            <path d="M30,10 L30,85 Q40,102 50,106 Q60,102 70,85 L70,10" fill="#006633" stroke="#fff" stroke-width="2"/>
+            <text x="22" y="55" font-family="serif" font-weight="900" font-size="22" fill="#fff">FFC</text>
+          </svg>
+        </div>
+        <div class="team-name">Fluminense</div>
+        <button class="copy-btn" onclick="copySvg('svg-fluminense')">Copiar SVG</button>
+      </div>
+
+      <!-- Botafogo -->
+      <div class="card">
+        <div class="svg-container" id="svg-botafogo">
+          <svg viewBox="0 0 100 120">
+            <path d="M10,10 L90,10 L90,70 Q90,110 50,115 Q10,110 10,70 Z" fill="#000" stroke="#fff" stroke-width="4"/>
+            <!-- Estrela Solitária -->
+            <polygon points="50,25 57,46 80,46 62,60 68,82 50,68 32,82 38,60 20,46 43,46" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="team-name">Botafogo</div>
+        <button class="copy-btn" onclick="copySvg('svg-botafogo')">Copiar SVG</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SÃO PAULO -->
+  <div class="state-section">
+    <h2 class="state-title">São Paulo</h2>
+    <div class="grid">
+
+      <!-- Corinthians -->
+      <div class="card">
+        <div class="svg-container" id="svg-corinthians">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="45" fill="#fff" stroke="#000" stroke-width="4"/>
+            <circle cx="60" cy="60" r="35" fill="#000"/>
+            <circle cx="60" cy="60" r="22" fill="#fff"/>
+            <text x="44" y="66" font-family="sans-serif" font-weight="900" font-size="16" fill="#000">SCCP</text>
+            <!-- Âncora / Remos simplificados -->
+            <path d="M20,20 L100,100 M100,20 L20,100" stroke="#c8102e" stroke-width="3"/>
+          </svg>
+        </div>
+        <div class="team-name">Corinthians</div>
+        <button class="copy-btn" onclick="copySvg('svg-corinthians')">Copiar SVG</button>
+      </div>
+
+      <!-- Palmeiras -->
+      <div class="card">
+        <div class="svg-container" id="svg-palmeiras">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="#006437" stroke="#fff" stroke-width="4"/>
+            <circle cx="60" cy="60" r="38" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="4,3"/>
+            <circle cx="60" cy="60" r="26" fill="#fff"/>
+            <text x="48" y="70" font-family="serif" font-weight="900" font-size="28" fill="#006437">P</text>
+          </svg>
+        </div>
+        <div class="team-name">Palmeiras</div>
+        <button class="copy-btn" onclick="copySvg('svg-palmeiras')">Copiar SVG</button>
+      </div>
+
+      <!-- São Paulo FC -->
+      <div class="card">
+        <div class="svg-container" id="svg-saopaulo">
+          <svg viewBox="0 0 100 110">
+            <path d="M5,10 L95,10 L95,40 L50,105 L5,40 Z" fill="#fff" stroke="#000" stroke-width="3"/>
+            <rect x="5" y="10" width="90" height="25" fill="#000"/>
+            <text x="18" y="30" font-family="sans-serif" font-weight="900" font-size="16" fill="#fff">SPFC</text>
+            <path d="M12,42 L46,95 L46,42 Z" fill="#c8102e"/>
+            <path d="M88,42 L54,95 L54,42 Z" fill="#000"/>
+          </svg>
+        </div>
+        <div class="team-name">São Paulo</div>
+        <button class="copy-btn" onclick="copySvg('svg-saopaulo')">Copiar SVG</button>
+      </div>
+
+      <!-- Santos -->
+      <div class="card">
+        <div class="svg-container" id="svg-santos">
+          <svg viewBox="0 0 100 110">
+            <path d="M5,10 L95,10 L95,65 Q95,100 50,105 Q5,100 5,65 Z" fill="#fff" stroke="#000" stroke-width="3"/>
+            <path d="M5,10 L50,10 L50,55 L5,55 Z" fill="#000"/>
+            <!-- Listras pretas lado direito -->
+            <line x1="59" y1="10" x2="59" y2="100" stroke="#000" stroke-width="6"/>
+            <line x1="73" y1="10" x2="73" y2="95" stroke="#000" stroke-width="6"/>
+            <line x1="87" y1="10" x2="87" y2="80" stroke="#000" stroke-width="6"/>
+            <!-- Faixa diagonal -->
+            <line x1="5" y1="15" x2="95" y2="55" stroke="#fff" stroke-width="12"/>
+            <text x="25" y="42" font-family="sans-serif" font-weight="900" font-size="14" fill="#000">S.F.C.</text>
+          </svg>
+        </div>
+        <div class="team-name">Santos</div>
+        <button class="copy-btn" onclick="copySvg('svg-santos')">Copiar SVG</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MINAS GERAIS -->
+  <div class="state-section">
+    <h2 class="state-title">Minas Gerais</h2>
+    <div class="grid">
+
+      <!-- Atlético Mineiro -->
+      <div class="card">
+        <div class="svg-container" id="svg-atleticomg">
+          <svg viewBox="0 0 100 120">
+            <path d="M10,10 L90,10 L90,70 Q90,110 50,115 Q10,110 10,70 Z" fill="#fff" stroke="#000" stroke-width="3"/>
+            <!-- Listras Pretas -->
+            <line x1="26" y1="10" x2="26" y2="100" stroke="#000" stroke-width="8"/>
+            <line x1="42" y1="10" x2="42" y2="112" stroke="#000" stroke-width="8"/>
+            <line x1="58" y1="10" x2="58" y2="112" stroke="#000" stroke-width="8"/>
+            <line x1="74" y1="10" x2="74" y2="100" stroke="#000" stroke-width="8"/>
+            <rect x="20" y="20" width="60" height="30" fill="#000" rx="4"/>
+            <text x="24" y="42" font-family="sans-serif" font-weight="900" font-size="18" fill="#fff">CAM</text>
+          </svg>
+        </div>
+        <div class="team-name">Atlético Mineiro</div>
+        <button class="copy-btn" onclick="copySvg('svg-atleticomg')">Copiar SVG</button>
+      </div>
+
+      <!-- Cruzeiro -->
+      <div class="card">
+        <div class="svg-container" id="svg-cruzeiro">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="50" fill="#0033a0" stroke="#fff" stroke-width="4"/>
+            <!-- Cruzeiro do Sul (5 estrelas) -->
+            <polygon points="60,22 62,28 68,28 63,32 65,38 60,34 55,38 57,32 52,28 58,28" fill="#fff"/>
+            <polygon points="60,82 62,88 68,88 63,92 65,98 60,94 55,98 57,92 52,88 58,88" fill="#fff"/>
+            <polygon points="30,52 32,58 38,58 33,62 35,68 30,64 25,68 27,62 22,58 28,58" fill="#fff"/>
+            <polygon points="90,52 92,58 98,58 93,62 95,68 90,64 85,68 87,62 82,58 88,58" fill="#fff"/>
+            <polygon points="72,68 73,72 77,72 74,75 75,79 72,76 69,79 70,75 67,72 71,72" fill="#fff"/>
+          </svg>
+        </div>
+        <div class="team-name">Cruzeiro</div>
+        <button class="copy-btn" onclick="copySvg('svg-cruzeiro')">Copiar SVG</button>
+      </div>
+
+      <!-- América Mineiro -->
+      <div class="card">
+        <div class="svg-container" id="svg-america-mg">
+          <svg viewBox="0 0 100 120">
+            <path d="M10,10 L90,10 L90,70 Q90,110 50,115 Q10,110 10,70 Z" fill="#008037" stroke="#fff" stroke-width="3"/>
+            <line x1="30" y1="10" x2="30" y2="102" stroke="#000" stroke-width="10"/>
+            <line x1="50" y1="10" x2="50" y2="114" stroke="#000" stroke-width="10"/>
+            <line x1="70" y1="10" x2="70" y2="102" stroke="#000" stroke-width="10"/>
+            <circle cx="50" cy="45" r="22" fill="#fff"/>
+            <text x="36" y="52" font-family="sans-serif" font-weight="900" font-size="20" fill="#008037">AFC</text>
+          </svg>
+        </div>
+        <div class="team-name">América Mineiro</div>
+        <button class="copy-btn" onclick="copySvg('svg-america-mg')">Copiar SVG</button>
+      </div>
+
+      <!-- Tombense -->
+      <div class="card">
+        <div class="svg-container" id="svg-tombense">
+          <svg viewBox="0 0 100 110">
+            <path d="M5,10 L95,10 L95,65 Q95,100 50,105 Q5,100 5,65 Z" fill="#c8102e" stroke="#fff" stroke-width="3"/>
+            <path d="M5,10 L95,10 L50,90 Z" fill="#fff"/>
+            <text x="40" y="45" font-family="sans-serif" font-weight="900" font-size="22" fill="#c8102e">TFC</text>
+          </svg>
+        </div>
+        <div class="team-name">Tombense</div>
+        <button class="copy-btn" onclick="copySvg('svg-tombense')">Copiar SVG</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function copySvg(containerId) {
+      const container = document.getElementById(containerId);
+      const svgCode = container.innerHTML.trim();
+
+      navigator.clipboard.writeText(svgCode).then(() => {
+        alert('Código SVG copiado com sucesso!');
+      }).catch(err => {
+        console.error('Erro ao copiar: ', err);
+      });
+    }
+  </script>
+
+</body>
+</html>

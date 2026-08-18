@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Jogo do Dragão - Crescimento Progressivo e Velocidade</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #111827;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #1f2937;
+    }
+
+    /* Interface HUD */
+    .hud {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .hud-card {
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 20px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .hud-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #9ca3af;
+    }
+
+    .hud-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #10b981;
+      font-family: monospace;
+    }
+
+    .hud-value.gold { color: #f59e0b; }
+    .hud-value.blue { color: #3b82f6; }
+
+    .combo-badge {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.25s ease;
+    }
+
+    .combo-badge.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    /* Tela de Início / Game Over */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+      padding: 24px;
+      text-align: center;
+      transition: opacity 0.3s ease;
+    }
+
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .title {
+      font-size: 3rem;
+      font-weight: 900;
+      color: #f97316;
+      text-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #9ca3af;
+      margin-bottom: 28px;
+      max-width: 480px;
+      line-height: 1.5;
+    }
+
+    /* Guia de Itens */
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 28px;
+    }
+
+    .item-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+    }
+
+    .item-icon {
+      font-size: 1.5rem;
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      color: #ffffff;
+      border: none;
+      padding: 14px 40px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-start:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 30px rgba(249, 115, 22, 0.6);
+    }
+
+    .btn-start:active {
+      transform: translateY(1px);
+    }
+
+    .controls-info {
+      margin-top: 16px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <div class="hud">
+      <div class="hud-card">
+        <span class="hud-title">Pontos / Tamanho</span>
+        <span id="score" class="hud-value">0</span>
+      </div>
+      <div id="combo-badge" class="combo-badge">2X TURBO</div>
+      <div class="hud-card">
+        <span class="hud-title">Recorde</span>
+        <span id="highscore" class="hud-value gold">0</span>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="overlay" class="overlay">
+      <h1 id="overlay-title" class="title">DRAGÃO MÁGICO</h1>
+      <p id="overlay-sub" class="subtitle">Guie o dragão! Quanto mais ele come, mais longo e rápido o dragão se torna. Cuidado para não bater!</p>
+
+      <div class="items-grid">
+        <div class="item-card">
+          <span class="item-icon">🍎</span>
+          <strong>Maçã</strong>
+          <span>+10 Pts | Cresce</span>
+        </div>
+        <div class="item-card">
+          <span class="item-icon">🔥</span>
+          <strong>Pimenta</strong>
+          <span>+Turbo & Pts 2x</span>
+        </div>
+        <div class="item-card">
+          <span class="item-icon">🛡️</span>
+          <strong>Escudo</strong>
+          <span>Invulnerável</span>
+        </div>
+        <div class="item-card">
+          <span class="item-icon">🍄</span>
+          <strong>Cogumelo</strong>
+          <span>Reduz Cauda</span>
+        </div>
+        <div class="item-card">
+          <span class="item-icon">⭐</span>
+          <strong>Estrela</strong>
+          <span>+50 Pts Bônus</span>
+        </div>
+      </div>
+
+      <button id="start-btn" class="btn-start">JOGAR AGORA</button>
+      <p class="controls-info">Controles: Mova o Mouse / Toque na Tela / Teclas WASD ou Setas</p>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       GERADOR DE ÁUDIO SINTETIZADO (Web Audio API)
+       ========================================================================== */
+    class SoundFx {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      }
+      playEat() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.08);
+      }
+      playPowerup() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1000, this.ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.2);
+      }
+      playCrash() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.3);
+      }
+    }
+
+    const audio = new SoundFx();
+
+    /* ==========================================================================
+       ESTADO E CONFIGURAÇÕES DO JOGO
+       ========================================================================== */
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const scoreEl = document.getElementById('score');
+    const highscoreEl = document.getElementById('highscore');
+    const comboBadge = document.getElementById('combo-badge');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlay-title');
+    const overlaySub = document.getElementById('overlay-sub');
+    const startBtn = document.getElementById('start-btn');
+
+    let width, height;
+    let gameActive = false;
+    let score = 0;
+    let highscore = localStorage.getItem('dragon_game_hs') || 0;
+    highscoreEl.textContent = highscore;
+
+    let targetPos = { x: 0, y: 0 };
+    let animationId = null;
+
+    // Tipos de Comestíveis
+    const ITEM_TYPES = {
+      APPLE: { icon: '🍎', color: '#ef4444', pts: 10, radius: 14 },
+      CHILI: { icon: '🔥', color: '#f97316', pts: 20, radius: 14 },
+      SHIELD: { icon: '🛡️', color: '#3b82f6', pts: 15, radius: 15 },
+      MUSHROOM: { icon: '🍄', color: '#a855f7', pts: 25, radius: 14 },
+      STAR: { icon: '⭐', color: '#eab308', pts: 50, radius: 16 }
+    };
+
+    let items = [];
+    let particles = [];
+    let floatingTexts = [];
+
+    /* ==========================================================================
+       CLASSE DRAGÃO (COM CRESCIMENTO E VELOCIDADE ESCALÁVEL)
+       ========================================================================== */
+    class Dragon {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.angle = 0;
+        this.baseSpeed = 3.5;
+        this.speed = 3.5;
+        this.turnSpeed = 0.09;
+        this.segmentDist = 14;
+        this.body = [];
+        this.length = 12;
+        this.wingAngle = 0;
+
+        this.shieldActive = false;
+        this.shieldTimer = 0;
+        this.multiplier = 1;
+        this.multiplierTimer = 0;
+
+        for (let i = 0; i < this.length; i++) {
+          this.body.push({ x: x - i * this.segmentDist, y: y });
+        }
+      }
+
+      update(targetX, targetY) {
+        // Suavização do Ângulo
+        let targetAngle = Math.atan2(targetY - this.y, targetX - this.x);
+        let diff = targetAngle - this.angle;
+        diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+        this.angle += diff * this.turnSpeed;
+
+        // A velocidade aumenta progressivamente conforme o dragão cresce (tamanho do corpo)
+        // Cada segmento extra aumenta um pouco a velocidade base
+        let lengthBonus = (this.body.length - 12) * 0.035;
+        let currentBaseSpeed = this.baseSpeed + Math.max(0, lengthBonus);
+
+        // Efeito de Turbo/Powerups
+        if (this.multiplierTimer > 0) {
+          this.multiplierTimer--;
+          if (this.multiplierTimer === 0) {
+            this.multiplier = 1;
+            comboBadge.classList.remove('active');
+          }
+        }
+
+        this.speed = currentBaseSpeed * this.multiplier;
+
+        if (this.shieldTimer > 0) {
+          this.shieldTimer--;
+          if (this.shieldTimer === 0) this.shieldActive = false;
+        }
+
+        // Mover Cabeça
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.body[0] = { x: this.x, y: this.y };
+
+        // Mover Corpo (Cinemática Inversa)
+        for (let i = 1; i < this.body.length; i++) {
+          let prev = this.body[i - 1];
+          let curr = this.body[i];
+          let dx = prev.x - curr.x;
+          let dy = prev.y - curr.y;
+          let dist = Math.hypot(dx, dy);
+
+          if (dist > this.segmentDist) {
+            let angle = Math.atan2(dy, dx);
+            curr.x = prev.x - Math.cos(angle) * this.segmentDist;
+            curr.y = prev.y - Math.sin(angle) * this.segmentDist;
+          }
+        }
+
+        // Bater de Asas mais rápido se estiver em alta velocidade
+        this.wingAngle += 0.12 + (this.body.length * 0.003);
+      }
+
+      grow(amount = 3) {
+        for (let i = 0; i < amount; i++) {
+          let tail = this.body[this.body.length - 1];
+          this.body.push({ x: tail.x, y: tail.y });
+        }
+      }
+
+      shrink(amount = 4) {
+        if (this.body.length > 8) {
+          this.body.splice(-amount);
+        }
+      }
+
+      draw(ctx) {
+        // 1. Asas do Dragão
+        if (this.body.length > 3) {
+          let wingSeg = this.body[2];
+          let wingFlap = Math.sin(this.wingAngle) * 12;
+
+          ctx.save();
+          ctx.translate(wingSeg.x, wingSeg.y);
+          ctx.rotate(this.angle);
+
+          // Asa Superior
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(-10, -35 - wingFlap, 15, -25);
+          ctx.quadraticCurveTo(0, -10, 0, 0);
+          ctx.fillStyle = '#f97316';
+          ctx.fill();
+          ctx.strokeStyle = '#c2410c';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Asa Inferior
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(-10, 35 + wingFlap, 15, 25);
+          ctx.quadraticCurveTo(0, 10, 0, 0);
+          ctx.fillStyle = '#f97316';
+          ctx.fill();
+          ctx.strokeStyle = '#c2410c';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          ctx.restore();
+        }
+
+        // 2. Corpo do Dragão
+        for (let i = this.body.length - 1; i >= 0; i--) {
+          let seg = this.body[i];
+          let radius = Math.max(14 - (i / this.body.length) * 6, 5);
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(seg.x, seg.y, radius, 0, Math.PI * 2);
+          ctx.fillStyle = i % 2 === 0 ? '#10b981' : '#059669';
+          ctx.fill();
+          ctx.strokeStyle = '#047857';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Cristas das costas
+          if (i > 0 && i % 2 === 0) {
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(seg.x, seg.y - radius * 0.5, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.restore();
+        }
+
+        // 3. Cabeça Detalhada do Dragão
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+
+        // Chifres
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.moveTo(-6, -8);
+        ctx.lineTo(-18, -14);
+        ctx.lineTo(-8, -4);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(-6, 8);
+        ctx.lineTo(-18, 14);
+        ctx.lineTo(-8, 4);
+        ctx.fill();
+
+        // Cabeça
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(0, 0, 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#047857';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Focinho
+        ctx.beginPath();
+        ctx.arc(8, 0, 9, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Olhos
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(3, -5, 4, 0, Math.PI * 2);
+        ctx.arc(3, 5, 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.arc(4, -5, 2, 0, Math.PI * 2);
+        ctx.arc(4, 5, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Escudo Visual
+        if (this.shieldActive) {
+          ctx.strokeStyle = '#3b82f6';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, 0, 24, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    /* ==========================================================================
+       PARTÍCULAS E ELEMENTOS VISUAIS
+       ========================================================================== */
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.vx = (Math.random() - 0.5) * 4;
+        this.vy = (Math.random() - 0.5) * 4;
+        this.radius = Math.random() * 4 + 2;
+        this.alpha = 1;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.alpha -= 0.025;
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(this.alpha, 0);
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    class FloatingText {
+      constructor(x, y, text, color) {
+        this.x = x;
+        this.y = y;
+        this.text = text;
+        this.color = color;
+        this.alpha = 1;
+      }
+      update() {
+        this.y -= 1;
+        this.alpha -= 0.02;
+      }
+      draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(this.alpha, 0);
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillStyle = this.color;
+        ctx.fillText(this.text, this.x, this.y);
+        ctx.restore();
+      }
+    }
+
+    class Item {
+      constructor(x, y, type) {
+        this.x = x;
+        this.y = y;
+        this.type = type;
+        this.pulse = 0;
+      }
+      draw(ctx) {
+        this.pulse += 0.05;
+        let scale = 1 + Math.sin(this.pulse) * 0.08;
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(scale, scale);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, this.type.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.fill();
+
+        ctx.font = `${this.type.radius * 1.5}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(this.type.icon, 0, 0);
+
+        ctx.restore();
+      }
+    }
+
+    /* ==========================================================================
+       SISTEMA DO JOGO E EVENTOS
+       ========================================================================== */
+    let dragon;
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resize);
+
+    function spawnItem() {
+      const padding = 60;
+      const x = Math.random() * (width - padding * 2) + padding;
+      const y = Math.random() * (height - padding * 2) + padding;
+
+      const rand = Math.random();
+      let type = ITEM_TYPES.APPLE;
+
+      if (rand > 0.88) type = ITEM_TYPES.STAR;
+      else if (rand > 0.72) type = ITEM_TYPES.SHIELD;
+      else if (rand > 0.55) type = ITEM_TYPES.MUSHROOM;
+      else if (rand > 0.35) type = ITEM_TYPES.CHILI;
+
+      items.push(new Item(x, y, type));
+    }
+
+    function initGame() {
+      resize();
+      audio.init();
+
+      score = 0;
+      scoreEl.textContent = '0';
+      items = [];
+      particles = [];
+      floatingTexts = [];
+
+      dragon = new Dragon(width / 2, height / 2);
+      targetPos = { x: width / 2 + 50, y: height / 2 };
+
+      for (let i = 0; i < 4; i++) spawnItem();
+
+      gameActive = true;
+      overlay.classList.add('hidden');
+
+      if (animationId) cancelAnimationFrame(animationId);
+      gameLoop();
+    }
+
+    function gameOver() {
+      gameActive = false;
+      audio.playCrash();
+
+      if (score > highscore) {
+        highscore = score;
+        localStorage.setItem('dragon_game_hs', highscore);
+        highscoreEl.textContent = highscore;
+      }
+
+      overlayTitle.textContent = "FIM DE JOGO!";
+      overlaySub.textContent = `Você atingiu o tamanho ${dragon.body.length} com ${score} pontos. Tente novamente!`;
+      startBtn.textContent = "JOGAR NOVAMENTE";
+      overlay.classList.remove('hidden');
+    }
+
+    // Eventos de Controle
+    window.addEventListener('mousemove', (e) => {
+      targetPos.x = e.clientX;
+      targetPos.y = e.clientY;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        targetPos.x = e.touches[0].clientX;
+        targetPos.y = e.touches[0].clientY;
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (!gameActive) return;
+      const step = 40;
+      if (e.key === 'ArrowLeft' || e.key === 'a') targetPos.x -= step;
+      if (e.key === 'ArrowRight' || e.key === 'd') targetPos.x += step;
+      if (e.key === 'ArrowUp' || e.key === 'w') targetPos.y -= step;
+      if (e.key === 'ArrowDown' || e.key === 's') targetPos.y += step;
+    });
+
+    startBtn.addEventListener('click', initGame);
+
+    /* ==========================================================================
+       LOOP PRINCIPAL DO JOGO
+       ========================================================================== */
+    function gameLoop() {
+      if (!gameActive) return;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Grade de Fundo
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      const gridSize = 40;
+      for (let x = 0; x < width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Atualizar Dragão
+      dragon.update(targetPos.x, targetPos.y);
+
+      // Exibir o tamanho atual do corpo no HUD junto com a pontuação
+      scoreEl.textContent = `${score} (Tam: ${dragon.body.length})`;
+
+      // Colisões com Paredes
+      if (!dragon.shieldActive) {
+        if (dragon.x < 0 || dragon.x > width || dragon.y < 0 || dragon.y > height) {
+          gameOver();
+          return;
+        }
+      } else {
+        if (dragon.x < 0) dragon.x = width;
+        if (dragon.x > width) dragon.x = 0;
+        if (dragon.y < 0) dragon.y = height;
+        if (dragon.y > height) dragon.y = 0;
+      }
+
+      // Colisão do Dragão com o próprio corpo
+      for (let i = 6; i < dragon.body.length; i++) {
+        let seg = dragon.body[i];
+        let dist = Math.hypot(dragon.x - seg.x, dragon.y - seg.y);
+        if (dist < 12 && !dragon.shieldActive) {
+          gameOver();
+          return;
+        }
+      }
+
+      // Itens
+      for (let i = items.length - 1; i >= 0; i--) {
+        let item = items[i];
+        item.draw(ctx);
+
+        let dist = Math.hypot(dragon.x - item.x, dragon.y - item.y);
+        if (dist < item.type.radius + 14) {
+          let pts = item.type.pts * dragon.multiplier;
+          score += pts;
+
+          for (let p = 0; p < 12; p++) {
+            particles.push(new Particle(item.x, item.y, item.type.color));
+          }
+          floatingTexts.push(new FloatingText(item.x, item.y, `+${pts}`, item.type.color));
+
+          if (item.type === ITEM_TYPES.APPLE) {
+            audio.playEat();
+            dragon.grow(3); // Cresce mais a cada maçã
+          } else if (item.type === ITEM_TYPES.CHILI) {
+            audio.playPowerup();
+            dragon.multiplier = 2;
+            dragon.multiplierTimer = 240;
+            comboBadge.classList.add('active');
+          } else if (item.type === ITEM_TYPES.SHIELD) {
+            audio.playPowerup();
+            dragon.shieldActive = true;
+            dragon.shieldTimer = 300;
+          } else if (item.type === ITEM_TYPES.MUSHROOM) {
+            audio.playEat();
+            dragon.shrink(4);
+          } else if (item.type === ITEM_TYPES.STAR) {
+            audio.playPowerup();
+            dragon.grow(5);
+          }
+
+          items.splice(i, 1);
+          spawnItem();
+        }
+      }
+
+      if (items.length < 4) spawnItem();
+
+      // Desenhar Dragão
+      dragon.draw(ctx);
+
+      // Partículas
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].draw(ctx);
+        if (particles[i].alpha <= 0) particles.splice(i, 1);
+      }
+
+      // Textos Flutuantes
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        floatingTexts[i].update();
+        floatingTexts[i].draw(ctx);
+        if (floatingTexts[i].alpha <= 0) floatingTexts.splice(i, 1);
+      }
+
+      animationId = requestAnimationFrame(gameLoop);
+    }
+  </script>
+</body>
+</html>

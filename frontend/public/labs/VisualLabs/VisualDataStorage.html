@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data & Storage Evolution Lab</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0b0f19 0%, #111827 35%, #1e1b4b 70%, #0b0f19 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1; overflow: hidden; pointer-events: none;
+    }
+
+    .shape {
+      position: absolute; border-radius: 50%;
+      filter: blur(90px); opacity: 0.35;
+    }
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #6366f1; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #10b981; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #f59e0b; }
+
+    .container {
+      width: 100%;
+      max-width: 1150px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    header { text-align: center; margin-bottom: 35px; }
+    header h1 {
+      font-size: 2.5rem; font-weight: 800;
+      background: linear-gradient(135deg, #818cf8 0%, #34d399 50%, #fbbf24 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px; margin-bottom: 8px;
+    }
+    header p { color: #9ca3af; font-size: 1.1rem; }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .label-title {
+      font-size: 0.95rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: #818cf8; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+
+    select, input[type="text"] {
+      width: 100%; background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px;
+      padding: 12px 16px; color: #f8fafc; font-size: 0.95rem; outline: none;
+    }
+    select:focus, input[type="text"]:focus {
+      border-color: #818cf8; box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.25);
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px; margin-top: 10px;
+    }
+
+    .control-group {
+      display: flex; flex-direction: column; gap: 6px;
+      background: rgba(15, 23, 42, 0.5);
+      padding: 12px 14px; border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .control-group label {
+      font-size: 0.78rem; font-weight: 700; color: #cbd5e1;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .editor-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    
+    .tool-btn {
+      background: rgba(129, 140, 248, 0.15); color: #818cf8;
+      border: 1px solid rgba(129, 140, 248, 0.3); border-radius: 10px;
+      padding: 7px 12px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+    }
+    .tool-btn:hover { background: rgba(129, 140, 248, 0.3); color: #ffffff; }
+
+    .concept-explanation { color: #e2e8f0; font-size: 1.05rem; line-height: 1.7; }
+    .concept-explanation pre {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 16px; border-radius: 10px; margin: 10px 0;
+      color: #818cf8; font-family: Consolas, Monaco, monospace; font-size: 0.9rem;
+    }
+    .concept-explanation code {
+      background: rgba(129, 140, 248, 0.15); color: #818cf8; padding: 2px 6px;
+      border-radius: 4px; font-family: Consolas, Monaco, monospace;
+    }
+
+    .dual-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .dual-panel { grid-template-columns: 1fr; } }
+
+    .editor-container-wrapper {
+      position: relative; width: 100%; height: 320px;
+      border-radius: 14px; overflow: hidden;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    .editor-container-wrapper pre,
+    .editor-container-wrapper code,
+    .editor-container-wrapper textarea,
+    .editor-container-wrapper span {
+      font-family: Consolas, Monaco, 'Courier New', monospace !important;
+      font-size: 14px !important;
+      font-weight: 400 !important;
+      font-style: normal !important;
+      line-height: 20px !important;
+      letter-spacing: 0px !important;
+      word-spacing: 0px !important;
+      font-variant-ligatures: none !important;
+      tab-size: 2 !important; -moz-tab-size: 2 !important;
+      -webkit-font-smoothing: antialiased !important;
+    }
+
+    .editor-container-wrapper pre,
+    .editor-container-wrapper textarea {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      padding: 16px 20px !important; margin: 0 !important; border: 0 !important;
+      box-sizing: border-box !important; white-space: pre !important;
+      word-wrap: normal !important; overflow-wrap: normal !important;
+    }
+
+    .editor-container-wrapper pre { pointer-events: none; color: #f8fafc; z-index: 1; overflow: hidden !important; }
+    .editor-container-wrapper pre code { background: transparent !important; display: inline !important; color: inherit; }
+    .editor-container-wrapper textarea {
+      background: transparent; color: transparent; -webkit-text-fill-color: transparent;
+      caret-color: #818cf8; resize: none; outline: none; z-index: 2; overflow: auto !important;
+    }
+
+    .editor-container-wrapper textarea::selection {
+      background: rgba(129, 140, 248, 0.4) !important; color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+
+    .hl-keyword { color: #f472b6; }
+    .hl-func { color: #a855f7; }
+    .hl-num { color: #fbbf24; }
+    .hl-str { color: #34d399; }
+    .hl-comment { color: #64748b; }
+
+    .glass-card.editor-expanded {
+      position: fixed; top: 20px; left: 20px; right: 20px; bottom: 20px; z-index: 9999;
+      background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(25px);
+      border: 1px solid rgba(129, 140, 248, 0.4); display: flex; flex-direction: column;
+      margin: 0; border-radius: 24px;
+    }
+    .glass-card.editor-expanded .editor-container-wrapper { flex: 1; height: 100% !important; }
+
+    .console-box {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px; padding: 16px; height: 320px;
+      overflow-y: auto; font-family: Consolas, Monaco, monospace;
+      font-size: 0.9rem; color: #e2e8f0; display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .console-line { padding: 6px 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.03); white-space: pre-wrap; word-break: break-all; }
+    .console-info { color: #38bdf8; }
+    .console-log { color: #fbbf24; border-left: 3px solid #fbbf24; }
+    .console-success { color: #34d399; background: rgba(52, 211, 153, 0.1); border-left: 3px solid #34d399; font-weight: bold; }
+    .console-error { color: #f87171; background: rgba(248, 113, 113, 0.1); border-left: 3px solid #f87171; font-weight: bold; }
+
+    .submit-btn {
+      width: 100%; background: linear-gradient(135deg, #6366f1 0%, #10b981 100%);
+      color: #ffffff; border: none; border-radius: 16px; padding: 18px 28px;
+      font-size: 1.2rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35); margin-bottom: 25px; transition: all 0.3s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+    .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    .status-success { background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+    .status-error { background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+    .meta-box { font-size: 0.85rem; color: #9ca3af; font-family: Consolas, Monaco, monospace; }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Data & Storage Evolution Lab</h1>
+      <p>A Jornada do Armazenamento: de Arquivos Planos a Bancos Vetoriais para IA</p>
+    </header>
+
+    <div class="glass-card">
+      <div class="label-title">1. Selecione a Era do Armazenamento</div>
+      <select id="lessonSelect">
+        <option value="ex1">Era 1: Arquivos Planos / Texto Puro (CSV / Key-Value Manual)</option>
+        <option value="ex2">Era 2: Bancos Relacionais / RDBMS (SQL, Tabelas, Primary Keys)</option>
+        <option value="ex3">Era 3: Bancos Não-Relacionais / NoSQL (MongoDB, Documentos JSON)</option>
+        <option value="ex4">Era 4: Armazenamento em Memória / Caching (Redis, TTL & In-Memory)</option>
+        <option value="ex5">Era 5: Armazenamento de Objetos / Cloud (AWS S3, Blobs & Buckets)</option>
+        <option value="ex6">Era 6: Motores de Busca Texto Integral (Elasticsearch, Inverted Index)</option>
+        <option value="ex7">Era 7: Analytics & Data Warehouse (Snowflake, BigQuery, OLAP)</option>
+        <option value="ex8">Era 8: Bancos Vetoriais / Era da IA (Embeddings & Similaridade Seno)</option>
+      </select>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">2. Conceito Teórico e Prático</div>
+      <div id="conceptText" class="concept-explanation"></div>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">⚡ Parâmetros da Consulta de Dados</div>
+      <div class="controls-grid">
+        <div class="control-group">
+          <label>Parâmetro A (Chave / Filtro / Termo)</label>
+          <input type="text" id="paramInputA" value="alice">
+        </div>
+        <div class="control-group">
+          <label>Parâmetro B (Valor / Limite / TTL)</label>
+          <input type="text" id="paramInputB" value="100">
+        </div>
+        <div class="control-group">
+          <label>Parâmetro C (Dimensão / Tag / Config)</label>
+          <input type="text" id="paramInputC" value="vendas">
+        </div>
+      </div>
+    </div>
+
+    <div class="dual-panel">
+      <div class="glass-card" id="editorCard">
+        <div class="label-title">
+          <span>3A. Engine de Banco de Dados (JavaScript)</span>
+          <div class="editor-toolbar">
+            <button class="tool-btn" id="resetCodeBtn">🔄 Restaurar Código</button>
+            <button class="tool-btn" id="expandBtn">⤢ Expandir Editor</button>
+          </div>
+        </div>
+
+        <div class="editor-container-wrapper">
+          <pre id="highlightDisplay" aria-hidden="true"><code id="highlightCode"></code></pre>
+          <textarea id="jsEditor" spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="label-title">
+          <span>3B. Console de Resposta da Query</span>
+          <span id="statusBadge" class="status-badge status-success">Pronto</span>
+        </div>
+        <div id="consoleOutput" class="console-box">
+          <div class="console-line console-info">Aguardando execução da consulta...</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="runBtn">⚡ Executar Query no Banco de Dados</button>
+
+    <div class="glass-card">
+      <div class="label-title">Status da Resposta da Base de Dados</div>
+      <div id="metaInfo" class="meta-box">Pressione o botão para rodar a simulação.</div>
+    </div>
+  </div>
+
+  <script>
+    const lessons = {
+      ex1: {
+        targetFn: "buscarNoArquivoPlano",
+        explanation: "<strong>Era 1 (Arquivos Planos):</strong> No início da computação, dados eram gravados sequencialmente em texto (CSV/TXT). A busca exigia ler todo o arquivo linha por linha (O(n)).<pre>CSV: id,nome,saldo\n1,alice,1500\n2,bob,2000</pre><strong>Desafio:</strong> Crie <code>buscarNoArquivoPlano(nomeProcurado)</code> que percorra as linhas e retorne o saldo numérico do usuário.",
+        inputA: "alice",
+        inputB: "0",
+        inputC: "0",
+        initialCode: "function buscarNoArquivoPlano(nomeProcurado) {\n  const linhas = ['1,alice,1500', '2,bob,2000', '3,charlie,800'];\n  for (let linha of linhas) {\n    let colunas = linha.split(',');\n    if (colunas[1] === nomeProcurado) {\n      console.log('Registro encontrado:', linha);\n      return Number(colunas[2]);\n    }\n  }\n  return -1;\n}",
+        test: (userFn, a) => {
+          const name = String(a).toLowerCase();
+          const map = { alice: 1500, bob: 2000, charlie: 800 };
+          const exp = map[name] !== undefined ? map[name] : -1;
+          const res = userFn(name);
+          return {
+            passed: res === exp,
+            msg: `buscarNoArquivoPlano("${name}") => Esperado: ${exp} | Obteve: ${res}`
+          };
+        }
+      },
+      ex2: {
+        targetFn: "filtrarTabelaSQL",
+        explanation: "<strong>Era 2 (SQL / RDBMS):</strong> Nos anos 70, Edgar F. Codd criou o modelo relacional. Dados são organizados em tabelas com esquemas rígidos e integridade referencial.<pre>SELECT * FROM produtos WHERE preco <= limiteMaximo;</pre><strong>Desafio:</strong> Escreva <code>filtrarTabelaSQL(precoMaximo)</code> retornando a quantidade de produtos com preço menor ou igual ao limite.",
+        inputA: "100",
+        inputB: "0",
+        inputC: "0",
+        initialCode: "function filtrarTabelaSQL(precoMaximo) {\n  const produtos = [\n    { id: 1, nome: 'Mouse', preco: 50 },\n    { id: 2, nome: 'Teclado', preco: 150 },\n    { id: 3, nome: 'Headset', preco: 90 }\n  ];\n  let filtrados = produtos.filter(p => p.preco <= Number(precoMaximo));\n  console.log('Qtd produtos encontrados:', filtrados.length);\n  return filtrados.length;\n}",
+        test: (userFn, a) => {
+          const max = Number(a);
+          const produtos = [{ preco: 50 }, { preco: 150 }, { preco: 90 }];
+          const exp = produtos.filter(p => p.preco <= max).length;
+          const res = userFn(max);
+          return {
+            passed: res === exp,
+            msg: `filtrarTabelaSQL(${max}) => Esperado: ${exp} | Obteve: ${res}`
+          };
+        }
+      },
+      ex3: {
+        targetFn: "buscarDocumentoNoSQL",
+        explanation: "<strong>Era 3 (NoSQL / MongoDB):</strong> Nos anos 2000, com a Web 2.0, surgiu a necessidade de esquemas flexíveis sem *joins* caros. Dados são armazenados como documentos JSON.<pre>Documento: { id: 1, nome: 'User', tags: ['vip', 'dev'] }</pre><strong>Desafio:</strong> Crie <code>buscarDocumentoNoSQL(tagBuscada)</code> retornando <code>true</code> se houver algum usuário com a tag especificada.",
+        inputA: "vip",
+        inputB: "0",
+        inputC: "0",
+        initialCode: "function buscarDocumentoNoSQL(tagBuscada) {\n  const usuarios = [\n    { id: 101, nome: 'Ana', tags: ['admin', 'vip'] },\n    { id: 102, nome: 'Bruno', tags: ['free'] }\n  ];\n  let encontrado = usuarios.some(u => u.tags.includes(tagBuscada));\n  console.log('Tem usuário com tag ' + tagBuscada + '?', encontrado);\n  return encontrado;\n}",
+        test: (userFn, a) => {
+          const tag = String(a).toLowerCase();
+          const usuarios = [
+            { tags: ['admin', 'vip'] },
+            { tags: ['free'] }
+          ];
+          const exp = usuarios.some(u => u.tags.includes(tag));
+          const res = userFn(tag);
+          return {
+            passed: res === exp,
+            msg: `buscarDocumentoNoSQL("${tag}") => Esperado: ${exp} | Obteve: ${res}`
+          };
+        }
+      },
+      ex4: {
+        targetFn: "verificarCacheRedis",
+        explanation: "<strong>Era 4 (In-Memory / Caching - Redis):</strong> Ler do disco é lento. Bancos em memória armazenam chave-valor na RAM com TTL (Time-To-Live) para atingir resposta em sub-milissegundos.<pre>TTL expirado -> Cache Miss (ler do SQL) | TTL ativo -> Cache Hit</pre><strong>Desafio:</strong> Escreva <code>verificarCacheRedis(tempoDecorridoSeg, ttlSeg)</code> retornando <code>'CACHE_HIT'</code> ou <code>'CACHE_MISS'</code>.",
+        inputA: "3",
+        inputB: "10",
+        inputC: "0",
+        initialCode: "function verificarCacheRedis(tempoDecorridoSeg, ttlSeg) {\n  let t = Number(tempoDecorridoSeg);\n  let ttl = Number(ttlSeg);\n  if (t < ttl) {\n    return 'CACHE_HIT';\n  }\n  return 'CACHE_MISS';\n}",
+        test: (userFn, a, b) => {
+          const t = Number(a), ttl = Number(b);
+          const exp = t < ttl ? 'CACHE_HIT' : 'CACHE_MISS';
+          const res = userFn(t, ttl);
+          return {
+            passed: res === exp,
+            msg: `verificarCacheRedis(${t}, ${ttl}) => Esperado: "${exp}" | Obteve: "${res}"`
+          };
+        }
+      },
+      ex5: {
+        targetFn: "gerarURIObjectStorage",
+        explanation: "<strong>Era 5 (Object Storage / Cloud - AWS S3):</strong> Arquivos gigantes não estruturados (PDFs, vídeos, imagens) são salvos em Buckets com chaves únicas em vez de sistemas de arquivos hierárquicos tradicionais.<pre>s3://nome-do-bucket/chave-do-objeto.png</pre><strong>Desafio:</strong> Escreva <code>gerarURIObjectStorage(bucket, chave)</code> retornando a URI no formato <code>s3://bucket/chave</code>.",
+        inputA: "meu-bucket-prod",
+        inputB: "foto.png",
+        inputC: "0",
+        initialCode: "function gerarURIObjectStorage(bucket, chave) {\n  let uri = 's3://' + bucket + '/' + chave;\n  console.log('Objeto armazenado em:', uri);\n  return uri;\n}",
+        test: (userFn, a, b) => {
+          const bucket = String(a), chave = String(b);
+          const exp = 's3://' + bucket + '/' + chave;
+          const res = userFn(bucket, chave);
+          return {
+            passed: res === exp,
+            msg: `gerarURIObjectStorage("${bucket}", "${chave}") => Esperado: "${exp}" | Obteve: "${res}"`
+          };
+        }
+      },
+      ex6: {
+        targetFn: "buscarTermoElastic",
+        explanation: "<strong>Era 6 (Search Engines - Elasticsearch):</strong> Bancos relacionais sofrem para fazer busca textual (<code>LIKE %termo%</code>). Motores de busca usam <em>Índice Invertido</em> mapeando cada palavra para os documentos onde ela aparece.<pre>Indice Invertido: 'devops' -> [Doc1, Doc3]</pre><strong>Desafio:</strong> Crie <code>buscarTermoElastic(termo)</code> retornando o array com IDs dos documentos que contêm o termo.",
+        inputA: "devops",
+        inputB: "0",
+        inputC: "0",
+        initialCode: "function buscarTermoElastic(termo) {\n  const indiceInvertido = {\n    'devops': [1, 3],\n    'docker': [2, 3],\n    'cloud': [1, 2, 3]\n  };\n  let t = termo.toLowerCase();\n  let docs = indiceInvertido[t] || [];\n  console.log('Documentos encontrados:', docs);\n  return docs;\n}",
+        test: (userFn, a) => {
+          const t = String(a).toLowerCase();
+          const indiceInvertido = { 'devops': [1, 3], 'docker': [2, 3], 'cloud': [1, 2, 3] };
+          const exp = indiceInvertido[t] || [];
+          const res = userFn(t);
+          const passed = JSON.stringify(res) === JSON.stringify(exp);
+          return {
+            passed: passed,
+            msg: `buscarTermoElastic("${t}") => Esperado: [${exp.join(',')}] | Obteve: [${res}]`
+          };
+        }
+      },
+      ex7: {
+        targetFn: "calcularAgregacaoDW",
+        explanation: "<strong>Era 7 (Data Warehouse / OLAP - BigQuery):</strong> Bancos transacionais (OLTP) travam com BI/Analytics. Data Warehouses usam armazenamento colunar para agregar bilhões de linhas rapidamente.<pre>SUM(valor) GROUP BY categoria</pre><strong>Desafio:</strong> Crie <code>calcularAgregacaoDW(categoriaTarget)</code> somando o valor total de vendas para a categoria solicitada.",
+        inputA: "ti",
+        inputB: "0",
+        inputC: "0",
+        initialCode: "function calcularAgregacaoDW(categoriaTarget) {\n  const tabelaFato = [\n    { cat: 'ti', valor: 100 },\n    { cat: 'ti', valor: 250 },\n    { cat: 'rh', valor: 80 }\n  ];\n  let total = tabelaFato\n    .filter(row => row.cat === categoriaTarget.toLowerCase())\n    .reduce((acc, row) => acc + row.valor, 0);\n  console.log('Total agregado:', total);\n  return total;\n}",
+        test: (userFn, a) => {
+          const cat = String(a).toLowerCase();
+          const tabelaFato = [{ cat: 'ti', valor: 100 }, { cat: 'ti', valor: 250 }, { cat: 'rh', valor: 80 }];
+          const exp = tabelaFato.filter(r => r.cat === cat).reduce((acc, r) => acc + r.valor, 0);
+          const res = userFn(cat);
+          return {
+            passed: res === exp,
+            msg: `calcularAgregacaoDW("${cat}") => Esperado: ${exp} | Obteve: ${res}`
+          };
+        }
+      },
+      ex8: {
+        targetFn: "calcularSimilaridadeVetorial",
+        explanation: "<strong>Era 8 (Vector Databases - Era da IA):</strong> Modelos de IA (LLMs) convertem textos/imagens em <em>embeddings</em> (vetores numéricos). Bancos vetoriais (Pinecone/Milvus/pgvector) buscam por significado através da similaridade geométrica.<pre>Produto Escalar: (v1[0]*v2[0]) + (v1[1]*v2[1])</pre><strong>Desafio:</strong> Crie <code>calcularSimilaridadeVetorial(v1, v2)</code> calculando o produto escalar entre dois vetores de 2 dimensões.",
+        inputA: "1,2",
+        inputB: "3,4",
+        inputC: "0",
+        initialCode: "function calcularSimilaridadeVetorial(v1_str, v2_str) {\n  // Converter strings '1,2' em arrays [1, 2]\n  let v1 = v1_str.split(',').map(Number);\n  let v2 = v2_str.split(',').map(Number);\n  \n  let produtoEscalar = (v1[0] * v2[0]) + (v1[1] * v2[1]);\n  console.log('Similaridade calculada:', produtoEscalar);\n  return produtoEscalar;\n}",
+        test: (userFn, a, b) => {
+          const v1 = String(a).split(',').map(Number);
+          const v2 = String(b).split(',').map(Number);
+          const exp = (v1[0] * v2[0]) + (v1[1] * v2[1]);
+          const res = userFn(String(a), String(b));
+          return {
+            passed: res === exp,
+            msg: `calcularSimilaridadeVetorial("${a}", "${b}") => Esperado: ${exp} | Obteve: ${res}`
+          };
+        }
+      }
+    };
+
+    const lessonSelect = document.getElementById('lessonSelect');
+    const conceptText = document.getElementById('conceptText');
+    const jsEditor = document.getElementById('jsEditor');
+    const highlightDisplay = document.getElementById('highlightDisplay');
+    const highlightCode = document.getElementById('highlightCode');
+    const consoleOutput = document.getElementById('consoleOutput');
+    const statusBadge = document.getElementById('statusBadge');
+    const metaInfo = document.getElementById('metaInfo');
+    const paramInputA = document.getElementById('paramInputA');
+    const paramInputB = document.getElementById('paramInputB');
+    const paramInputC = document.getElementById('paramInputC');
+
+    const resetCodeBtn = document.getElementById('resetCodeBtn');
+    const expandBtn = document.getElementById('expandBtn');
+    const editorCard = document.getElementById('editorCard');
+
+    function escapeHTML(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function updateHighlight() {
+      let code = jsEditor.value;
+      if (code.endsWith('\n')) code += ' ';
+
+      const tokenRegex = /(\/\/[^\r\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(\b(?:function|return|if|else|for|while|let|const|var|of|in|new|try|catch|async|await)\b)|(\b(?:console|log|push|filter|map|reduce|split|includes|some|toLowerCase|Number|JSON|stringify)\b)|(\b\d+\b)/g;
+
+      let lastIndex = 0;
+      let html = '';
+      let match;
+
+      while ((match = tokenRegex.exec(code)) !== null) {
+        html += escapeHTML(code.slice(lastIndex, match.index));
+
+        const [full, comment, str, keyword, func, num] = match;
+
+        if (comment) {
+          html += '<span class="hl-comment">' + escapeHTML(comment) + '</span>';
+        } else if (str) {
+          html += '<span class="hl-str">' + escapeHTML(str) + '</span>';
+        } else if (keyword) {
+          html += '<span class="hl-keyword">' + escapeHTML(keyword) + '</span>';
+        } else if (func) {
+          html += '<span class="hl-func">' + escapeHTML(func) + '</span>';
+        } else if (num) {
+          html += '<span class="hl-num">' + escapeHTML(num) + '</span>';
+        }
+
+        lastIndex = tokenRegex.lastIndex;
+      }
+
+      html += escapeHTML(code.slice(lastIndex));
+      highlightCode.innerHTML = html;
+    }
+
+    function syncScroll() {
+      highlightDisplay.scrollTop = jsEditor.scrollTop;
+      highlightDisplay.scrollLeft = jsEditor.scrollLeft;
+    }
+
+    function loadLesson(key) {
+      const lesson = lessons[key];
+      if (!lesson) return;
+      conceptText.innerHTML = lesson.explanation;
+      paramInputA.value = lesson.inputA;
+      paramInputB.value = lesson.inputB;
+      paramInputC.value = lesson.inputC;
+      jsEditor.value = lesson.initialCode;
+      updateHighlight();
+      syncScroll();
+      consoleOutput.innerHTML = '<div class="console-line console-info">Aguardando execução da consulta...</div>';
+      statusBadge.textContent = "Pronto";
+      statusBadge.className = "status-badge status-success";
+      metaInfo.textContent = "Edite o algoritmo e clique no botão abaixo para testar a busca.";
+    }
+
+    function runCodeAndTest() {
+      const lessonKey = lessonSelect.value;
+      const lesson = lessons[lessonKey];
+      consoleOutput.innerHTML = "";
+
+      let logs = [];
+      const formatArg = (arg) => typeof arg === 'object' && arg !== null ? JSON.stringify(arg) : String(arg);
+
+      const customConsole = {
+        log: (...args) => {
+          logs.push({ type: 'log', text: args.map(formatArg).join(' ') });
+        },
+        error: (...args) => {
+          logs.push({ type: 'error', text: args.map(formatArg).join(' ') });
+        }
+      };
+
+      const renderLogs = () => {
+        logs.forEach(item => {
+          if (item.type === 'log') {
+            consoleOutput.innerHTML += '<div class="console-line console-log">📌 console.log: ' + escapeHTML(item.text) + '</div>';
+          } else {
+            consoleOutput.innerHTML += '<div class="console-line console-error">🚨 console.error: ' + escapeHTML(item.text) + '</div>';
+          }
+        });
+        logs = [];
+      };
+
+      try {
+        const userCode = jsEditor.value;
+        const targetFn = lesson.targetFn;
+
+        const fnWrapper = new Function('console', userCode + ';\nif (typeof ' + targetFn + ' === "function") return ' + targetFn + ';\nreturn null;');
+
+        const userFn = fnWrapper(customConsole);
+        renderLogs();
+
+        if (typeof userFn !== 'function') {
+          throw new Error("A função '" + targetFn + "' não foi encontrada ou definida corretamente.");
+        }
+
+        const testResult = lesson.test(userFn, paramInputA.value, paramInputB.value, paramInputC.value);
+        renderLogs();
+
+        if (testResult.passed) {
+          consoleOutput.innerHTML += '<div class="console-line console-success">✅ Query Executada com Sucesso!\n' + escapeHTML(testResult.msg) + '</div>';
+          statusBadge.textContent = "Query Aprovada";
+          statusBadge.className = "status-badge status-success";
+          metaInfo.textContent = "Parabéns! Sua consulta retornou exatamente o esperado pela engine.";
+        } else {
+          consoleOutput.innerHTML += '<div class="console-line console-error">❌ Erro no Resultado da Query!\n' + escapeHTML(testResult.msg) + '</div>';
+          statusBadge.textContent = "Falha na Consulta";
+          statusBadge.className = "status-badge status-error";
+          metaInfo.textContent = "O resultado foi diferente do esperado. Revise a lógica do banco.";
+        }
+
+      } catch (err) {
+        renderLogs();
+        consoleOutput.innerHTML += '<div class="console-line console-error">⚠️ Erro na Query:\n' + escapeHTML(err.message) + '</div>';
+        statusBadge.textContent = "Erro no Script";
+        statusBadge.className = "status-badge status-error";
+        metaInfo.textContent = "O algoritmo possui erros de sintaxe ou execução.";
+      }
+    }
+
+    resetCodeBtn.addEventListener('click', () => {
+      loadLesson(lessonSelect.value);
+    });
+
+    expandBtn.addEventListener('click', () => {
+      editorCard.classList.toggle('editor-expanded');
+      if (editorCard.classList.contains('editor-expanded')) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        expandBtn.innerHTML = "⤓ Recolher Editor";
+      } else {
+        expandBtn.innerHTML = "⤢ Expandir Editor";
+        editorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      syncScroll();
+    });
+
+    ['input', 'keyup', 'keydown', 'scroll', 'click', 'paste'].forEach(evt => {
+      jsEditor.addEventListener(evt, () => {
+        updateHighlight();
+        syncScroll();
+      });
+    });
+
+    jsEditor.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 2;
+        updateHighlight();
+        syncScroll();
+      }
+    });
+
+    lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+    document.getElementById('runBtn').addEventListener('click', runCodeAndTest);
+
+    loadLesson('ex1');
+  </script>
+</body>
+</html>

@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev & Regex Lab - Aula Interativa e Guia</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #311042 70%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #6366f1; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #a855f7; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #ec4899; }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .label-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    select, input[type="text"], textarea {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 16px 20px;
+      color: #f8fafc;
+      font-size: 1.05rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select:focus, input[type="text"]:focus, textarea:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25), inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select option {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px;
+    }
+
+    .concept-explanation {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .concept-explanation b { color: #38bdf8; }
+    .concept-explanation code, .tbl-code {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Estilização da Tabela de Metacaracteres */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.regex-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.regex-table th {
+      background: rgba(15, 23, 42, 0.85);
+      color: #38bdf8;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.regex-table td {
+      padding: 12px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+    }
+
+    table.regex-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* Grid do Painel Duplo */
+    .dual-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .dual-panel { grid-template-columns: 1fr; }
+    }
+
+    textarea.code-editor {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-weight: 600;
+      color: #38bdf8;
+      height: 220px;
+      resize: vertical;
+      line-height: 1.6;
+      tab-size: 4;
+    }
+
+    .regex-input-container {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .regex-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .regex-wrapper input {
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      padding-left: 32px;
+      color: #38bdf8;
+    }
+
+    .regex-slash {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      font-weight: bold;
+    }
+
+    .flags-group {
+      display: flex;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .flag-btn {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .flag-btn.active {
+      background: #a855f7;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-valid {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-invalid {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      padding: 18px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(168, 85, 247, 0.6);
+      filter: brightness(1.1);
+    }
+
+    .output-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 18px;
+      min-height: 120px;
+      max-height: 250px;
+      overflow-y: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 1rem;
+      color: #4ade80;
+      line-height: 1.7;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    mark {
+      background: rgba(236, 72, 153, 0.4);
+      color: #ffffff;
+      border-radius: 4px;
+      padding: 2px 6px;
+      border: 1px solid rgba(236, 72, 153, 0.6);
+      box-shadow: 0 0 8px rgba(236, 72, 153, 0.3);
+      font-weight: 600;
+    }
+
+    .matches-list {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .match-item {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Dev & Regex Fusion Lab</h1>
+      <p>Aprenda Lógica de Programação e Expressões Regulares de Forma Prática</p>
+    </header>
+
+    <!-- Seleção de Exercícios -->
+    <div class="glass-card">
+      <div class="label-title">1. Escolha o Exercício Integrado</div>
+      <select id="lessonSelect">
+        <option value="ex1">Exercício 1: Exibindo Mensagens e Limpando Tags HTML (print + Regex)</option>
+        <option value="ex2">Exercício 2: Variáveis e Validador de E-mail (variáveis + Regex)</option>
+        <option value="ex3">Exercício 3: Captura de Dados e Validador de Telefone (input + Regex)</option>
+        <option value="ex4">Exercício 4: Operadores e Extração de Preços (matemática + Regex)</option>
+        <option value="ex5">Exercício 5: Decisões e Validação de CPF (if/else + Regex)</option>
+        <option value="ex6">Exercício 6: Classificador de Senhas Fortes (if/elif/else + Regex)</option>
+        <option value="ex7">Exercício 7: Laço de Repetição e Sanitização de Nomes (for + Regex)</option>
+        <option value="ex8">Exercício 8: Varredura Contínua de Hashtags (while + Regex)</option>
+        <option value="ex9">Exercício 9: Filtro de CEPs em Lista de Endereços (listas + Regex)</option>
+        <option value="ex10">Exercício 10: Fábrica de Anonimização de Dados (def + Regex)</option>
+      </select>
+    </div>
+
+    <!-- Explicação do Conceito -->
+    <div class="glass-card">
+      <div class="label-title">2. Conceito e Aprendizado</div>
+      <div id="conceptText" class="concept-explanation"></div>
+    </div>
+
+    <!-- Tabela de Metacaracteres para Orientação dos Alunos -->
+    <div class="glass-card">
+      <div class="label-title">📖 Guia Rápido de Metacaracteres (Como Montar Padrões)</div>
+      <div class="table-wrapper">
+        <table class="regex-table">
+          <thead>
+            <tr>
+              <th>Símbolo</th>
+              <th>Significado</th>
+              <th>Aplicação Prática</th>
+              <th>Exemplo Completo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tbl-code">\d</span></td>
+              <td>Qualquer dígito (0 a 9)</td>
+              <td>Números de CPF, CEP, telefone, idade.</td>
+              <td><span class="tbl-code">\d{3}</span> em <mark>123</mark></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">\w</span></td>
+              <td>Caractere alfanumérico (a-z, A-Z, 0-9, _)</td>
+              <td>Nomes de usuário, códigos, hashtags.</td>
+              <td><span class="tbl-code">\w+</span> em <mark>user_99</mark></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">\s</span></td>
+              <td>Espaço em branco / tab / quebra de linha</td>
+              <td>Separar palavras, formatar nomes completos.</td>
+              <td><span class="tbl-code">\s+</span> em <mark> &nbsp; </mark></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">.</span></td>
+              <td>Qualquer caractere (exceto quebra de linha)</td>
+              <td>Capturar posições variáveis em textos.</td>
+              <td><span class="tbl-code">A.C</span> em <mark>ABC</mark>, <mark>A1C</mark></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">^</span> / <span class="tbl-code">$</span></td>
+              <td>Início (^) e Fim ($) da linha de texto</td>
+              <td>Garantir validação exata do início ao fim.</td>
+              <td><span class="tbl-code">^\d+$</span> em <mark>48123</mark></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">[A-Z]</span></td>
+              <td>Classe de caracteres (Intervalo de letras)</td>
+              <td>Placa Mercosul ou modelos de registro.</td>
+              <td><span class="tbl-code">[A-Z]{3}</span> em <mark>BRA</mark></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">+</span> / <span class="tbl-code">*</span></td>
+              <td>Quantificadores: 1 ou mais (+) / 0 ou mais (*)</td>
+              <td>Capturar palavras inteiras ou repetições.</td>
+              <td><span class="tbl-code">[a-z]+</span> em <mark>dev</mark></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">?</span></td>
+              <td>Opcional (O elemento aparece 0 ou 1 vez)</td>
+              <td>Tratar hífens opcionais, protocolo http/https.</td>
+              <td><span class="tbl-code">https?</span> em <mark>http</mark> e <mark>https</mark></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">{n,m}</span></td>
+              <td>Quantidade exata {n} ou intervalo {n,m}</td>
+              <td>Definir tamanho fixo de CPF, DDD, CEP.</td>
+              <td><span class="tbl-code">\d{2}</span> em <mark>21</mark></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">Placa Mercosul</span></td>
+              <td>3 Letras + 1 Número + 1 Letra + 2 Números</td>
+              <td>Validação de veículos nacionais.</td>
+              <td><span class="tbl-code">[A-Z]{3}\d[A-Z]\d{2}</span> em <mark>ABC1D23</mark></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">CPF Formatado</span></td>
+              <td>3 Dígitos . 3 Dígitos . 3 Dígitos - 2 Dígitos</td>
+              <td>Validação de documentos em formulários.</td>
+              <td><span class="tbl-code">\d{3}\.\d{3}\.\d{3}-\d{2}</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">E-mail Padrão</span></td>
+              <td>Usuário @ Domínio . Extensão</td>
+              <td>Validação de cadastro corporativo e web.</td>
+              <td><span class="tbl-code">[\w.-]+@[\w.-]+\.[a-z]{2,}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Painel Duplo: Editor de Código + Customização de Regex -->
+    <div class="dual-panel">
+      <!-- Painel Esquerdo: Código -->
+      <div class="glass-card">
+        <div class="label-title">3A. Editor de Código (Python/Pseudocódigo)</div>
+        <textarea id="codeEditor" class="code-editor" spellcheck="false"></textarea>
+      </div>
+
+      <!-- Painel Direito: Expressão Regular -->
+      <div class="glass-card">
+        <div class="label-title">
+          <span>3B. Customizar Expressão Regular</span>
+          <span id="statusBadge" class="status-badge status-valid">Regex Válida</span>
+        </div>
+        <div class="regex-input-container">
+          <div class="regex-wrapper">
+            <span class="regex-slash">/</span>
+            <input type="text" id="regexInput" placeholder="Digite a regex...">
+          </div>
+          <div class="flags-group">
+            <button class="flag-btn active" data-flag="g">g</button>
+            <button class="flag-btn active" data-flag="i">i</button>
+            <button class="flag-btn" data-flag="m">m</button>
+          </div>
+        </div>
+        <div class="label-title" style="font-size: 0.8rem; color: #94a3b8;">Texto Alvo para Teste de Padrão:</div>
+        <textarea id="targetText" style="height: 110px;" placeholder="Texto para testar a regex..."></textarea>
+      </div>
+    </div>
+
+    <!-- Botão de Execução Geral -->
+    <button class="submit-btn" id="runBtn">
+      ⚡ Executar Código e Avaliar Regex
+    </button>
+
+    <!-- Saídas e Resultados -->
+    <div class="dual-panel">
+      <div class="glass-card">
+        <div class="label-title">Console do Código (Saída Script)</div>
+        <div id="consoleOutput" class="output-box">Aguardando execução...</div>
+      </div>
+
+      <div class="glass-card">
+        <div class="label-title">Resultado Regex (Destaques & Extrações)</div>
+        <div id="regexOutput" class="output-box">Aguardando avaliação...</div>
+        <div id="matchesWrapper" style="display: none; margin-top: 10px;">
+          <div class="label-title" style="font-size: 0.8rem; color: #94a3b8;">Capturas Encontradas:</div>
+          <div id="matchesList" class="matches-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const lessons = {
+      ex1: {
+        explanation: "O <code>print()</code> mostra mensagens, enquanto a Regex <code>&lt;[^&gt;]+&gt;</code> é usada para identificar e remover tags HTML de um texto bruto.",
+        defaultCode: 'print("=== LIMPADOR DE TEXTO ===")\ntexto_sujo = "<h1>Título do Post</h1>"\nprint("Texto com tags: " + texto_sujo)\nprint("Objetivo: Usar Regex para extrair apenas o texto limpo!")',
+        regexPattern: '<[^>]+>',
+        regexFlags: 'g',
+        targetText: '<h1>Bem-vindo ao Sistema</h1><p>Esta é uma <b>mensagem importante</b>.</p>'
+      },
+      ex2: {
+        explanation: "Variáveis armazenam e-mails de usuários. A Regex <code>^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$</code> valida se o e-mail tem estrutura correta.",
+        defaultCode: 'email_usuario = "contato@empresa.com.br"\nstatus = "Verificando formato..."\n\nprint("E-mail registrado: " + email_usuario)\nprint("Status: " + status)',
+        regexPattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+        regexFlags: 'gi',
+        targetText: 'contato@empresa.com.br'
+      },
+      ex3: {
+        explanation: "O <code>input()</code> recebe o telefone digitado. A Regex <code>\\(?\\d{2}\\)?\\s?9?\\d{4}-\\d{4}</code> valida telefones com ou sem DDD e parênteses.",
+        defaultCode: 'telefone = input("Digite seu telefone (ex: (21) 98765-4321):")\nprint("Telefone digitado pelo usuário: " + telefone)\nprint("Avaliando conformidade do formato...")',
+        regexPattern: '\\(?\\d{2}\\)?\\s?9?\\d{4}-\\d{4}',
+        regexFlags: 'g',
+        targetText: 'Ligue para (21) 98765-4321 ou envie mensagem para 21999998888.'
+      },
+      ex4: {
+        explanation: "Calculamos preços no código e usamos Regex <code>R\\$\\s?\\d+(?:,\\d{2})?</code> para localizar todos os valores monetários em formato de moeda brasileira.",
+        defaultCode: 'preco_item = 45.00\ntaxa = 5.00\ntotal = preco_item + taxa\n\nprint("Valor calculado pelo script: R$ " + total)\nprint("Localizando padrões de preços no texto alvo...")',
+        regexPattern: 'R\\$\\s?\\d+(?:,\\d{2})?',
+        regexFlags: 'g',
+        targetText: 'Item 1 custa R$ 45,00, a taxa é R$5,00 e o frete sai por R$ 12,50.'
+      },
+      ex5: {
+        explanation: "Combinamos <code>if/else</code> para tomada de decisão lógica com a Regex de CPF <code>\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}</code> para validar documentos cadastrados.",
+        defaultCode: 'cpf_digitado = "123.456.789-00"\n\nprint("Validando CPF: " + cpf_digitado)\nif cpf_digitado == "123.456.789-00":\n    print(" Formato de CPF Válido no sistema!")\nelse:\n    print(" CPF fora do padrão recomendado.")',
+        regexPattern: '\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}',
+        regexFlags: 'g',
+        targetText: 'O cliente cadastrou o CPF 123.456.789-00 e o dependente 987.654.321-11.'
+      },
+      ex6: {
+        explanation: "Estruturas <code>if/elif/else</code> avaliam a complexidade de senhas, enquanto a Regex <code>(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*])</code> valida requisitos de segurança.",
+        defaultCode: 'senha = "Pass#2026"\ncomprimento = 9\n\nif comprimento >= 8:\n    print(" Tamanho mínimo de senha atingido!")\nelif comprimento >= 6:\n    print(" Senha razoável, mas pode ser melhorada.")\nelse:\n    print(" Senha muito curta!")',
+        regexPattern: '^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,}$',
+        regexFlags: 'g',
+        targetText: 'Pass#2026'
+      },
+      ex7: {
+        explanation: "O laço <code>for</code> percorre uma coleção de dados e a Regex <code>[^a-zA-Z0-9\\s]</code> é usada para encontrar e remover caracteres especiais indesejados.",
+        defaultCode: 'nomes = ["Ana@Maria!", "João_Silva#", "Carlos$Lopes"]\n\nprint("--- PROCESSANDO LISTA DE NOMES ---")\nfor n in nomes:\n    print("Analisando registro: " + n)',
+        regexPattern: '[^a-zA-Z0-9\\s]',
+        regexFlags: 'g',
+        targetText: 'Registro do usuário: Ana@Maria! com símbolo #'
+      },
+      ex8: {
+        explanation: "O laço <code>while</code> realiza varreduras contínuas e a Regex <code>#\\w+</code> extrai todas as hashtags ativas em uma publicação de rede social.",
+        defaultCode: 'contador = 3\nwhile contador > 0:\n    print("Varrendo postagem em busca de hashtags... Tentativa " + contador)\n    contador = contador - 1\n\nprint("Varredura concluída!")',
+        regexPattern: '#\\w+',
+        regexFlags: 'g',
+        targetText: 'Aprendendo #Python e #Regex no laboratório #Dev2026!'
+      },
+      ex9: {
+        explanation: "Filtramos uma lista de endereços e usamos a Regex de CEP <code>\\d{5}-\\d{3}</code> para extrair apenas os códigos postais válidos do texto.",
+        defaultCode: 'enderecos = ["Rua A, CEP: 01001-000", "Av B, CEP: 20000-111"]\n\nprint("--- CEPs CADASTRADOS ---")\nfor end in enderecos:\n    print("Endereço: " + end)',
+        regexPattern: '\\d{5}-\\d{3}',
+        regexFlags: 'g',
+        targetText: 'Entregar na Rua A, CEP 01001-000 ou na Av B, CEP 20000-111.'
+      },
+      ex10: {
+        explanation: "Criamos uma função <code>def</code> para anonimizar dados sensíveis usando Regex <code>\\d{4}(?=\\d{4})</code> para ocultar dígitos de cartão de crédito.",
+        defaultCode: 'def mascarar_cartao(numero):\n    print("Processando proteção de cartão de crédito...")\n    print("Cartão recebido: " + numero)\n\nmascarar_cartao("4532 1111 2222 8888")',
+        regexPattern: '\\d{4}(?=\\s?\\d{4})',
+        regexFlags: 'g',
+        targetText: 'Número do cartão de crédito: 4532 1111 2222 8888'
+      }
+    };
+
+    const lessonSelect = document.getElementById('lessonSelect');
+    const conceptText = document.getElementById('conceptText');
+    const codeEditor = document.getElementById('codeEditor');
+    const regexInput = document.getElementById('regexInput');
+    const targetText = document.getElementById('targetText');
+    const runBtn = document.getElementById('runBtn');
+    const consoleOutput = document.getElementById('consoleOutput');
+    const regexOutput = document.getElementById('regexOutput');
+    const statusBadge = document.getElementById('statusBadge');
+    const matchesWrapper = document.getElementById('matchesWrapper');
+    const matchesList = document.getElementById('matchesList');
+    const flagBtns = document.querySelectorAll('.flag-btn');
+
+    function loadLesson(key) {
+      const lesson = lessons[key];
+      if (!lesson) return;
+
+      conceptText.innerHTML = lesson.explanation;
+      codeEditor.value = lesson.defaultCode;
+      regexInput.value = lesson.regexPattern;
+      targetText.value = lesson.targetText;
+      setFlags(lesson.regexFlags);
+
+      validateRegexSyntax();
+      consoleOutput.textContent = "Aguardando execução...";
+      regexOutput.textContent = "Aguardando avaliação...";
+      matchesWrapper.style.display = "none";
+    }
+
+    function getFlags() {
+      let flags = '';
+      flagBtns.forEach(btn => { if (btn.classList.contains('active')) flags += btn.dataset.flag; });
+      return flags;
+    }
+
+    function setFlags(flagsStr) {
+      flagBtns.forEach(btn => {
+        if (flagsStr.includes(btn.dataset.flag)) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+    }
+
+    function validateRegexSyntax() {
+      try {
+        new RegExp(regexInput.value, getFlags());
+        statusBadge.textContent = "Regex Válida";
+        statusBadge.className = "status-badge status-valid";
+        return true;
+      } catch (e) {
+        statusBadge.textContent = "Regex Inválida";
+        statusBadge.className = "status-badge status-invalid";
+        return false;
+      }
+    }
+
+    function runCodeScript() {
+      const userCode = codeEditor.value;
+      const logs = [];
+
+      function __print__(...args) {
+        logs.push(args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' '));
+      }
+
+      function __input__(promptText) {
+        const response = prompt(promptText || "Digite um valor:");
+        const finalVal = response !== null ? response : "Exemplo";
+        logs.push(`[Entrada do Usuário]: ${finalVal}`);
+        return finalVal;
+      }
+
+      try {
+        const jsCode = transpilePythonToJS(userCode);
+        const executionFunc = new Function('print', 'input', 'range', jsCode);
+        executionFunc(__print__, __input__, pythonRange);
+        consoleOutput.textContent = logs.length > 0 ? logs.join('\n') : "(Código rodou sem saídas no print)";
+      } catch (err) {
+        consoleOutput.textContent = "Erro na Execução:\n" + err.message;
+      }
+    }
+
+    function pythonRange(start, stop, step) {
+      if (stop === undefined) { stop = start; start = 0; }
+      step = step || 1;
+      const arr = [];
+      if (step > 0) { for (let i = start; i < stop; i += step) arr.push(i); }
+      else { for (let i = start; i > stop; i += step) arr.push(i); }
+      return arr;
+    }
+
+    function transpilePythonToJS(pyCode) {
+      const lines = pyCode.split('\n');
+      const jsLines = [];
+      const indentStack = [0];
+      const declaredVars = new Set();
+
+      for (let rawLine of lines) {
+        if (!rawLine.trim() || rawLine.trim().startsWith('#')) continue;
+
+        let indent = rawLine.search(/\S/);
+        if (indent === -1) indent = 0;
+        let line = rawLine.trim();
+
+        line = line.replace(/(["'])(.*?)\1/g, (match, quote, content) => quote + content.replace(/\\/g, '\\\\') + quote);
+
+        while (indent < indentStack[indentStack.length - 1]) {
+          indentStack.pop();
+          jsLines.push('}');
+        }
+
+        if (/^def\s+\w+\s*\(.*\)\s*:/.test(line)) {
+          line = line.replace(/^def\s+(\w+)\s*\((.*)\)\s*:/, 'function $1($2) {');
+          indentStack.push(indent + 4);
+        } else if (/^if\s+.*:$/.test(line)) {
+          line = `if (${transformCondition(line.slice(3, -1).trim())}) {`;
+          indentStack.push(indent + 4);
+        } else if (/^elif\s+.*:$/.test(line)) {
+          line = `else if (${transformCondition(line.slice(5, -1).trim())}) {`;
+          indentStack.push(indent + 4);
+        } else if (/^else\s*:$/.test(line)) {
+          line = `else {`;
+          indentStack.push(indent + 4);
+        } else if (/^for\s+\w+\s+in\s+range\s*\(.*\)\s*:/.test(line)) {
+          let match = line.match(/^for\s+(\w+)\s+in\s+range\s*\((.*)\)\s*:/);
+          line = `for (var ${match[1]} of range(${match[2]})) {`;
+          indentStack.push(indent + 4);
+        } else if (/^for\s+\w+\s+in\s+.*:/.test(line)) {
+          let match = line.match(/^for\s+(\w+)\s+in\s+(.*):/);
+          line = `for (var ${match[1]} of ${match[2].trim()}) {`;
+          indentStack.push(indent + 4);
+        } else if (/^while\s+.*:$/.test(line)) {
+          line = `while (${transformCondition(line.slice(6, -1).trim())}) {`;
+          indentStack.push(indent + 4);
+        } else if (/^[a-zA-Z_]\w*\s*[\+\-\*\/]?=\s*.*/.test(line) && !line.startsWith('return')) {
+          let varName = line.split(/[\+\-\*\/]?=/)[0].trim();
+          if (!declaredVars.has(varName)) {
+            declaredVars.add(varName);
+            line = `var ${line}`;
+          }
+        }
+        jsLines.push(line + ';');
+      }
+
+      while (indentStack.length > 1) {
+        indentStack.pop();
+        jsLines.push('}');
+      }
+      return jsLines.join('\n');
+    }
+
+    function transformCondition(cond) {
+      return cond.replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!');
+    }
+
+    function evaluateRegex() {
+      const pattern = regexInput.value;
+      const text = targetText.value;
+      const flags = getFlags();
+
+      if (!validateRegexSyntax() || !text.trim()) {
+        regexOutput.textContent = "Corrija o padrão ou insira um texto para testar.";
+        matchesWrapper.style.display = "none";
+        return;
+      }
+
+      const regexMatch = new RegExp(pattern, flags);
+      const matches = text.match(regexMatch) || [];
+
+      let highlighted = '';
+      let lastIndex = 0;
+      const regexHighlight = new RegExp(pattern, flags);
+
+      if (regexHighlight.global) {
+        let match;
+        while ((match = regexHighlight.exec(text)) !== null) {
+          if (match.index === regexHighlight.lastIndex) regexHighlight.lastIndex++;
+          highlighted += escapeHtml(text.substring(lastIndex, match.index));
+          highlighted += `<mark>${escapeHtml(match[0])}</mark>`;
+          lastIndex = match.index + match[0].length;
+        }
+        highlighted += escapeHtml(text.substring(lastIndex));
+      } else {
+        const match = regexHighlight.exec(text);
+        if (match) {
+          highlighted += escapeHtml(text.substring(0, match.index));
+          highlighted += `<mark>${escapeHtml(match[0])}</mark>`;
+          highlighted += escapeHtml(text.substring(match.index + match[0].length));
+        } else {
+          highlighted = escapeHtml(text);
+        }
+      }
+
+      regexOutput.innerHTML = highlighted || "Nenhuma correspondência encontrada.";
+
+      if (matches.length > 0) {
+        matchesWrapper.style.display = "block";
+        matchesList.innerHTML = matches.map((m, idx) => `<span class="match-item">#${idx+1}: "${escapeHtml(m)}"</span>`).join('');
+      } else {
+        matchesWrapper.style.display = "none";
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+    regexInput.addEventListener('input', validateRegexSyntax);
+
+    flagBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('active');
+        validateRegexSyntax();
+      });
+    });
+
+    runBtn.addEventListener('click', () => {
+      runCodeScript();
+      evaluateRegex();
+    });
+
+    codeEditor.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+      }
+    });
+
+    loadLesson('ex1');
+  </script>
+</body>
+</html>

@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pitfall! Psychedelic Modern Vector Edition</title>
+    <style>
+        :root {
+            --bg-dark: #050014;
+            --neon-pink: #ff007f;
+            --neon-cyan: #00ffff;
+            --neon-yellow: #ffe600;
+            --neon-green: #00ff66;
+            --neon-purple: #9d00ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1a0033 0%, #050014 100%);
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 30px var(--neon-purple), 0 0 60px rgba(255, 0, 127, 0.4);
+            border: 4px solid var(--neon-pink);
+            border-radius: 12px;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 0, 30, 0.75);
+            backdrop-filter: blur(8px);
+            border-bottom: 2px solid var(--neon-cyan);
+            z-index: 10;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 8px var(--neon-yellow);
+        }
+
+        .hud-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        canvas {
+            display: block;
+            image-rendering: auto;
+        }
+
+        #controls-hint {
+            margin-top: 14px;
+            font-size: 14px;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
+            text-align: center;
+        }
+
+        #game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 0, 20, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            display: none;
+        }
+
+        #game-over-overlay h1 {
+            font-size: 48px;
+            color: var(--neon-pink);
+            text-shadow: 0 0 20px var(--neon-pink);
+            margin-bottom: 10px;
+        }
+
+        #game-over-overlay p {
+            font-size: 20px;
+            color: var(--neon-cyan);
+            margin-bottom: 20px;
+        }
+
+        #restart-btn {
+            padding: 10px 24px;
+            font-size: 18px;
+            font-family: inherit;
+            font-weight: bold;
+            background: var(--neon-yellow);
+            color: #000;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-yellow);
+            transition: transform 0.1s;
+        }
+
+        #restart-btn:hover {
+            transform: scale(1.08);
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="hud">
+        <div class="hud-item">PONTOS: <span id="score">2000</span></div>
+        <div class="hud-item">CENÁRIO: <span id="scene-num">001</span></div>
+        <div class="hud-item">TEMPO: <span id="timer">20:00</span></div>
+        <div class="hud-item">VIDAS: <span id="lives">❤️❤️❤️</span></div>
+    </div>
+    <div id="game-over-overlay">
+        <h1>GAME OVER</h1>
+        <p id="death-reason">Você perdeu todas as vidas!</p>
+        <button id="restart-btn" onclick="game.restart()">JOGAR NOVAMENTE</button>
+    </div>
+    <canvas id="canvas" width="800" height="500"></canvas>
+</div>
+
+<div id="controls-hint">
+    [← / A] Esquerda | [→ / D] Direita | [Espaço / W / ↑] Pular / Agarrar Cipó | [↓ / S] Descer / Soltar Cipó
+</div>
+
+<script>
+// --- SVG SPRITE GENERATOR (DATA URIs) ---
+const SVG_SPRITES = {
+    harryRight: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48"><path fill="%2300FFFF" d="M10,2 h12 v10 h-12 z"/><circle cx="22" cy="7" r="2" fill="%23FF007F"/><path fill="%23FF007F" d="M6,12 h20 v20 h-20 z"/><path fill="%23FFE600" d="M8,32 h6 v14 h-6 z M18,32 h6 v14 h-6 z"/><path fill="%2300FF66" d="M22,16 h8 v6 h-8 z"/></svg>`,
+    harryLeft: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 48"><path fill="%2300FFFF" d="M10,2 h12 v10 h-12 z"/><circle cx="10" cy="7" r="2" fill="%23FF007F"/><path fill="%23FF007F" d="M6,12 h20 v20 h-20 z"/><path fill="%23FFE600" d="M8,32 h6 v14 h-6 z M18,32 h6 v14 h-6 z"/><path fill="%2300FF66" d="M2,16 h8 v6 h-8 z"/></svg>`,
+    crocOpen: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 24"><path fill="%2300FF66" stroke="%2300FFFF" stroke-width="2" d="M2,18 L16,4 L48,4 L62,18 L50,22 L14,22 Z"/><polygon points="16,12 22,4 28,12 34,4 40,12 46,4" fill="%23FF007F"/><circle cx="10" cy="8" r="3" fill="%23FFE600"/></svg>`,
+    log: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="%23FF007F" stroke="%2300FFFF" stroke-width="3"/><circle cx="16" cy="16" r="8" fill="%239D00FF"/><circle cx="16" cy="16" r="3" fill="%23FFE600"/></svg>`,
+    treasure: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28"><path fill="%23FFE600" stroke="%23FF007F" stroke-width="2" d="M14,2 L26,10 L20,26 L8,26 L2,10 Z"/><polygon points="14,2 20,10 8,10" fill="%23FFFFFF"/></svg>`
+};
+
+class PitfallGame {
+    constructor() {
+        this.canvas = document.getElementById('canvas');
+        this.ctx = this.canvas.getContext('2d');
+        
+        this.images = {};
+        this.loadSprites();
+
+        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        this.keys = {};
+        this.animFrame = 0;
+
+        this.restart();
+        this.initControls();
+        this.startTimer();
+        this.gameLoop();
+    }
+
+    loadSprites() {
+        for (let key in SVG_SPRITES) {
+            this.images[key] = new Image();
+            this.images[key].src = SVG_SPRITES[key];
+        }
+    }
+
+    restart() {
+        this.randSeed = 0xC4;
+        this.currentScene = 0xC4;
+        this.sceneIndex = 0;
+        this.score = 2000;
+        this.lives = 3;
+        this.timeRemaining = 20 * 60;
+        this.invulnerableTimer = 0;
+
+        this.harry = {
+            x: 80,
+            y: 280,
+            vx: 0,
+            vy: 0,
+            width: 28,
+            height: 48,
+            isGrounded: true,
+            isClimbing: false,
+            onLiana: false,
+            facingRight: true
+        };
+
+        this.liana = {
+            angle: 0,
+            angleVel: 0.025,
+            length: 170,
+            anchorX: 400,
+            anchorY: 90
+        };
+
+        this.treasureCollected = false;
+        document.getElementById('game-over-overlay').style.display = 'none';
+        this.generateScene(this.currentScene);
+    }
+
+    lfsrNext(seed) {
+        let bit = ((seed >> 7) ^ (seed >> 5) ^ (seed >> 4) ^ (seed >> 3)) & 1;
+        return ((seed << 1) | bit) & 0xFF;
+    }
+
+    lfsrPrev(seed) {
+        let bit = (seed ^ (seed >> 1) ^ (seed >> 2) ^ (seed >> 4)) & 1;
+        return (seed >> 1) | (bit << 7);
+    }
+
+    generateScene(seed) {
+        this.sceneData = {
+            objectType: seed & 0x07,
+            sceneType: (seed >> 3) & 0x07,
+            hasLadder: ((seed >> 3) & 0x07) < 3,
+            hasTreasure: (seed % 5 === 0)
+        };
+
+        this.treasureCollected = false;
+
+        // Dynamic obstacle generation
+        this.logs = [];
+        if (this.sceneData.objectType < 4) {
+            this.logs.push({ x: 760, y: 312, speed: 3.5 + (this.sceneData.objectType * 0.8) });
+        }
+    }
+
+    playSound(type) {
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        const osc = this.audioCtx.createOscillator();
+        const gain = this.audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(this.audioCtx.destination);
+
+        const now = this.audioCtx.currentTime;
+        if (type === 'jump') {
+            osc.frequency.setValueAtTime(180, now);
+            osc.frequency.exponentialRampToValueAtTime(500, now + 0.15);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+        } else if (type === 'grab') {
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.1);
+            osc.start(now);
+            osc.stop(now + 0.1);
+        } else if (type === 'treasure') {
+            osc.frequency.setValueAtTime(523, now);
+            osc.frequency.setValueAtTime(659, now + 0.08);
+            osc.frequency.setValueAtTime(783, now + 0.16);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.start(now);
+            osc.stop(now + 0.3);
+        } else if (type === 'hurt') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(150, now);
+            osc.frequency.linearRampToValueAtTime(40, now + 0.25);
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.25);
+            osc.start(now);
+            osc.stop(now + 0.25);
+        } else if (type === 'die') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(300, now);
+            osc.frequency.linearRampToValueAtTime(30, now + 0.6);
+            gain.gain.setValueAtTime(0.4, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.6);
+            osc.start(now);
+            osc.stop(now + 0.6);
+        }
+    }
+
+    initControls() {
+        window.addEventListener('keydown', e => {
+            this.keys[e.key.toLowerCase()] = true;
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', ' '].includes(e.key)) e.preventDefault();
+        });
+        window.addEventListener('keyup', e => this.keys[e.key.toLowerCase()] = false);
+    }
+
+    startTimer() {
+        setInterval(() => {
+            if (this.timeRemaining > 0 && this.lives > 0) {
+                this.timeRemaining--;
+                const mins = String(Math.floor(this.timeRemaining / 60)).padStart(2, '0');
+                const secs = String(this.timeRemaining % 60).padStart(2, '0');
+                document.getElementById('timer').innerText = `${mins}:${secs}`;
+            }
+        }, 1000);
+    }
+
+    playerDie(reason = "Você morreu!") {
+        this.lives--;
+        this.playSound('die');
+        if (this.lives <= 0) {
+            document.getElementById('death-reason').innerText = reason;
+            document.getElementById('game-over-overlay').style.display = 'flex';
+        } else {
+            // Respawn Harry on ground safe zone
+            this.harry.x = 60;
+            this.harry.y = 280;
+            this.harry.vx = 0;
+            this.harry.vy = 0;
+            this.harry.onLiana = false;
+            this.harry.isClimbing = false;
+            this.invulnerableTimer = 90; // Invincibility frames
+        }
+    }
+
+    update() {
+        if (this.lives <= 0) return;
+
+        this.animFrame++;
+        if (this.invulnerableTimer > 0) this.invulnerableTimer--;
+
+        // Pendulum Math for Liana
+        this.liana.angle += this.liana.angleVel;
+        if (Math.abs(this.liana.angle) > 0.75) this.liana.angleVel *= -1;
+
+        const lianaX = this.liana.anchorX + Math.sin(this.liana.angle) * this.liana.length;
+        const lianaY = this.liana.anchorY + Math.cos(this.liana.angle) * this.liana.length;
+
+        // Player Motion Controls
+        const speed = 4.2;
+        this.harry.vx = 0;
+
+        const isJumpPressed = this.keys[' '] || this.keys['w'] || this.keys['arrowup'];
+        const isDownPressed = this.keys['s'] || this.keys['arrowdown'];
+
+        if (!this.harry.onLiana) {
+            if (this.keys['arrowleft'] || this.keys['a']) {
+                this.harry.vx = -speed;
+                this.harry.facingRight = false;
+            }
+            if (this.keys['arrowright'] || this.keys['d']) {
+                this.harry.vx = speed;
+                this.harry.facingRight = true;
+            }
+
+            // Ladder Climb Logic
+            const nearLadder = this.sceneData.hasLadder && Math.abs((this.harry.x + 14) - 400) < 25;
+            if (nearLadder && (isDownPressed || (isJumpPressed && this.harry.y > 280))) {
+                this.harry.isClimbing = true;
+                this.harry.x = 386; // Align to ladder
+            }
+
+            if (this.harry.isClimbing) {
+                this.harry.vx = 0;
+                this.harry.vy = 0;
+                if (isDownPressed) this.harry.y += 3;
+                if (isJumpPressed) this.harry.y -= 3;
+
+                if (this.harry.y <= 280) {
+                    this.harry.y = 280;
+                    this.harry.isClimbing = false;
+                } else if (this.harry.y >= 410) {
+                    this.harry.y = 410;
+                    this.harry.isClimbing = false;
+                }
+            } else {
+                // Jump Action
+                if (isJumpPressed && this.harry.isGrounded) {
+                    this.harry.vy = -10.5;
+                    this.harry.isGrounded = false;
+                    this.playSound('jump');
+                }
+            }
+
+            // Liana Grab Collision Check
+            if (!this.harry.isGrounded && !this.harry.isClimbing) {
+                const handX = this.harry.x + 14;
+                const handY = this.harry.y + 10;
+                const distToLiana = Math.hypot(handX - lianaX, handY - lianaY);
+
+                if (distToLiana < 32) {
+                    this.harry.onLiana = true;
+                    this.playSound('grab');
+                }
+            }
+        } else {
+            // Attached to Liana
+            this.harry.x = lianaX - 14;
+            this.harry.y = lianaY - 12;
+            this.harry.vy = 0;
+
+            // Release Liana
+            if (isDownPressed || isJumpPressed) {
+                this.harry.onLiana = false;
+                this.harry.vy = -4;
+                this.harry.vx = Math.sin(this.liana.angle) * 7.5; // Swing physics release momentum
+                this.playSound('jump');
+            }
+        }
+
+        // Apply Gravity
+        if (!this.harry.isGrounded && !this.harry.isClimbing && !this.harry.onLiana) {
+            this.harry.vy += 0.55;
+            this.harry.y += this.harry.vy;
+        }
+        this.harry.x += this.harry.vx;
+
+        // Pit & Floor Collision Mechanics Fix
+        const hasPit = (this.sceneData.sceneType === 0 || this.sceneData.sceneType === 1 || this.sceneData.sceneType === 4);
+        const inPitXZone = (this.harry.x + 14 > 270 && this.harry.x + 14 < 530);
+
+        const groundY = 280;
+        const subGroundY = 410;
+
+        if (!this.harry.isClimbing && !this.harry.onLiana) {
+            // Upper Ground Level
+            if (this.harry.y >= groundY && this.harry.y < groundY + 30) {
+                if (hasPit && inPitXZone) {
+                    // FALL INTO PIT MECHANIC
+                    this.harry.isGrounded = false;
+                } else {
+                    this.harry.y = groundY;
+                    this.harry.vy = 0;
+                    this.harry.isGrounded = true;
+                }
+            } 
+            // Subterranean Floor
+            else if (this.harry.y >= subGroundY) {
+                this.harry.y = subGroundY;
+                this.harry.vy = 0;
+                this.harry.isGrounded = true;
+            }
+        }
+
+        // Fatal Pit Hazards Checking
+        if (hasPit && inPitXZone && this.harry.y > 310 && !this.harry.onLiana && !this.harry.isClimbing) {
+            if (this.sceneData.sceneType === 4) { // Crocodiles
+                // Check if landing directly on croc heads or open water
+                if (this.harry.y > 325) {
+                    this.playerDie("Devorado pelos crocodilos!");
+                }
+            } else { // Tar Pit or Quicksand
+                this.harry.vy = 0.2; // Sinking effect
+                if (this.harry.y > 330) {
+                    this.playerDie("Afundou no poço mortal!");
+                }
+            }
+        }
+
+        // Log Obstacle Collisions
+        this.logs.forEach(log => {
+            log.x -= log.speed;
+            if (log.x < 40) log.x = 760;
+
+            if (this.invulnerableTimer === 0 && Math.hypot((this.harry.x + 14) - log.x, (this.harry.y + 24) - log.y) < 22) {
+                this.score = Math.max(0, this.score - 100);
+                this.playSound('hurt');
+                this.invulnerableTimer = 40; // Temporary invincibility
+                this.harry.vy = -4; // Knockback
+            }
+        });
+
+        // Treasure Pickup Mechanic
+        if (this.sceneData.hasTreasure && !this.treasureCollected && this.harry.y > 380) {
+            if (Math.abs((this.harry.x + 14) - 600) < 30) {
+                this.treasureCollected = true;
+                this.score += 2000;
+                this.playSound('treasure');
+            }
+        }
+
+        // Scene / Room Transitions (LFSR Logic)
+        if (this.harry.x > 775) {
+            this.currentScene = this.lfsrNext(this.currentScene);
+            this.sceneIndex++;
+            this.generateScene(this.currentScene);
+            this.harry.x = 25;
+        } else if (this.harry.x < 10) {
+            this.currentScene = this.lfsrPrev(this.currentScene);
+            this.sceneIndex--;
+            this.generateScene(this.currentScene);
+            this.harry.x = 760;
+        }
+
+        // HUD update
+        document.getElementById('score').innerText = String(this.score).padStart(4, '0');
+        document.getElementById('scene-num').innerText = String(Math.abs(this.sceneIndex) + 1).padStart(3, '0');
+        document.getElementById('lives').innerText = '❤️'.repeat(this.lives);
+    }
+
+    draw() {
+        // Clear background with rich cosmic dark hue
+        this.ctx.fillStyle = '#050014';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Psychedelic Glowing Jungle Canopy (Vector style)
+        const time = this.animFrame * 0.03;
+        const canopyGlow = `hsl(${Math.sin(time) * 60 + 280}, 100%, 50%)`;
+
+        this.ctx.shadowBlur = 15;
+        this.ctx.shadowColor = canopyGlow;
+        this.ctx.fillStyle = canopyGlow;
+        this.ctx.fillRect(0, 0, 800, 80);
+
+        // Trippy Circular Trees
+        for (let i = 0; i < 800; i += 70) {
+            const hue = (i + this.animFrame * 2) % 360;
+            this.ctx.fillStyle = `hsl(${hue}, 90%, 45%)`;
+            this.ctx.beginPath();
+            this.ctx.arc(i + 35, 75, 40, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // Main Surface Ground (Neon Cyber Sand)
+        const hasPit = (this.sceneData.sceneType === 0 || this.sceneData.sceneType === 1 || this.sceneData.sceneType === 4);
+        
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowColor = '#00ffff';
+        this.ctx.fillStyle = '#9d00ff';
+
+        if (hasPit) {
+            // Draw floor with pit gap
+            this.ctx.fillRect(0, 328, 270, 24);
+            this.ctx.fillRect(530, 328, 270, 24);
+        } else {
+            this.ctx.fillRect(0, 328, 800, 24);
+        }
+
+        // Underground Layer (Acid Colors)
+        this.ctx.shadowColor = '#ff007f';
+        this.ctx.fillStyle = '#220033';
+        this.ctx.fillRect(0, 352, 800, 148);
+        this.ctx.fillStyle = '#ff007f';
+        this.ctx.fillRect(0, 458, 800, 12); // Underground solid floor
+
+        // Render Pit Hazards
+        if (hasPit) {
+            this.ctx.shadowBlur = 15;
+            if (this.sceneData.sceneType === 4) { // Crocodile Swamp
+                this.ctx.shadowColor = '#00ff66';
+                this.ctx.fillStyle = '#003322';
+                this.ctx.fillRect(270, 328, 260, 24);
+
+                // Animated SVG Crocodiles
+                if (this.images.crocOpen.complete) {
+                    this.ctx.drawImage(this.images.crocOpen, 300, 322, 60, 24);
+                    this.ctx.drawImage(this.images.crocOpen, 380, 322, 60, 24);
+                    this.ctx.drawImage(this.images.crocOpen, 460, 322, 60, 24);
+                }
+            } else { // Tar / Quicksand
+                const liquidHue = (this.animFrame * 5) % 360;
+                this.ctx.shadowColor = `hsl(${liquidHue}, 100%, 50%)`;
+                this.ctx.fillStyle = `hsl(${liquidHue}, 100%, 25%)`;
+                this.ctx.fillRect(270, 328, 260, 24);
+            }
+        }
+
+        // Ladder Rendering
+        if (this.sceneData.hasLadder) {
+            this.ctx.shadowColor = '#ffe600';
+            this.ctx.fillStyle = '#ffe600';
+            this.ctx.fillRect(392, 328, 16, 130);
+            for (let y = 335; y < 455; y += 14) {
+                this.ctx.fillRect(384, y, 32, 4);
+            }
+        }
+
+        // Swinging Liana (Neon Vector Wire)
+        const lianaX = this.liana.anchorX + Math.sin(this.liana.angle) * this.liana.length;
+        const lianaY = this.liana.anchorY + Math.cos(this.liana.angle) * this.liana.length;
+        this.ctx.shadowBlur = 12;
+        this.ctx.shadowColor = '#00ffff';
+        this.ctx.strokeStyle = '#00ffff';
+        this.ctx.lineWidth = 5;
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.liana.anchorX, this.liana.anchorY);
+        this.ctx.lineTo(lianaX, lianaY);
+        this.ctx.stroke();
+
+        // Rolling Logs (SVG Sprites)
+        this.logs.forEach(log => {
+            if (this.images.log.complete) {
+                this.ctx.shadowColor = '#ff007f';
+                this.ctx.shadowBlur = 10;
+                this.ctx.drawImage(this.images.log, log.x - 16, log.y - 16, 32, 32);
+            }
+        });
+
+        // Treasure (SVG Sprite Underground)
+        if (this.sceneData.hasTreasure && !this.treasureCollected) {
+            if (this.images.treasure.complete) {
+                this.ctx.shadowColor = '#ffe600';
+                this.ctx.shadowBlur = 15;
+                this.ctx.drawImage(this.images.treasure, 600, 425, 32, 32);
+            }
+        }
+
+        // Player Rendering (SVG Modern Hero Sprite with Invulnerability Flicker)
+        if (this.invulnerableTimer % 4 < 2) {
+            this.ctx.shadowBlur = 15;
+            this.ctx.shadowColor = '#00ffff';
+            const sprite = this.harry.facingRight ? this.images.harryRight : this.images.harryLeft;
+            if (sprite.complete) {
+                this.ctx.drawImage(sprite, this.harry.x, this.harry.y, this.harry.width, this.harry.height);
+            }
+        }
+
+        this.ctx.shadowBlur = 0; // Reset shadows
+    }
+
+    gameLoop() {
+        this.update();
+        this.draw();
+        requestAnimationFrame(() => this.gameLoop());
+    }
+}
+
+// Launch Game Engine
+let game;
+window.onload = () => { game = new PitfallGame(); };
+</script>
+</body>
+</html>

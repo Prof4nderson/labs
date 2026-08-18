@@ -1,0 +1,29 @@
+/* === TEMA HOLOGRAPHIC SCI-FI (Alternativo) === */
+html.light {
+  --bg-main: #f4f6fa;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --border-glass: rgba(14, 165, 233, 0.3);
+  --prism-gradient: linear-gradient(135deg, #0284c7 0%, #7c3aed 100%);
+  --shadow-glow: 0 10px 30px rgba(14, 165, 233, 0.15);
+}
+
+html.light body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
+html.light .glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-glow);
+}
+
+html.light .text-prism {
+  background: var(--prism-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

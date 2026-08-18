@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOps Networking & Protocols Lab</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #04121e 0%, #0c2340 35%, #102a43 70%, #04121e 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: -1; overflow: hidden; pointer-events: none;
+    }
+
+    .shape {
+      position: absolute; border-radius: 50%;
+      filter: blur(90px); opacity: 0.35;
+    }
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #06b6d4; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #3b82f6; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #10b981; }
+
+    .container {
+      width: 100%;
+      max-width: 1150px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    header { text-align: center; margin-bottom: 35px; }
+    header h1 {
+      font-size: 2.5rem; font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8 0%, #34d399 50%, #818cf8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px; margin-bottom: 8px;
+    }
+    header p { color: #9ca3af; font-size: 1.1rem; }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .label-title {
+      font-size: 0.95rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: #38bdf8; margin-bottom: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+
+    select, input[type="text"] {
+      width: 100%; background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px;
+      padding: 12px 16px; color: #f8fafc; font-size: 0.95rem; outline: none;
+    }
+    select:focus, input[type="text"]:focus {
+      border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px; margin-top: 10px;
+    }
+
+    .control-group {
+      display: flex; flex-direction: column; gap: 6px;
+      background: rgba(15, 23, 42, 0.5);
+      padding: 12px 14px; border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .control-group label {
+      font-size: 0.78rem; font-weight: 700; color: #cbd5e1;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .editor-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    
+    .tool-btn {
+      background: rgba(56, 189, 248, 0.15); color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 10px;
+      padding: 7px 12px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+    }
+    .tool-btn:hover { background: rgba(56, 189, 248, 0.3); color: #ffffff; }
+
+    .concept-explanation { color: #e2e8f0; font-size: 1.05rem; line-height: 1.7; }
+    .concept-explanation pre {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 16px; border-radius: 10px; margin: 10px 0;
+      color: #38bdf8; font-family: Consolas, Monaco, monospace; font-size: 0.9rem;
+    }
+    .concept-explanation code {
+      background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 6px;
+      border-radius: 4px; font-family: Consolas, Monaco, monospace;
+    }
+
+    .dual-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 900px) { .dual-panel { grid-template-columns: 1fr; } }
+
+    .editor-container-wrapper {
+      position: relative; width: 100%; height: 320px;
+      border-radius: 14px; overflow: hidden;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    .editor-container-wrapper pre,
+    .editor-container-wrapper code,
+    .editor-container-wrapper textarea,
+    .editor-container-wrapper span {
+      font-family: Consolas, Monaco, 'Courier New', monospace !important;
+      font-size: 14px !important;
+      font-weight: 400 !important;
+      font-style: normal !important;
+      line-height: 20px !important;
+      letter-spacing: 0px !important;
+      word-spacing: 0px !important;
+      font-variant-ligatures: none !important;
+      tab-size: 2 !important; -moz-tab-size: 2 !important;
+      -webkit-font-smoothing: antialiased !important;
+    }
+
+    .editor-container-wrapper pre,
+    .editor-container-wrapper textarea {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      padding: 16px 20px !important; margin: 0 !important; border: 0 !important;
+      box-sizing: border-box !important; white-space: pre !important;
+      word-wrap: normal !important; overflow-wrap: normal !important;
+    }
+
+    .editor-container-wrapper pre { pointer-events: none; color: #f8fafc; z-index: 1; overflow: hidden !important; }
+    .editor-container-wrapper pre code { background: transparent !important; display: inline !important; color: inherit; }
+    .editor-container-wrapper textarea {
+      background: transparent; color: transparent; -webkit-text-fill-color: transparent;
+      caret-color: #38bdf8; resize: none; outline: none; z-index: 2; overflow: auto !important;
+    }
+
+    .editor-container-wrapper textarea::selection {
+      background: rgba(56, 189, 248, 0.4) !important; color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+    }
+
+    .hl-keyword { color: #f472b6; }
+    .hl-func { color: #a855f7; }
+    .hl-num { color: #fbbf24; }
+    .hl-str { color: #34d399; }
+    .hl-comment { color: #64748b; }
+
+    .glass-card.editor-expanded {
+      position: fixed; top: 20px; left: 20px; right: 20px; bottom: 20px; z-index: 9999;
+      background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(25px);
+      border: 1px solid rgba(56, 189, 248, 0.4); display: flex; flex-direction: column;
+      margin: 0; border-radius: 24px;
+    }
+    .glass-card.editor-expanded .editor-container-wrapper { flex: 1; height: 100% !important; }
+
+    .console-box {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px; padding: 16px; height: 320px;
+      overflow-y: auto; font-family: Consolas, Monaco, monospace;
+      font-size: 0.9rem; color: #e2e8f0; display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .console-line { padding: 6px 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.03); white-space: pre-wrap; word-break: break-all; }
+    .console-info { color: #38bdf8; }
+    .console-log { color: #fbbf24; border-left: 3px solid #fbbf24; }
+    .console-success { color: #34d399; background: rgba(52, 211, 153, 0.1); border-left: 3px solid #34d399; font-weight: bold; }
+    .console-error { color: #f87171; background: rgba(248, 113, 113, 0.1); border-left: 3px solid #f87171; font-weight: bold; }
+
+    .submit-btn {
+      width: 100%; background: linear-gradient(135deg, #0284c7 0%, #10b981 100%);
+      color: #ffffff; border: none; border-radius: 16px; padding: 18px 28px;
+      font-size: 1.2rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 10px 25px rgba(2, 132, 199, 0.35); margin-bottom: 25px; transition: all 0.3s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+    .status-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    .status-success { background: rgba(52, 211, 153, 0.2); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+    .status-error { background: rgba(248, 113, 113, 0.2); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.3); }
+    .meta-box { font-size: 0.85rem; color: #9ca3af; font-family: Consolas, Monaco, monospace; }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>DevOps Networking & Protocols Lab</h1>
+      <p>Aprenda Portas, TCP/UDP, DNS, Status HTTP e Roteamento de Redes na Prática</p>
+    </header>
+
+    <div class="glass-card">
+      <div class="label-title">1. Selecione o Módulo de Redes</div>
+      <select id="lessonSelect">
+        <option value="ex1">Módulo 1: Mapeamento de Portas Padrão (SSH, HTTP, Postgres, Redis)</option>
+        <option value="ex2">Módulo 2: Classes de Status HTTP (2xx, 3xx, 4xx, 5xx)</option>
+        <option value="ex3">Módulo 3: Camada de Transporte (TCP vs UDP)</option>
+        <option value="ex4">Módulo 4: Tipos de Registros DNS (A, CNAME, MX, AAAA)</option>
+        <option value="ex5">Módulo 5: Identificador de IP Privado (RFC 1918 / CIDR)</option>
+
+        <option value="ex6">Módulo 6: Regras de Firewall / Security Group (Allow vs Deny)</option>
+        <option value="ex7">Módulo 7: Classificação de Subnet (Pública vs Privada)</option>
+        <option value="ex8">Módulo 8: Endpoint Health Check (Probe de Infraestrutura)</option>
+      </select>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">2. Conceito Teórico e Prático</div>
+      <div id="conceptText" class="concept-explanation"></div>
+    </div>
+
+    <div class="glass-card">
+      <div class="label-title">⚡ Parâmetros do Teste de Rede</div>
+      <div class="controls-grid">
+        <div class="control-group">
+          <label>Parâmetro A (Serviço / Status / IP)</label>
+          <input type="text" id="paramInputA" value="https">
+        </div>
+        <div class="control-group">
+          <label>Parâmetro B (Porta / Tempo ms)</label>
+          <input type="text" id="paramInputB" value="443">
+        </div>
+        <div class="control-group">
+          <label>Parâmetro C (Protocolo / Flag)</label>
+          <input type="text" id="paramInputC" value="TCP">
+        </div>
+      </div>
+    </div>
+
+    <div class="dual-panel">
+      <div class="glass-card" id="editorCard">
+        <div class="label-title">
+          <span>3A. Algoritmo de Rede (JavaScript)</span>
+          <div class="editor-toolbar">
+            <button class="tool-btn" id="resetCodeBtn">🔄 Restaurar Código</button>
+            <button class="tool-btn" id="expandBtn">⤢ Expandir Editor</button>
+          </div>
+        </div>
+
+        <div class="editor-container-wrapper">
+          <pre id="highlightDisplay" aria-hidden="true"><code id="highlightCode"></code></pre>
+          <textarea id="jsEditor" spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="label-title">
+          <span>3B. Terminal de Diagnóstico de Rede</span>
+          <span id="statusBadge" class="status-badge status-success">Pronto</span>
+        </div>
+        <div id="consoleOutput" class="console-box">
+          <div class="console-line console-info">Aguardando execução do diagnóstico de rede...</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="runBtn">⚡ Testar Roteamento & Diagnosticar Conexão</button>
+
+    <div class="glass-card">
+      <div class="label-title">Resultado do Diagnóstico</div>
+      <div id="metaInfo" class="meta-box">Pressione o botão para rodar a simulação.</div>
+    </div>
+  </div>
+
+  <script>
+    const lessons = {
+      ex1: {
+        targetFn: "obterPortaPadrao",
+        explanation: "Em DevOps, portas bem conhecidas (<em>Well-Known Ports</em>) identificam serviços de infraestrutura.<pre>SSH = 22 | HTTP = 80 | HTTPS = 443 | Postgres = 5432 | Redis = 6379</pre><strong>Desafio:</strong> Crie <code>obterPortaPadrao(servico)</code> retornando o número da porta para os serviços listados acima.",
+        inputA: "ssh",
+        inputB: "22",
+        inputC: "TCP",
+        initialCode: "function obterPortaPadrao(servico) {\n  let s = servico.toLowerCase();\n  console.log('Consultando porta do serviço:', s);\n  if (s === 'ssh') return 22;\n  if (s === 'http') return 80;\n  if (s === 'https') return 443;\n  if (s === 'postgres') return 5432;\n  if (s === 'redis') return 6379;\n  return 0;\n}",
+        test: (userFn, a) => {
+          const s = String(a).toLowerCase();
+          const map = { ssh: 22, http: 80, https: 443, postgres: 5432, redis: 6379 };
+          const exp = map[s] || 0;
+          const res = userFn(s);
+          return {
+            passed: res === exp,
+            msg: `obterPortaPadrao("${s}") => Esperado: ${exp} | Obteve: ${res}`
+          };
+        }
+      },
+      ex2: {
+        targetFn: "classificarStatusHTTP",
+        explanation: "Os códigos de resposta HTTP orientam monitoramento e chamadas de API.<pre>2xx = Sucesso | 3xx = Redirecionamento | 4xx = Erro Cliente | 5xx = Erro Servidor</pre><strong>Desafio:</strong> Escreva <code>classificarStatusHTTP(codigo)</code> retornando a categoria exata para o código numérico fornecido.",
+        inputA: "404",
+        inputB: "0",
+        inputC: "0",
+        initialCode: "function classificarStatusHTTP(codigo) {\n  let c = Number(codigo);\n  if (c >= 200 && c < 300) return 'Sucesso';\n  if (c >= 300 && c < 400) return 'Redirecionamento';\n  if (c >= 400 && c < 500) return 'Erro Cliente';\n  if (c >= 500) return 'Erro Servidor';\n  return 'Desconhecido';\n}",
+        test: (userFn, a) => {
+          const c = Number(a);
+          let exp = "Desconhecido";
+          if (c >= 200 && c < 300) exp = "Sucesso";
+          else if (c >= 300 && c < 400) exp = "Redirecionamento";
+          else if (c >= 400 && c < 500) exp = "Erro Cliente";
+          else if (c >= 500) exp = "Erro Servidor";
+          const res = userFn(c);
+          return {
+            passed: res === exp,
+            msg: `classificarStatusHTTP(${c}) => Esperado: "${exp}" | Obteve: "${res}"`
+          };
+        }
+      },
+      ex3: {
+        targetFn: "escolherProtocoloTransporte",
+        explanation: "A camada de transporte possui dois protocolos fundamentais:<pre>TCP: Garantia de entrega e ordem (Web, SSH, Banco de Dados)\nUDP: Foco em baixa latência e velocidade (DNS, Streaming, Jogos)</pre><strong>Desafio:</strong> Crie <code>escolherProtocoloTransporte(tipoApp)</code> retornando <code>'TCP'</code> ou <code>'UDP'</code> de acordo com o caso.",
+        inputA: "streaming",
+        inputB: "0",
+        inputC: "0",
+        initialCode: "function escolherProtocoloTransporte(tipoApp) {\n  let app = tipoApp.toLowerCase();\n  if (app === 'streaming' || app === 'jogos' || app === 'dns') {\n    return 'UDP';\n  }\n  return 'TCP';\n}",
+        test: (userFn, a) => {
+          const app = String(a).toLowerCase();
+          const exp = (app === 'streaming' || app === 'jogos' || app === 'dns') ? "UDP" : "TCP";
+          const res = userFn(app);
+          return {
+            passed: res === exp,
+            msg: `escolherProtocoloTransporte("${app}") => Esperado: "${exp}" | Obteve: "${res}"`
+          };
+        }
+      },
+      ex4: {
+        targetFn: "resolverTipoRegistroDNS",
+        explanation: "O DNS mapeia nomes legíveis para recursos digitais na infraestrutura.<pre>A = IPv4 | AAAA = IPv6 | CNAME = Apelido/Alias | MX = Servidor de E-mail</pre><strong>Desafio:</strong> Crie <code>resolverTipoRegistroDNS(finalidade)</code> retornando a sigla do registro DNS.",
+        inputA: "alias",
+        inputB: "0",
+        inputC: "0",
+        initialCode: "function resolverTipoRegistroDNS(finalidade) {\n  let f = finalidade.toLowerCase();\n  if (f === 'ip_v4' || f === 'ipv4') return 'A';\n  if (f === 'ip_v6' || f === 'ipv6') return 'AAAA';\n  if (f === 'alias' || f === 'apelido') return 'CNAME';\n  if (f === 'email') return 'MX';\n  return 'DESCONHECIDO';\n}",
+        test: (userFn, a) => {
+          const f = String(a).toLowerCase();
+          let exp = "DESCONHECIDO";
+          if (f === 'ip_v4' || f === 'ipv4') exp = 'A';
+          else if (f === 'ip_v6' || f === 'ipv6') exp = 'AAAA';
+          else if (f === 'alias' || f === 'apelido') exp = 'CNAME';
+          else if (f === 'email') exp = 'MX';
+          const res = userFn(f);
+          return {
+            passed: res === exp,
+            msg: `resolverTipoRegistroDNS("${f}") => Esperado: "${exp}" | Obteve: "${res}"`
+          };
+        }
+      },
+      ex5: {
+        targetFn: "eIpPrivado",
+        explanation: "A RFC 1918 reserva faixas de IP para redes internas privadas (como VPCs da AWS).<pre>10.0.0.0/8 | 172.16.0.0/12 | 192.168.0.0/16</pre><strong>Desafio:</strong> Escreva <code>eIpPrivado(ip)</code> retornando <code>true</code> se o IP começar com <code>'10.'</code>, <code>'192.168.'</code> ou <code>'172.16.'</code>, e <code>false</code> para IPs públicos.",
+        inputA: "192.168.1.50",
+        inputB: "0",
+        inputC: "0",
+        initialCode: "function eIpPrivado(ip) {\n  console.log('Validando IP:', ip);\n  if (ip.startsWith('10.') || ip.startsWith('192.168.') || ip.startsWith('172.16.')) {\n    return true;\n  }\n  return false;\n}",
+        test: (userFn, a) => {
+          const ip = String(a);
+          const exp = ip.startsWith('10.') || ip.startsWith('192.168.') || ip.startsWith('172.16.');
+          const res = userFn(ip);
+          return {
+            passed: res === exp,
+            msg: `eIpPrivado("${ip}") => Esperado: ${exp} | Obteve: ${res}`
+          };
+        }
+      },
+      ex6: {
+        targetFn: "avaliarSecurityGroup",
+        explanation: "Os Firewalls de nuvem (*Security Groups*) inspecionam o tráfego de entrada (*Inbound*).<pre>Se portaDesejada === portaLiberada E regra === 'ALLOW' => 'Permitido'</pre><strong>Desafio:</strong> Escreva a função <code>avaliarSecurityGroup(portaDesejada, portaLiberada, regra)</code>.",
+        inputA: "80",
+        inputB: "80",
+        inputC: "ALLOW",
+        initialCode: "function avaliarSecurityGroup(portaDesejada, portaLiberada, regra) {\n  if (Number(portaDesejada) === Number(portaLiberada) && regra === 'ALLOW') {\n    return 'Permitido';\n  }\n  return 'Bloqueado';\n}",
+        test: (userFn, a, b, c) => {
+          const p1 = Number(a), p2 = Number(b), r = String(c);
+          const exp = (p1 === p2 && r === 'ALLOW') ? 'Permitido' : 'Bloqueado';
+          const res = userFn(p1, p2, r);
+          return {
+            passed: res === exp,
+            msg: `avaliarSecurityGroup(${p1}, ${p2}, "${r}") => Esperado: "${exp}" | Obteve: "${res}"`
+          };
+        }
+      },
+      ex7: {
+        targetFn: "classificarSubnet",
+        explanation: "Em arquiteturas de nuvem, uma **Subnet Pública** possui uma rota direta para um *Internet Gateway* (IGW). Se não possui, é **Privada**.<pre>temIGW === true => 'Public Subnet'\ntemIGW === false => 'Private Subnet'</pre><strong>Desafio:</strong> Crie <code>classificarSubnet(temIGW)</code>.",
+        inputA: "true",
+        inputB: "0",
+        inputC: "0",
+        initialCode: "function classificarSubnet(temIGW) {\n  let igw = (temIGW === true || temIGW === 'true');\n  if (igw) {\n    return 'Public Subnet';\n  }\n  return 'Private Subnet';\n}",
+        test: (userFn, a) => {
+          const val = (a === true || a === 'true');
+          const exp = val ? 'Public Subnet' : 'Private Subnet';
+          const res = userFn(val);
+          return {
+            passed: res === exp,
+            msg: `classificarSubnet(${val}) => Esperado: "${exp}" | Obteve: "${res}"`
+          };
+        }
+      },
+      ex8: {
+        targetFn: "verificarHealthCheck",
+        explanation: "Balanceadores de carga (ALB) executam probes periódicos de saúde nos servidores.<pre>Se statusHttp === 200 E latenciaMs < 500 => 'Healthy'</pre><strong>Desafio:</strong> Crie <code>verificarHealthCheck(statusHttp, latenciaMs)</code> retornando <code>'Healthy'</code> ou <code>'Unhealthy'</code>.",
+        inputA: "200",
+        inputB: "120",
+        inputC: "0",
+        initialCode: "function verificarHealthCheck(statusHttp, latenciaMs) {\n  let status = Number(statusHttp);\n  let lat = Number(latenciaMs);\n  if (status === 200 && lat < 500) {\n    return 'Healthy';\n  }\n  return 'Unhealthy';\n}",
+        test: (userFn, a, b) => {
+          const s = Number(a), l = Number(b);
+          const exp = (s === 200 && l < 500) ? 'Healthy' : 'Unhealthy';
+          const res = userFn(s, l);
+          return {
+            passed: res === exp,
+            msg: `verificarHealthCheck(${s}, ${l}) => Esperado: "${exp}" | Obteve: "${res}"`
+          };
+        }
+      }
+    };
+
+    const lessonSelect = document.getElementById('lessonSelect');
+    const conceptText = document.getElementById('conceptText');
+    const jsEditor = document.getElementById('jsEditor');
+    const highlightDisplay = document.getElementById('highlightDisplay');
+    const highlightCode = document.getElementById('highlightCode');
+    const consoleOutput = document.getElementById('consoleOutput');
+    const statusBadge = document.getElementById('statusBadge');
+    const metaInfo = document.getElementById('metaInfo');
+    const paramInputA = document.getElementById('paramInputA');
+    const paramInputB = document.getElementById('paramInputB');
+    const paramInputC = document.getElementById('paramInputC');
+
+    const resetCodeBtn = document.getElementById('resetCodeBtn');
+    const expandBtn = document.getElementById('expandBtn');
+    const editorCard = document.getElementById('editorCard');
+
+    function escapeHTML(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function updateHighlight() {
+      let code = jsEditor.value;
+      if (code.endsWith('\n')) code += ' ';
+
+      const tokenRegex = /(\/\/[^\r\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(\b(?:function|return|if|else|for|while|let|const|var|of|in|new|try|catch|async|await)\b)|(\b(?:console|log|push|filter|split|replace|includes|startsWith|toLowerCase|Math|length)\b)|(\b\d+\b)/g;
+
+      let lastIndex = 0;
+      let html = '';
+      let match;
+
+      while ((match = tokenRegex.exec(code)) !== null) {
+        html += escapeHTML(code.slice(lastIndex, match.index));
+
+        const [full, comment, str, keyword, func, num] = match;
+
+        if (comment) {
+          html += '<span class="hl-comment">' + escapeHTML(comment) + '</span>';
+        } else if (str) {
+          html += '<span class="hl-str">' + escapeHTML(str) + '</span>';
+        } else if (keyword) {
+          html += '<span class="hl-keyword">' + escapeHTML(keyword) + '</span>';
+        } else if (func) {
+          html += '<span class="hl-func">' + escapeHTML(func) + '</span>';
+        } else if (num) {
+          html += '<span class="hl-num">' + escapeHTML(num) + '</span>';
+        }
+
+        lastIndex = tokenRegex.lastIndex;
+      }
+
+      html += escapeHTML(code.slice(lastIndex));
+      highlightCode.innerHTML = html;
+    }
+
+    function syncScroll() {
+      highlightDisplay.scrollTop = jsEditor.scrollTop;
+      highlightDisplay.scrollLeft = jsEditor.scrollLeft;
+    }
+
+    function loadLesson(key) {
+      const lesson = lessons[key];
+      if (!lesson) return;
+      conceptText.innerHTML = lesson.explanation;
+      paramInputA.value = lesson.inputA;
+      paramInputB.value = lesson.inputB;
+      paramInputC.value = lesson.inputC;
+      jsEditor.value = lesson.initialCode;
+      updateHighlight();
+      syncScroll();
+      consoleOutput.innerHTML = '<div class="console-line console-info">Aguardando execução do teste de rede...</div>';
+      statusBadge.textContent = "Pronto";
+      statusBadge.className = "status-badge status-success";
+      metaInfo.textContent = "Edite a função de rede e clique no botão abaixo para testar.";
+    }
+
+    function runCodeAndTest() {
+      const lessonKey = lessonSelect.value;
+      const lesson = lessons[lessonKey];
+      consoleOutput.innerHTML = "";
+
+      let logs = [];
+      const formatArg = (arg) => typeof arg === 'object' && arg !== null ? JSON.stringify(arg) : String(arg);
+
+      const customConsole = {
+        log: (...args) => {
+          logs.push({ type: 'log', text: args.map(formatArg).join(' ') });
+        },
+        error: (...args) => {
+          logs.push({ type: 'error', text: args.map(formatArg).join(' ') });
+        }
+      };
+
+      const renderLogs = () => {
+        logs.forEach(item => {
+          if (item.type === 'log') {
+            consoleOutput.innerHTML += '<div class="console-line console-log">📌 console.log: ' + escapeHTML(item.text) + '</div>';
+          } else {
+            consoleOutput.innerHTML += '<div class="console-line console-error">🚨 console.error: ' + escapeHTML(item.text) + '</div>';
+          }
+        });
+        logs = [];
+      };
+
+      try {
+        const userCode = jsEditor.value;
+        const targetFn = lesson.targetFn;
+
+        const fnWrapper = new Function('console', userCode + ';\nif (typeof ' + targetFn + ' === "function") return ' + targetFn + ';\nreturn null;');
+
+        const userFn = fnWrapper(customConsole);
+        renderLogs();
+
+        if (typeof userFn !== 'function') {
+          throw new Error("A função '" + targetFn + "' não foi encontrada ou definida corretamente.");
+        }
+
+        const testResult = lesson.test(userFn, paramInputA.value, paramInputB.value, paramInputC.value);
+        renderLogs();
+
+        if (testResult.passed) {
+          consoleOutput.innerHTML += '<div class="console-line console-success">✅ Roteamento / Diagnóstico Aprovado!\n' + escapeHTML(testResult.msg) + '</div>';
+          statusBadge.textContent = "Conexão Ativa";
+          statusBadge.className = "status-badge status-success";
+          metaInfo.textContent = "Parabéns! Sua função de rede processou as requisições corretamente.";
+        } else {
+          consoleOutput.innerHTML += '<div class="console-line console-error">❌ Falha no Diagnóstico de Rede!\n' + escapeHTML(testResult.msg) + '</div>';
+          statusBadge.textContent = "Erro de Roteamento";
+          statusBadge.className = "status-badge status-error";
+          metaInfo.textContent = "O resultado difere do esperado pela tabela de protocolos.";
+        }
+
+      } catch (err) {
+        renderLogs();
+        consoleOutput.innerHTML += '<div class="console-line console-error">⚠️ Erro no Código:\n' + escapeHTML(err.message) + '</div>';
+        statusBadge.textContent = "Erro no Script";
+        statusBadge.className = "status-badge status-error";
+        metaInfo.textContent = "O algoritmo possui erros de sintaxe ou execução.";
+      }
+    }
+
+    resetCodeBtn.addEventListener('click', () => {
+      loadLesson(lessonSelect.value);
+    });
+
+    expandBtn.addEventListener('click', () => {
+      editorCard.classList.toggle('editor-expanded');
+      if (editorCard.classList.contains('editor-expanded')) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        expandBtn.innerHTML = "⤓ Recolher Editor";
+      } else {
+        expandBtn.innerHTML = "⤢ Expandir Editor";
+        editorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      syncScroll();
+    });
+
+    ['input', 'keyup', 'keydown', 'scroll', 'click', 'paste'].forEach(evt => {
+      jsEditor.addEventListener(evt, () => {
+        updateHighlight();
+        syncScroll();
+      });
+    });
+
+    jsEditor.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 2;
+        updateHighlight();
+        syncScroll();
+      }
+    });
+
+    lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+    document.getElementById('runBtn').addEventListener('click', runCodeAndTest);
+
+    loadLesson('ex1');
+  </script>
+</body>
+</html>

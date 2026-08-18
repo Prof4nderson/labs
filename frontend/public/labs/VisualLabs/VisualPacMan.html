@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pac-Man Game Lab - Customização e Lógica de Jogos</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #311042 70%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.5;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #6366f1; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #a855f7; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #ec4899; }
+
+    .container {
+      width: 100%;
+      max-width: 1150px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 28px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.1rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .label-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    select, textarea {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      padding: 16px 20px;
+      color: #f8fafc;
+      font-size: 1.05rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select:focus, textarea:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25), inset 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    select option {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px;
+    }
+
+    .concept-explanation {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    .concept-explanation b { color: #38bdf8; }
+    .concept-explanation code, .tbl-code {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.guide-table th {
+      background: rgba(15, 23, 42, 0.85);
+      color: #38bdf8;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.guide-table td {
+      padding: 12px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+    }
+
+    .dual-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .dual-panel { grid-template-columns: 1fr; }
+    }
+
+    textarea.code-editor {
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-weight: 600;
+      color: #38bdf8;
+      height: 320px;
+      resize: vertical;
+      line-height: 1.5;
+      tab-size: 2;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      background: #020617;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      height: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+    }
+
+    canvas {
+      background: #020617;
+      border-radius: 8px;
+    }
+
+    .pause-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #f8fafc;
+      font-weight: bold;
+      font-size: 1.2rem;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .pause-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .hud-bar {
+      width: 100%;
+      padding: 8px 16px;
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 16px;
+      padding: 18px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(168, 85, 247, 0.4);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(168, 85, 247, 0.6);
+      filter: brightness(1.1);
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-playing {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-paused {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .controls-hint {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      text-align: center;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Pac-Man Game Lab</h1>
+      <p>Customização de Personagens, Inimigos e Arquitetura de Labirintos em JavaScript</p>
+    </header>
+
+    <!-- Seleção de Exercícios -->
+    <div class="glass-card">
+      <div class="label-title">1. Escolha o Desafio / Estilo de Jogo</div>
+      <select id="lessonSelect">
+        <option value="ex1">Exercício 1: Alterando as Cores das Paredes e Labirinto (wallColor)</option>
+        <option value="ex2">Exercício 2: Customizando o Pac-Man (playerColor e playerEmoji)</option>
+        <option value="ex3">Exercício 3: Esquadrão Fantasma (ghosts: Cores e Emojis)</option>
+        <option value="ex4">Exercício 4: Pílulas Futuristas e Brilho Neon (dotColor e wallGlow)</option>
+        <option value="ex5">Exercício 5: Redesenhar o Mapa do Labirinto (Matriz map 1s e 0s)</option>
+        <option value="ex6">Exercício 6: Invasão Robótica (Transformando TUDO em Emojis)</option>
+        <option value="ex7">Exercício 7: Labirinto Fechado com Poucos Caminhos (Desafio Extremo)</option>
+        <option value="ex8">Exercício 8: Arena Minimalista em Estilo Cyberpunk</option>
+        <option value="ex9">Exercício 9: Fantasmas Coloridos e Velocidades Ajustadas</option>
+        <option value="ex10">Exercício 10: Arcade Completo e Customizado do Aluno</option>
+      </select>
+    </div>
+
+    <!-- Explicação do Conceito -->
+    <div class="glass-card">
+      <div class="label-title">2. Conceito e Regras de Customização</div>
+      <div id="conceptText" class="concept-explanation"></div>
+    </div>
+
+    <!-- Guia Rápido de Propriedades do Jogo -->
+    <div class="glass-card">
+      <div class="label-title">📖 Guia Rápido das Propriedades de Jogo (Objeto CONFIG)</div>
+      <div class="table-wrapper">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Chave de Configuração</th>
+              <th>Tipo de Dado</th>
+              <th>O que Altera no Jogo</th>
+              <th>Exemplo de Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tbl-code">wallColor</span></td>
+              <td>String (Cor Hex/Nome)</td>
+              <td>Cor dos blocos de parede do labirinto</td>
+              <td><span class="tbl-code">'#38bdf8'</span> ou <span class="tbl-code">'#ec4899'</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">playerColor</span> / <span class="tbl-code">playerEmoji</span></td>
+              <td>String</td>
+              <td>Cor do Pac-Man clássico OU emoji personalizado</td>
+              <td><span class="tbl-code">playerEmoji: '🟡'</span> ou <span class="tbl-code">'🚀'</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">ghosts</span></td>
+              <td>Array de Objetos</td>
+              <td>Cores e emojis de cada um dos fantasmas</td>
+              <td><span class="tbl-code">[{ color: '#ec4899', emoji: '👾' }]</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">dotColor</span></td>
+              <td>String (Cor Hex)</td>
+              <td>Cor das pílulas/pontos espalhados no mapa</td>
+              <td><span class="tbl-code">'#f59e0b'</span> ou <span class="tbl-code">'#ffffff'</span></td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">map</span></td>
+              <td>Matriz 2D (Números)</td>
+              <td>Estrutura do labirinto (<span class="tbl-code">1</span>=Parede, <span class="tbl-code">0</span>=Pílula, <span class="tbl-code">2</span>=Vazio)</td>
+              <td><span class="tbl-code">[[1,1,1],[1,0,1],[1,1,1]]</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Painel Duplo: Editor de Código + Tela do Jogo -->
+    <div class="dual-panel">
+      <!-- Editor de Código -->
+      <div class="glass-card">
+        <div class="label-title">3A. Editor de Parâmetros e Mapa (JS Config)</div>
+        <textarea id="codeEditor" class="code-editor" spellcheck="false"></textarea>
+      </div>
+
+      <!-- Tela do Canvas Pac-Man -->
+      <div class="glass-card">
+        <div class="label-title">
+          <span>3B. Canvas da Arena de Jogo</span>
+          <span id="statusBadge" class="status-badge status-paused">⏸️ Pausado</span>
+        </div>
+        <div class="canvas-wrapper">
+          <div class="hud-bar">
+            <span>PONTOS: <b id="scoreVal" style="color:#4ade80;">0</b></span>
+            <span>STATUS: <b id="gameStatusText" style="color:#fbbf24;">EDIÇÃO</b></span>
+          </div>
+          <canvas id="pacmanCanvas" width="300" height="260"></canvas>
+          <div id="pauseOverlay" class="pause-overlay">
+            <span id="overlayMainText">⏸️ Jogo Pausado para Edição</span>
+            <span id="overlaySubText" style="font-size: 0.85rem; font-weight: normal; margin-top: 6px; color: #94a3b8;">Altere os parâmetros e pressione PLAY</span>
+          </div>
+        </div>
+        <div class="controls-hint">🎮 Controles: Use as <b>Setas do Teclado</b> ou <b>WASD</b> para mover</div>
+      </div>
+    </div>
+
+    <!-- Botão de Iniciar/Retomar -->
+    <button class="submit-btn" id="runBtn">
+      ▶️ Iniciar / Retomar Jogo (Aplicar Mudanças)
+    </button>
+
+    <!-- Status e Dicas -->
+    <div class="glass-card">
+      <div class="label-title">Status da Engine do Jogo</div>
+      <div id="metaInfo" class="concept-explanation" style="font-size: 0.9rem; font-family: monospace;">Aguardando início...</div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('pacmanCanvas');
+    const ctx = canvas.getContext('2d');
+    const pauseOverlay = document.getElementById('pauseOverlay');
+    const overlayMainText = document.getElementById('overlayMainText');
+    const overlaySubText = document.getElementById('overlaySubText');
+    const statusBadge = document.getElementById('statusBadge');
+    const scoreVal = document.getElementById('scoreVal');
+    const gameStatusText = document.getElementById('gameStatusText');
+    const metaInfo = document.getElementById('metaInfo');
+    const codeEditor = document.getElementById('codeEditor');
+    const lessonSelect = document.getElementById('lessonSelect');
+    const runBtn = document.getElementById('runBtn');
+
+    let isPaused = true;
+    let score = 0;
+    let gameLoopId = null;
+    let grid = [];
+    let player = { x: 1, y: 1, dirX: 0, dirY: 0, nextDirX: 0, nextDirY: 0 };
+    let ghosts = [];
+    let mouthAngle = 0.2;
+    let mouthSpeed = 0.02;
+
+    const tileSize = 20;
+
+    const lessons = {
+      ex1: {
+        explanation: "Modifique a propriedade <code>wallColor</code> para alterar a cor das paredes do labirinto. Experimente cores neon como <code>#ec4899</code> (rosa) ou <code>#4ade80</code> (verde)!",
+        code: `// Configurações do Pac-Man
+const CONFIG = {
+  wallColor: '#38bdf8', // Cor das Paredes
+  wallGlow: true,      // Brilho Neon
+  playerColor: '#f59e0b',
+  playerEmoji: '',     // Deixe vazio para Pac-Man clássico
+  ghosts: [
+    { color: '#ec4899', emoji: '' },
+    { color: '#a855f7', emoji: '' }
+  ],
+  dotColor: '#ffffff',
+  map: [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,0,1,1,2,2,1,1,0,0,1,0,1],
+    [1,0,0,0,1,2,2,2,2,1,0,0,0,0,1],
+    [1,1,1,0,1,2,2,2,2,1,0,1,1,1,1],
+    [1,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+};`
+      },
+      ex2: {
+        explanation: "Mude a cor do Pac-Man em <code>playerColor</code> ou substitua o desenho clássico por um Emoji em <code>playerEmoji</code> (ex: <code>'🟡'</code>, <code>'🚀'</code> ou <code>'🌕'</code>).",
+        code: `const CONFIG = {
+  wallColor: '#a855f7',
+  wallGlow: false,
+  playerColor: '#4ade80',
+  playerEmoji: '🚀',
+  ghosts: [
+    { color: '#ec4899', emoji: '' },
+    { color: '#38bdf8', emoji: '' }
+  ],
+  dotColor: '#f59e0b',
+  map: [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,0,1,1,2,2,1,1,0,0,1,0,1],
+    [1,0,0,0,1,2,2,2,2,1,0,0,0,0,1],
+    [1,1,1,0,1,2,2,2,2,1,0,1,1,1,1],
+    [1,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+};`
+      },
+      ex3: {
+        explanation: "Personalize os fantasmas alterando as cores do array <code>ghosts</code> ou atribuindo emojis como <code>'👾'</code>, <code>'🤖'</code> ou <code>'👻'</code>.",
+        code: `const CONFIG = {
+  wallColor: '#334155',
+  wallGlow: true,
+  playerColor: '#f59e0b',
+  playerEmoji: '🟡',
+  ghosts: [
+    { color: '#ec4899', emoji: '👾' },
+    { color: '#a855f7', emoji: '🤖' },
+    { color: '#ec4899', emoji: '👻' }
+  ],
+  dotColor: '#38bdf8',
+  map: [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,0,1,1,2,2,1,1,0,0,1,0,1],
+    [1,0,0,0,1,2,2,2,2,1,0,0,0,0,1],
+    [1,1,1,0,1,2,2,2,2,1,0,1,1,1,1],
+    [1,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+};`
+      },
+      ex4: {
+        explanation: "Troque a cor das pílulas em <code>dotColor</code> e ative o brilho neon das paredes com <code>wallGlow: true</code>.",
+        code: `const CONFIG = {
+  wallColor: '#6366f1',
+  wallGlow: true,
+  playerColor: '#38bdf8',
+  playerEmoji: '',
+  ghosts: [
+    { color: '#ec4899', emoji: '' },
+    { color: '#4ade80', emoji: '' }
+  ],
+  dotColor: '#4ade80',
+  map: [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,0,1,1,2,2,1,1,0,0,1,0,1],
+    [1,0,0,0,1,2,2,2,2,1,0,0,0,0,1],
+    [1,1,1,0,1,2,2,2,2,1,0,1,1,1,1],
+    [1,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+};`
+      },
+      ex5: {
+        explanation: "Crie novas paredes alterando os números da matriz <code>map</code>. Mude <code>0</code> (pílula) para <code>1</code> (parede) e crie salas ou atalhos!",
+        code: `const CONFIG = {
+  wallColor: '#ec4899',
+  wallGlow: true,
+  playerColor: '#f59e0b',
+  playerEmoji: '',
+  ghosts: [
+    { color: '#38bdf8', emoji: '' },
+    { color: '#a855f7', emoji: '' }
+  ],
+  dotColor: '#ffffff',
+  map: [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,1,0,1,1,1,1,1,0,1,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,0,0,1,1,2,2,1,1,0,0,0,0,1],
+    [1,1,1,0,1,2,2,2,2,1,0,1,1,1,1],
+    [1,1,1,0,1,2,2,2,2,1,0,1,1,1,1],
+    [1,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,1,0,1,1,1,1,1,0,1,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+};`
+      },
+      ex6: {
+        explanation: "Modo Retro Arcade total! O jogador vira um alienígena e os fantasmas viram robôs cibernéticos.",
+        code: `const CONFIG = {
+  wallColor: '#4ade80',
+  wallGlow: true,
+  playerColor: '#ffffff',
+  playerEmoji: '👾',
+  ghosts: [
+    { color: '#ec4899', emoji: '🤖' },
+    { color: '#a855f7', emoji: '🤖' }
+  ],
+  dotColor: '#f59e0b',
+  map: [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,0,1,1,2,2,1,1,0,0,1,0,1],
+    [1,0,0,0,1,2,2,2,2,1,0,0,0,0,1],
+    [1,1,1,0,1,2,2,2,2,1,0,1,1,1,1],
+    [1,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+};`
+      },
+      ex7: {
+        explanation: "Um desafio de labirinto claustrofóbico com longos corredores e poucos pontos de fuga dos fantasmas.",
+        code: `const CONFIG = {
+  wallColor: '#ef4444',
+  wallGlow: true,
+  playerColor: '#f59e0b',
+  playerEmoji: '🟡',
+  ghosts: [
+    { color: '#38bdf8', emoji: '' },
+    { color: '#a855f7', emoji: '' }
+  ],
+  dotColor: '#ffffff',
+  map: [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,1,0,0,0,1,0,0,0,1,0,0,0,1],
+    [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1],
+    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,1],
+    [1,1,1,0,1,1,2,2,1,1,0,1,1,0,1],
+    [1,0,0,0,1,2,2,2,2,1,0,0,0,0,1],
+    [1,0,1,1,1,2,2,2,2,1,1,1,1,0,1],
+    [1,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,1,1,0,1],
+    [1,0,1,1,1,1,1,1,1,1,0,1,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+};`
+      },
+      ex8: {
+        explanation: "Visual Cyberpunk minimalista com linhas finas e contraste de azul ciano com magenta.",
+        code: `const CONFIG = {
+  wallColor: '#38bdf8',
+  wallGlow: false,
+  playerColor: '#ec4899',
+  playerEmoji: '',
+  ghosts: [
+    { color: '#a855f7', emoji: '' },
+    { color: '#22c55e', emoji: '' }
+  ],
+  dotColor: '#ec4899',
+  map: [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,0,1,1,2,2,1,1,0,0,1,0,1],
+    [1,0,0,0,1,2,2,2,2,1,0,0,0,0,1],
+    [1,1,1,0,1,2,2,2,2,1,0,1,1,1,1],
+    [1,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+};`
+      },
+      ex9: {
+        explanation: "Adicione mais fantasmas no array <code>ghosts</code> para aumentar o nível de dificuldade do jogo!",
+        code: `const CONFIG = {
+  wallColor: '#f59e0b',
+  wallGlow: true,
+  playerColor: '#38bdf8',
+  playerEmoji: '',
+  ghosts: [
+    { color: '#ec4899', emoji: '' },
+    { color: '#a855f7', emoji: '' },
+    { color: '#ef4444', emoji: '' },
+    { color: '#22c55e', emoji: '' }
+  ],
+  dotColor: '#ffffff',
+  map: [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,0,1,1,2,2,1,1,0,0,1,0,1],
+    [1,0,0,0,1,2,2,2,2,1,0,0,0,0,1],
+    [1,1,1,0,1,2,2,2,2,1,0,1,1,1,1],
+    [1,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+};`
+      },
+      ex10: {
+        explanation: "Seu espaço de criação livre! Mude o labirinto, as cores das paredes, pílulas, fantasmas e o Pac-Man do seu jeito.",
+        code: `const CONFIG = {
+  wallColor: '#a855f7',
+  wallGlow: true,
+  playerColor: '#f59e0b',
+  playerEmoji: '😎',
+  ghosts: [
+    { color: '#ec4899', emoji: '👻' },
+    { color: '#38bdf8', emoji: '💀' }
+  ],
+  dotColor: '#4ade80',
+  map: [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,0,1,1,2,2,1,1,0,0,1,0,1],
+    [1,0,0,0,1,2,2,2,2,1,0,0,0,0,1],
+    [1,1,1,0,1,2,2,2,2,1,0,1,1,1,1],
+    [1,0,0,0,1,1,1,1,1,1,0,0,0,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,1,1,0,1,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+};`
+      }
+    };
+
+    let activeConfig = {};
+
+    function parseConfig() {
+      try {
+        const code = codeEditor.value;
+        const fn = new Function(code + '\nreturn CONFIG;');
+        activeConfig = fn();
+        return true;
+      } catch (e) {
+        metaInfo.textContent = '❌ Erro no código JS: ' + e.message;
+        return false;
+      }
+    }
+
+    function countDots() {
+      let count = 0;
+      for (let r = 0; r < grid.length; r++) {
+        for (let c = 0; c < grid[r].length; c++) {
+          if (grid[r][c] === 0) count++;
+        }
+      }
+      return count;
+    }
+
+    function initGame() {
+      if (!parseConfig()) return;
+
+      grid = JSON.parse(JSON.stringify(activeConfig.map));
+      score = 0;
+      scoreVal.textContent = score;
+
+      player = { x: 1, y: 1, dirX: 0, dirY: 0, nextDirX: 0, nextDirY: 0 };
+
+      ghosts = activeConfig.ghosts.map((g, i) => ({
+        x: 7 + (i % 2),
+        y: 5,
+        color: g.color || '#ec4899',
+        emoji: g.emoji || '',
+        dirX: 1,
+        dirY: 0
+      }));
+
+      overlayMainText.textContent = "⏸️ Jogo Pausado para Edição";
+      overlaySubText.textContent = "Altere os parâmetros e pressione PLAY";
+      metaInfo.textContent = `⚡ Labirinto carregado (${grid[0].length}x${grid.length}). Total de pílulas: ${countDots()}`;
+      draw();
+    }
+
+    function pauseGame() {
+      isPaused = true;
+      pauseOverlay.classList.remove('hidden');
+      statusBadge.textContent = "⏸️ Pausado";
+      statusBadge.className = "status-badge status-paused";
+      gameStatusText.textContent = "EDIÇÃO";
+      gameStatusText.style.color = "#fbbf24";
+      if (gameLoopId) cancelAnimationFrame(gameLoopId);
+    }
+
+    function resumeGame() {
+      if (!parseConfig()) return;
+      isPaused = false;
+      pauseOverlay.classList.add('hidden');
+      statusBadge.textContent = "▶️ Em Jogo";
+      statusBadge.className = "status-badge status-playing";
+      gameStatusText.textContent = "RODANDO";
+      gameStatusText.style.color = "#4ade80";
+      lastTime = performance.now();
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Previne que as setas rolem a página HTML
+    window.addEventListener('keydown', (e) => {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+        e.preventDefault();
+      }
+
+      if (isPaused) return;
+
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        player.nextDirX = 0; player.nextDirY = -1;
+      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        player.nextDirX = 0; player.nextDirY = 1;
+      } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        player.nextDirX = -1; player.nextDirY = 0;
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        player.nextDirX = 1; player.nextDirY = 0;
+      }
+    });
+
+    let lastTime = 0;
+    const stepInterval = 180;
+
+    function updateGameLogic() {
+      if (player.nextDirX !== 0 || player.nextDirY !== 0) {
+        let newX = player.x + player.nextDirX;
+        let newY = player.y + player.nextDirY;
+        if (grid[newY] && grid[newY][newX] !== 1) {
+          player.dirX = player.nextDirX;
+          player.dirY = player.nextDirY;
+        }
+      }
+
+      let targetX = player.x + player.dirX;
+      let targetY = player.y + player.dirY;
+
+      if (grid[targetY] && grid[targetY][targetX] !== 1) {
+        player.x = targetX;
+        player.y = targetY;
+
+        if (grid[player.y][player.x] === 0) {
+          grid[player.y][player.x] = 2;
+          score += 10;
+          scoreVal.textContent = score;
+
+          // CONDIÇÃO DE VITÓRIA: Limpou todo o labirinto
+          if (countDots() === 0) {
+            overlayMainText.textContent = "🏆 VOCÊ VENCEU!";
+            overlaySubText.textContent = "Parabéns, você comeu todas as pílulas! Clique em PLAY para jogar de novo.";
+            metaInfo.textContent = "🏆 VITÓRIA! Labirinto totalmente limpo!";
+            gameStatusText.textContent = "VENCEU!";
+            gameStatusText.style.color = "#4ade80";
+            pauseGame();
+            return;
+          }
+        }
+      }
+
+      ghosts.forEach(g => {
+        let possibleMoves = [
+          { x: 0, y: -1 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 1, y: 0 }
+        ].filter(m => grid[g.y + m.y] && grid[g.y + m.y][g.x + m.x] !== 1);
+
+        if (possibleMoves.length > 0) {
+          let move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+          g.x += move.x;
+          g.y += move.y;
+        }
+
+        if (g.x === player.x && g.y === player.y) {
+          overlayMainText.textContent = "💥 GAME OVER!";
+          overlaySubText.textContent = "Um fantasma te pegou. Clique em PLAY para reiniciar!";
+          metaInfo.textContent = "💥 Fantasma te pegou! Pressione PLAY para tentar de novo.";
+          gameStatusText.textContent = "DERROTA";
+          gameStatusText.style.color = "#f87171";
+          pauseGame();
+          initGame();
+        }
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!grid || grid.length === 0) return;
+
+      for (let r = 0; r < grid.length; r++) {
+        for (let c = 0; c < grid[r].length; c++) {
+          let tile = grid[r][c];
+          let x = c * tileSize;
+          let y = r * tileSize;
+
+          if (tile === 1) {
+            ctx.fillStyle = activeConfig.wallColor || '#38bdf8';
+            if (activeConfig.wallGlow) {
+              ctx.shadowColor = activeConfig.wallColor || '#38bdf8';
+              ctx.shadowBlur = 6;
+            } else {
+              ctx.shadowBlur = 0;
+            }
+            ctx.fillRect(x + 1, y + 1, tileSize - 2, tileSize - 2);
+            ctx.shadowBlur = 0;
+          } else if (tile === 0) {
+            ctx.fillStyle = activeConfig.dotColor || '#ffffff';
+            ctx.beginPath();
+            ctx.arc(x + tileSize / 2, y + tileSize / 2, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      let px = player.x * tileSize + tileSize / 2;
+      let py = player.y * tileSize + tileSize / 2;
+
+      if (activeConfig.playerEmoji) {
+        ctx.font = '14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(activeConfig.playerEmoji, px, py);
+      } else {
+        mouthAngle += mouthSpeed;
+        if (mouthAngle > 0.4 || mouthAngle < 0.05) mouthSpeed = -mouthSpeed;
+
+        let rotation = 0;
+        if (player.dirX === 1) rotation = 0;
+        if (player.dirX === -1) rotation = Math.PI;
+        if (player.dirY === 1) rotation = Math.PI / 2;
+        if (player.dirY === -1) rotation = -Math.PI / 2;
+
+        ctx.fillStyle = activeConfig.playerColor || '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(px, py, tileSize / 2 - 2, rotation + mouthAngle, rotation + Math.PI * 2 - mouthAngle);
+        ctx.lineTo(px, py);
+        ctx.fill();
+      }
+
+      ghosts.forEach(g => {
+        let gx = g.x * tileSize + tileSize / 2;
+        let gy = g.y * tileSize + tileSize / 2;
+
+        if (g.emoji) {
+          ctx.font = '14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(g.emoji, gx, gy);
+        } else {
+          ctx.fillStyle = g.color;
+          ctx.beginPath();
+          ctx.arc(gx, gy - 2, tileSize / 2 - 2, Math.PI, 0, false);
+          ctx.lineTo(gx + tileSize / 2 - 2, gy + tileSize / 2 - 2);
+          ctx.lineTo(gx - tileSize / 2 + 2, gy + tileSize / 2 - 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(gx - 3, gy - 3, 2.5, 0, Math.PI * 2);
+          ctx.arc(gx + 3, gy - 3, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#000000';
+          ctx.beginPath();
+          ctx.arc(gx - 3, gy - 3, 1, 0, Math.PI * 2);
+          ctx.arc(gx + 3, gy - 3, 1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+    }
+
+    function gameLoop(timestamp) {
+      if (isPaused) return;
+
+      if (timestamp - lastTime > stepInterval) {
+        updateGameLogic();
+        lastTime = timestamp;
+      }
+
+      draw();
+      gameLoopId = requestAnimationFrame(gameLoop);
+    }
+
+    function loadLesson(key) {
+      pauseGame();
+      const lesson = lessons[key];
+      if (!lesson) return;
+
+      document.getElementById('conceptText').innerHTML = lesson.explanation;
+      codeEditor.value = lesson.code;
+      initGame();
+    }
+
+    lessonSelect.addEventListener('change', (e) => loadLesson(e.target.value));
+
+    codeEditor.addEventListener('input', () => {
+      pauseGame();
+      initGame();
+    });
+
+    runBtn.addEventListener('click', () => {
+      if (isPaused) {
+        if (countDots() === 0) initGame();
+        resumeGame();
+      } else {
+        pauseGame();
+      }
+    });
+
+    codeEditor.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 2;
+      }
+    });
+
+    loadLesson('ex1');
+  </script>
+</body>
+</html>

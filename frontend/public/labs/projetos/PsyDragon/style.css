@@ -1,0 +1,69 @@
+body,
+html {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #080711;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    touch-action: none;
+}
+
+/* Fundo Psicodélico Dark */
+svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1a0b2e 0%, #05020a 100%);
+    cursor: crosshair;
+}
+
+/* Estilo Dark Glassmorphism para o Placar */
+.glass-score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    padding: 15px 25px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    color: #00F0FF;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+    pointer-events: none;
+}
+
+.high-score {
+    font-size: 13px;
+    color: #FF007F;
+    margin-top: 5px;
+    text-shadow: 0 0 8px rgba(255, 0, 127, 0.6);
+}
+
+/* Animação das bolas de fogo */
+.fireball-anim {
+    animation: pulse 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.8); filter: drop-shadow(0 0 8px #FF0055); }
+    100% { transform: scale(1.2); filter: drop-shadow(0 0 20px #FFCC00); }
+}
+
+/* Efeito de partícula quando come a comida */
+.particle {
+    animation: explode 0.5s forwards ease-out;
+}
+
+@keyframes explode {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(3); }
+}
