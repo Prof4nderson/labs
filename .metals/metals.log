@@ -1,0 +1,40 @@
+2026.08.18 22:54:39 INFO  Started: Metals version 1.6.8 in folders 'D:\labs_2-corrigido\labs_2-main' for client Visual Studio Code 1.133.0.
+2026.08.18 22:54:39 INFO  Memory monitor started
+2026.08.18 22:54:40 WARN  Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026.08.18 22:54:40 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:54:43 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:24 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:24 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:24 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:25 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:25 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:25 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:25 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:25 INFO  empty definition using pc, found symbol in pc: lombok/Data# (full report at: "D:\labs_2-corrigido\labs_2-main\.metals\.reports\metals-full\2026-08-18\r_empty-definition_22-55-26-178.md")
+2026.08.18 22:55:25 INFO  empty definition using pc, found symbol in pc: lombok/Data# (full report at: "D:\labs_2-corrigido\labs_2-main\.metals\.reports\metals-full\2026-08-18\r_empty-definition_22-55-26-178.md")
+2026.08.18 22:55:26 INFO  Created report: Optional[file:///D:/labs_2-corrigido/labs_2-main/backend/src/main/java/com/exemplo/labsbackend/controller/AiController.java]
+2026.08.18 22:55:26 INFO  empty definition using pc, found symbol in pc: lombok/Data# (full report at: "D:\labs_2-corrigido\labs_2-main\.metals\.reports\metals-full\2026-08-18\r_empty-definition_22-55-26-178.md")
+2026.08.18 22:55:27 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:28 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:28 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:28 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:28 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:28 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:28 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:28 INFO  Created report: Optional[file:///D:/labs_2-corrigido/labs_2-main/backend/src/main/java/com/exemplo/labsbackend/controller/AiController.java]
+2026.08.18 22:55:28 INFO  empty definition using pc, found symbol in pc: lombok/RequiredArgsConstructor# (full report at: "D:\labs_2-corrigido\labs_2-main\.metals\.reports\metals-full\2026-08-18\r_empty-definition_22-55-28-747.md")
+2026.08.18 22:55:29 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:29 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:29 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:29 INFO  empty definition using pc, found symbol in pc: lombok/RequiredArgsConstructor# (full report at: "D:\labs_2-corrigido\labs_2-main\.metals\.reports\metals-full\2026-08-18\r_empty-definition_22-55-28-747.md")
+2026.08.18 22:55:28 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:29 INFO  Created report: Optional[file:///D:/labs_2-corrigido/labs_2-main/backend/src/main/java/com/exemplo/labsbackend/controller/AiController.java]
+2026.08.18 22:55:29 INFO  empty definition using pc, found symbol in pc: org/springframework/http/ResponseEntity# (full report at: "D:\labs_2-corrigido\labs_2-main\.metals\.reports\metals-full\2026-08-18\r_empty-definition_22-55-29-566.md")
+2026.08.18 22:55:29 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:29 INFO  empty definition using pc, found symbol in pc: org/springframework/http/ResponseEntity# (full report at: "D:\labs_2-corrigido\labs_2-main\.metals\.reports\metals-full\2026-08-18\r_empty-definition_22-55-29-566.md")
+2026.08.18 22:55:29 INFO  empty definition using pc, found symbol in pc: org/springframework/http/ResponseEntity# (full report at: "D:\labs_2-corrigido\labs_2-main\.metals\.reports\metals-full\2026-08-18\r_empty-definition_22-55-29-566.md")
+2026.08.18 22:55:30 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:31 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:31 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:31 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.
+2026.08.18 22:55:31 INFO  no build target found for D:\labs_2-corrigido\labs_2-main\backend\src\main\java\com\exemplo\labsbackend\controller\AiController.java. Using fallback presentation compiler.

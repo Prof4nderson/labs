@@ -57,9 +57,9 @@ async function request(path: string, init: RequestInit): Promise<string> {
   return body;
 }
 
-/** POST /api/auth/login -> { token } */
+/** POST /auth/login -> { token } */
 export async function login(username: string, password: string): Promise<string> {
-  const body = await request("/api/auth/login", {
+  const body = await request("/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),

@@ -23,6 +23,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: labs_backend
+    volumes:
+      - ./backend:/app
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
@@ -33,6 +35,8 @@ services:
       LABS_DOCS_PUBLIC: ${LABS_DOCS_PUBLIC:-false}
       # Origens exatas do navegador (protocolo + host + porta). Precisa bater com a URL do frontend.
       FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      # Repassa os cabeçalhos do Nginx/Proxy para o Spring reconhecer HTTPS
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
     ports:
       - "8081:8081"
     depends_on:
@@ -43,6 +47,8 @@ services:
       - labs-net
 
   frontend:
+    volumes:
+      - ./frontend:/app
     build:
       context: ./frontend
       dockerfile: Dockerfile
