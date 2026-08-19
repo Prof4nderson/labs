@@ -47,8 +47,8 @@ services:
       - labs-net
 
   frontend:
-    volumes:
-      - ./frontend:/app
+   # volumes:
+   #   - ./frontend:/app
     build:
       context: ./frontend
       dockerfile: Dockerfile
