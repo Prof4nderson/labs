@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercícios Práticos: Formatos de Dados</title>
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-code: #0f172a;
+            --primary: #38bdf8;
+            --secondary: #818cf8;
+            --accent: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #4ade80;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0 30px 0;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* RESUMO DA TEORIA */
+        .format-module {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .format-module h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        .grid-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .info-box {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .info-box h3 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .info-box p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin: 40px 0 20px 0;
+        }
+
+        /* CARDS DOS EXERCÍCIOS */
+        .exercise-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .exercise-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .exercise-card p {
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 110px;
+            background-color: var(--bg-code);
+            color: #e2e8f0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        button.btn-check {
+            background-color: var(--primary);
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-top: 12px;
+            transition: all 0.2s ease;
+        }
+
+        button.btn-check:hover {
+            background-color: var(--success);
+            color: #000;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            display: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .feedback.correct {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background-color: rgba(244, 63, 94, 0.15);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            display: block;
+        }
+
+        /* PAINEL FINAL DE AVALIAÇÃO */
+        .action-footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 40px;
+            margin-bottom: 60px;
+        }
+
+        .action-footer h2 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .action-footer p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .btn-calc {
+            background: var(--primary);
+            color: #0f172a;
+            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-calc:hover {
+            background: var(--success);
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+        }
+
+        .score-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 15px 0;
+        }
+
+        .btn-back-theory {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .btn-back-theory:hover {
+            color: var(--success);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Aula Prática: Formatos de Dados</h1>
+        <p>Aprenda a estruturar dados em JSON, XML e CSV e teste seus conhecimentos abaixo.</p>
+    </header>
+
+    <!-- TEORIA -->
+    <section class="format-module">
+        <h2>Resumo dos Formatos</h2>
+        <div class="grid-info">
+            <div class="info-box">
+                <h3>JSON</h3>
+                <p>Baseado em chave-valor e listas. Usa <code>{}</code> para objetos e <code>[]</code> para arrays. Aspas duplas obrigatórias nas chaves.</p>
+            </div>
+            <div class="info-box">
+                <h3>XML</h3>
+                <p>Baseado em tags personalizadas <code>&lt;tag&gt;conteudo&lt;/tag&gt;</code>. Exige uma tag raiz única envolvendo todo o documento.</p>
+            </div>
+            <div class="info-box">
+                <h3>CSV</h3>
+                <p>Formato de texto simples para tabelas. Dados separados por vírgula (ou ponto e vírgula), onde cada linha representa um registro.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXERCÍCIOS -->
+    <h2 class="section-title">Exercícios Práticos (10 Questões)</h2>
+    <div id="exercises-container"></div>
+
+    <!-- PAINEL DE NOTA FINAL -->
+    <section id="final-section" class="action-footer">
+        <h2>Finalizar Avaliação</h2>
+        <p>Clique no botão abaixo para calcular sua nota final com base nas respostas marcadas como corretas.</p>
+        <button class="btn-calc" onclick="calcularNotaFinal()">Calcular Nota Final</button>
+        <div id="score-result" style="display: none;">
+            <div class="score-display" id="score-text">0 / 10</div>
+            <p id="score-message"></p>
+        </div>
+        <div>
+            <a href="aula_formatos.html" class="btn-back-theory">← Voltar para a Aula Teórica</a>
+        </div>
+    </section>
+</div>
+
+<script>
+    // Lista com os 10 exercícios e suas lógicas de validação
+    const exercicios = [
+        {
+            id: 1,
+            titulo: "Exercício 1: Objeto JSON Simples",
+            instrucoes: "Crie um JSON válido representando uma pessoa com as chaves \"nome\" (texto: 'Ana') e \"idade\" (número: 25).",
+            placeholder: '{\n  "nome": "Ana",\n  "idade": 25\n}',
+            validar: (input) => {
+                try {
+                    const obj = JSON.parse(input);
+                    return obj.nome === "Ana" && Number(obj.idade) === 25;
+                } catch (e) { return false; }
+            }
+        },
+        {
+            id: 2,
+            titulo: "Exercício 2: CSV Simples",
+            instrucoes: "Escreva um CSV com cabeçalho (nome,idade) e 1 linha de dados (Carlos, 30).",
+            placeholder: "nome,idade\nCarlos,30",
+            validar: (input) => {
+                const linhas = input.trim().split('\n').map(l => l.trim().replaceAll(' ', ''));
+                return linhas.length === 2 && 
+                       linhas[0].toLowerCase() === "nome,idade" && 
+                       linhas[1].toLowerCase() === "carlos,30";
+            }
+        },
+        {
+            id: 3,
+            titulo: "Exercício 3: XML Básico",
+            instrucoes: "Crie um XML com a tag raiz <aluno> contendo uma tag <nome> com o valor 'Maria'.",
+            placeholder: "<aluno>\n  <nome>Maria</nome>\n</aluno>",
+            validar: (input) => {
+                try {
+                    const parser = new DOMParser();
+                    const xml = parser.parseFromString(input, "text/xml");
+                    if (xml.getElementsByTagName("parsererror").length > 0) return false;
+                    const aluno = xml.querySelector("aluno");
+                    const nome = aluno ? aluno.querySelector("nome") : null;
+                    return aluno !== null && nome !== null && nome.textContent.trim() === "Maria";
+                } catch(e) { return false; }
+            }
+        },
+        {
+            id: 4,
+            titulo: "Exercício 4: Array em JSON",
+            instrucoes: "Crie um JSON contendo uma lista (array) simples de frutas com os textos: \"maca\", \"banana\".",
+            placeholder: '["maca", "banana"]',
+            validar: (input) => {
+                try {
+                    const arr = JSON.parse(input);
+                    return Array.isArray(arr) && arr.length === 2 && arr[0] === "maca" && arr[1] === "banana";
+                } catch (e) { return false; }
+            }
+        },
+        {
+            id: 5,
+            titulo: "Exercício 5: XML com Atributo",
+            instrucoes: "Crie um elemento XML chamado <produto> que possua um atributo id=\"10\" e o conteúdo de texto 'Notebook'.",
+            placeholder: '<produto id="10">Notebook</produto>',
+            validar: (input) => {
+                try {
+                    const parser = new DOMParser();
+                    const xml = parser.parseFromString(input, "text/xml");
+                    if (xml.getElementsByTagName("parsererror").length > 0) return false;
+                    const prod = xml.querySelector("produto");
+                    return prod !== null && prod.getAttribute("id") === "10" && prod.textContent.trim() === "Notebook";
+                } catch(e) { return false; }
+            }
+        },
+        {
+            id: 6,
+            titulo: "Exercício 6: CSV com Múltiplas Linhas",
+            instrucoes: "Crie um CSV com cabeçalho 'produto,preco' e duas linhas de dados: 'TV,2000' e 'Radio,150'.",
+            placeholder: "produto,preco\nTV,2000\nRadio,150",
+            validar: (input) => {
+                const linhas = input.trim().split('\n').map(l => l.trim().replaceAll(' ', ''));
+                return linhas.length === 3 && 
+                       linhas[0].toLowerCase() === "produto,preco" && 
+                       linhas[1].toLowerCase() === "tv,2000" &&
+                       linhas[2].toLowerCase() === "radio,150";
+            }
+        },
+        {
+            id: 7,
+            titulo: "Exercício 7: JSON Aninhado (Objeto dentro de Objeto)",
+            instrucoes: "Crie um JSON representando um usuario com chave \"nome\": \"Pedro\" e a chave \"contato\" contendo um objeto com \"email\": \"pedro@email.com\".",
+            placeholder: '{\n  "nome": "Pedro",\n  "contato": {\n    "email": "pedro@email.com"\n  }\n}',
+            validar: (input) => {
+                try {
+                    const obj = JSON.parse(input);
+                    return obj.nome === "Pedro" && obj.contato && obj.contato.email === "pedro@email.com";
+                } catch (e) { return false; }
+            }
+        },
+        {
+            id: 8,
+            titulo: "Exercício 8: Listas dentro de XML",
+            instrucoes: "Crie uma estrutura XML com tag raiz <turma> contendo duas tags filhas <aluno>João</aluno> e <aluno>Ana</aluno>.",
+            placeholder: "<turma>\n  <aluno>João</aluno>\n  <aluno>Ana</aluno>\n</turma>",
+            validar: (input) => {
+                try {
+                    const parser = new DOMParser();
+                    const xml = parser.parseFromString(input, "text/xml");
+                    if (xml.getElementsByTagName("parsererror").length > 0) return false;
+                    const alunos = xml.querySelectorAll("turma > aluno");
+                    return alunos.length === 2 && 
+                           alunos[0].textContent.trim() === "João" && 
+                           alunos[1].textContent.trim() === "Ana";
+                } catch(e) { return false; }
+            }
+        },
+        {
+            id: 9,
+            titulo: "Exercício 9: Tipos de Dados Especiais em JSON",
+            instrucoes: "Crie um JSON com a chave \"ativo\" do tipo Booleano (true) e a chave \"saldo\" do tipo Nulo (null).",
+            placeholder: '{\n  "ativo": true,\n  "saldo": null\n}',
+            validar: (input) => {
+                try {
+                    const obj = JSON.parse(input);
+                    return obj.ativo === true && obj.saldo === null;
+                } catch (e) { return false; }
+            }
+        },
+        {
+            id: 10,
+            titulo: "Exercício 10: Array de Objetos JSON",
+            instrucoes: "Crie um JSON que seja um Array contendo 2 objetos com a chave \"id\": o primeiro com id: 1 e o segundo com id: 2.",
+            placeholder: '[\n  { "id": 1 },\n  { "id": 2 }\n]',
+            validar: (input) => {
+                try {
+                    const arr = JSON.parse(input);
+                    return Array.isArray(arr) && arr.length === 2 && arr[0].id === 1 && arr[1].id === 2;
+                } catch (e) { return false; }
+            }
+        }
+    ];
+
+    // Mapeador do estado dos acertos (para o cálculo da nota final)
+    const estadoRespostas = new Array(exercicios.length).fill(false);
+
+    // Renderizar os exercícios na tela
+    function carregarExercicios() {
+        const container = document.getElementById('exercises-container');
+        
+        exercicios.forEach((ex, index) => {
+            const card = document.createElement('div');
+            card.className = 'exercise-card';
+            card.innerHTML = `
+                <div class="exercise-title">${ex.titulo}</div>
+                <p>${ex.instrucoes}</p>
+                <textarea id="input-${ex.id}" placeholder="Digite o código aqui...\nExemplo:\n${ex.placeholder}"></textarea>
+                <br>
+                <button class="btn-check" onclick="verificarExercicio(${index})">Verificar Resposta</button>
+                <div id="feedback-${ex.id}" class="feedback"></div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Função de validação individual de cada questão
+    function verificarExercicio(index) {
+        const ex = exercicios[index];
+        const inputVal = document.getElementById(`input-${ex.id}`).value;
+        const feedbackEl = document.getElementById(`feedback-${ex.id}`);
+
+        const correto = ex.validar(inputVal);
+
+        if (correto) {
+            feedbackEl.className = "feedback correct";
+            feedbackEl.innerHTML = "✓ Correto! A estrutura dos dados está válida e cumpre os requisitos.";
+            estadoRespostas[index] = true;
+        } else {
+            feedbackEl.className = "feedback incorrect";
+            feedbackEl.innerHTML = "✗ Incorreto ou sintaxe inválida. Verifique os tipos de dados, tags ou vírgulas e tente novamente.";
+            estadoRespostas[index] = false;
+        }
+    }
+
+    // Calcular nota global de 0 a 10
+    function calcularNotaFinal() {
+        // Recalcula todas para garantir atualização
+        exercicios.forEach((ex, index) => {
+            const inputVal = document.getElementById(`input-${ex.id}`).value;
+            estadoRespostas[index] = ex.validar(inputVal);
+        });
+
+        const acertos = estadoRespostas.filter(r => r === true).length;
+        const nota = (acertos / exercicios.length) * 10;
+
+        const scoreResult = document.getElementById('score-result');
+        const scoreText = document.getElementById('score-text');
+        const scoreMessage = document.getElementById('score-message');
+
+        scoreResult.style.display = 'block';
+        scoreText.textContent = `Nota: ${nota.toFixed(1)} / 10.0`;
+
+        if (nota === 10) {
+            scoreMessage.textContent = "Parabéns! Você dominou perfeitamente os formatos JSON, XML e CSV!";
+            scoreMessage.style.color = "var(--success)";
+        } else if (nota >= 7) {
+            scoreMessage.textContent = "Muito bem! Você tem um ótimo conhecimento sobre estruturação de dados.";
+            scoreMessage.style.color = "var(--primary)";
+        } else if (nota >= 5) {
+            scoreMessage.textContent = "Bom trabalho, mas vale a pena revisar a sintaxe dos exercícios que você errou.";
+            scoreMessage.style.color = "#f59e0b";
+        } else {
+            scoreMessage.textContent = "Você precisa praticar mais. Revise os exemplos da aula teórica e tente novamente.";
+            scoreMessage.style.color = "var(--accent)";
+        }
+
+        // Rolar a tela suavemente até a nota
+        document.getElementById('final-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Inicializa a página
+    window.onload = carregarExercicios;
+</script>
+
+</body>
+</html>
