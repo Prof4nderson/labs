@@ -47,7 +47,7 @@ const token2 = localStorage.getItem('token') || localStorage.getItem('authToken'
 const authenticatedHeaders = {
   ...headers,
   'Content-Type': 'application/json',
-  ...(token2 ? { 'Authorization': `Bearer ${token}` } : {})
+  ...(token ? { 'Authorization': `Bearer ${token}` } : {})
 };
 
 try {
