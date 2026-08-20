@@ -41,13 +41,13 @@ async function request(path: string, init: RequestInit): Promise<string> {
   let res: Response;
 
   // 1. Recupera o token de autenticação armazenado na sessão do navegador
-const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+const token2 = localStorage.getItem('token') || localStorage.getItem('authToken');
 
 // 2. Garante a mesclagem dos cabeçalhos preservando o 'Authorization'
 const authenticatedHeaders = {
   ...headers,
   'Content-Type': 'application/json',
-  ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  ...(token2 ? { 'Authorization': `Bearer ${token}` } : {})
 };
 
 try {
