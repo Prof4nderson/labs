@@ -211,6 +211,33 @@ export const miniProjetos: CatalogItem[] = [
   },
 ];
 
+export const novosProjetos: CatalogItem[] = [
+  {
+    title: "Trajetórias & Dados",
+    description: "Experiência visual para observar relações, percursos e leitura de dados em um laboratório interativo.",
+    assunto: "VisualLabs",
+    dificuldade: "Intermediário",
+    link: "/labs/VisualLabs/VisualSQL.html",
+    image: "/manus-storage/visuallab-project-physics_7d270626.png",
+  },
+  {
+    title: "Estruturas Vivas",
+    description: "Exploração visual de estruturas e padrões para conectar conceitos de tecnologia e ciência.",
+    assunto: "VisualLabs",
+    dificuldade: "Intermediário",
+    link: "/labs/VisualLabs/VisualHTML.html",
+    image: "/manus-storage/visuallab-project-biology_c8ac585.png",
+  },
+  {
+    title: "Órbitas de Sistemas",
+    description: "Um ponto de partida para estudar camadas, relações e movimento em uma experiência visual.",
+    assunto: "VisualLabs",
+    dificuldade: "Avançado",
+    link: "/labs/VisualLabs/VisualSVG_v2.html",
+    image: "/manus-storage/visuallab-project-astronomy_ffdaba81.png",
+  },
+];
+
 export const infos = [
   {
     title: "Aulas e horários",

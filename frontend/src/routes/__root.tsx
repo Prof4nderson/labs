@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+/* Style reminder: keep the existing sticky glass navigation, prism cyan active states, compact pills, and current spacing. */
 import {
   Outlet,
   Link,
@@ -155,6 +156,26 @@ function RootComponent() {
               Games
             </Link>
             
+            <a
+              href="/downloads"
+              className={navLinkClass}
+            >
+              Downloads
+            </a>
+            <Link
+              to="/aluno"
+              className={navLinkClass}
+              activeProps={{ className: `${navLinkClass} text-foreground` }}
+            >
+              Área do aluno
+            </Link>
+            <Link
+              to="/professor"
+              className={navLinkClass}
+              activeProps={{ className: `${navLinkClass} text-foreground` }}
+            >
+              Área do professor
+            </Link>
             <Link
               to="/chat"
               className={navLinkClass}

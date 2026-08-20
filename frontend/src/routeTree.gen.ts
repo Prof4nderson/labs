@@ -10,9 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AlunoRouteImport } from './routes/aluno'
+import { Route as AreasRouteImport } from './routes/areas'
 import { Route as ChatRouteImport } from './routes/chat'
+import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as GamesRouteImport } from './routes/games'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ProfessorRouteImport } from './routes/professor'
 import { Route as VisuallabsRouteImport } from './routes/visuallabs'
 
 const IndexRoute = IndexRouteImport.update({
@@ -20,9 +24,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlunoRoute = AlunoRouteImport.update({
+  id: '/aluno',
+  path: '/aluno',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreasRoute = AreasRouteImport.update({
+  id: '/areas',
+  path: '/areas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChatRoute = ChatRouteImport.update({
   id: '/chat',
   path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadsRoute = DownloadsRouteImport.update({
+  id: '/downloads',
+  path: '/downloads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GamesRoute = GamesRouteImport.update({
@@ -35,6 +54,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfessorRoute = ProfessorRouteImport.update({
+  id: '/professor',
+  path: '/professor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VisuallabsRoute = VisuallabsRouteImport.update({
   id: '/visuallabs',
   path: '/visuallabs',
@@ -43,39 +67,83 @@ const VisuallabsRoute = VisuallabsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aluno': typeof AlunoRoute
+  '/areas': typeof AreasRoute
   '/chat': typeof ChatRoute
+  '/downloads': typeof DownloadsRoute
   '/games': typeof GamesRoute
   '/login': typeof LoginRoute
+  '/professor': typeof ProfessorRoute
   '/visuallabs': typeof VisuallabsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aluno': typeof AlunoRoute
+  '/areas': typeof AreasRoute
   '/chat': typeof ChatRoute
+  '/downloads': typeof DownloadsRoute
   '/games': typeof GamesRoute
   '/login': typeof LoginRoute
+  '/professor': typeof ProfessorRoute
   '/visuallabs': typeof VisuallabsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/aluno': typeof AlunoRoute
+  '/areas': typeof AreasRoute
   '/chat': typeof ChatRoute
+  '/downloads': typeof DownloadsRoute
   '/games': typeof GamesRoute
   '/login': typeof LoginRoute
+  '/professor': typeof ProfessorRoute
   '/visuallabs': typeof VisuallabsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chat' | '/games' | '/login' | '/visuallabs'
+  fullPaths:
+    | '/'
+    | '/aluno'
+    | '/areas'
+    | '/chat'
+    | '/downloads'
+    | '/games'
+    | '/login'
+    | '/professor'
+    | '/visuallabs'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chat' | '/games' | '/login' | '/visuallabs'
-  id: '__root__' | '/' | '/chat' | '/games' | '/login' | '/visuallabs'
+  to:
+    | '/'
+    | '/aluno'
+    | '/areas'
+    | '/chat'
+    | '/downloads'
+    | '/games'
+    | '/login'
+    | '/professor'
+    | '/visuallabs'
+  id:
+    | '__root__'
+    | '/'
+    | '/aluno'
+    | '/areas'
+    | '/chat'
+    | '/downloads'
+    | '/games'
+    | '/login'
+    | '/professor'
+    | '/visuallabs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlunoRoute: typeof AlunoRoute
+  AreasRoute: typeof AreasRoute
   ChatRoute: typeof ChatRoute
+  DownloadsRoute: typeof DownloadsRoute
   GamesRoute: typeof GamesRoute
   LoginRoute: typeof LoginRoute
+  ProfessorRoute: typeof ProfessorRoute
   VisuallabsRoute: typeof VisuallabsRoute
 }
 
@@ -88,11 +156,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aluno': {
+      id: '/aluno'
+      path: '/aluno'
+      fullPath: '/aluno'
+      preLoaderRoute: typeof AlunoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/areas': {
+      id: '/areas'
+      path: '/areas'
+      fullPath: '/areas'
+      preLoaderRoute: typeof AreasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chat': {
       id: '/chat'
       path: '/chat'
       fullPath: '/chat'
       preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/downloads': {
+      id: '/downloads'
+      path: '/downloads'
+      fullPath: '/downloads'
+      preLoaderRoute: typeof DownloadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/games': {
@@ -109,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/professor': {
+      id: '/professor'
+      path: '/professor'
+      fullPath: '/professor'
+      preLoaderRoute: typeof ProfessorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/visuallabs': {
       id: '/visuallabs'
       path: '/visuallabs'
@@ -121,9 +217,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlunoRoute: AlunoRoute,
+  AreasRoute: AreasRoute,
   ChatRoute: ChatRoute,
+  DownloadsRoute: DownloadsRoute,
   GamesRoute: GamesRoute,
   LoginRoute: LoginRoute,
+  ProfessorRoute: ProfessorRoute,
   VisuallabsRoute: VisuallabsRoute,
 }
 export const routeTree = rootRouteImport

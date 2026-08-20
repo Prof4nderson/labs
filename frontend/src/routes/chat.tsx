@@ -1,6 +1,7 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+/* Style reminder: preserve the existing glass conversation panel, cyan actions, and public portal visual language. */
 import { useEffect, useRef, useState } from "react";
-import { chat, clearSession, getToken, getUsername } from "@/lib/labs-api";
+import { chat } from "@/lib/labs-api";
 import { RagIngest } from "@/components/RagIngest";
 
 export const Route = createFileRoute("/chat")({
@@ -25,21 +26,6 @@ export const Route = createFileRoute("/chat")({
 type Msg = { role: "user" | "assistant"; text: string };
 
 function ChatPage() {
-  const navigate = useNavigate();
-  const [ready, setReady] = useState(false);
-  const [user, setUser] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!getToken()) {
-      navigate({ to: "/login" });
-      return;
-    }
-    setUser(getUsername());
-    setReady(true);
-  }, [navigate]);
-
-  if (!ready) return null;
-
   return (
     <section className="mx-auto w-full max-w-5xl space-y-8 px-5 py-16">
       <div className="flex flex-wrap items-end justify-between gap-4">
@@ -48,20 +34,8 @@ function ChatPage() {
             Assistente das aulas
           </p>
           <h1 className="text-4xl font-semibold">Fale com o @Coder</h1>
-          <p className="text-muted-foreground">
-            Conectado como <strong className="text-foreground">{user}</strong>
-          </p>
+          <p className="text-muted-foreground">Área pública para dúvidas sobre os conteúdos e laboratórios.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            clearSession();
-            navigate({ to: "/login" });
-          }}
-          className="glass px-5 py-2.5 text-sm transition-colors hover:border-primary/50"
-        >
-          Sair
-        </button>
       </div>
 
       <ChatBox />

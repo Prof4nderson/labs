@@ -1,0 +1,68 @@
+{
+  "site": {
+    "eyebrow": "Portal de Tecnologia e DevOps",
+    "title": "Aprenda construindo.",
+    "description": "Artigos, notícias, laboratórios visuais e projetos práticos para acompanhar a evolução da turma.",
+    "featuredLabel": "Em destaque"
+  },
+  "featured": {
+    "title": "Como transformar uma ideia em um laboratório visual",
+    "summary": "Um roteiro direto para sair do conceito, organizar a experiência e publicar um estudo interativo.",
+    "category": "Artigo",
+    "date": "Atualizado hoje",
+    "href": "/visuallabs",
+    "image": "/labs/img/work.jpg"
+  },
+  "articles": [
+    {
+      "title": "Do layout ao laboratório: uma trilha prática de front-end",
+      "summary": "Estruture a interface, escolha os dados e transforme cada etapa em uma experiência que pode ser explorada.",
+      "category": "Front-end",
+      "date": "20 ago 2026",
+      "readTime": "6 min",
+      "href": "/visuallabs",
+      "image": "/labs/img/lista.jpg"
+    },
+    {
+      "title": "Dados que explicam: visualização antes da complexidade",
+      "summary": "Uma introdução ao uso de exemplos, relações e filtros para tornar conceitos técnicos mais claros.",
+      "category": "Dados",
+      "date": "18 ago 2026",
+      "readTime": "4 min",
+      "href": "/labs/VisualLabs/VisualSQL.html",
+      "image": "/labs/img/formatos.jpg"
+    },
+    {
+      "title": "O que observar em um projeto com containers",
+      "summary": "Camadas, imagens e ciclo de vida: os pontos essenciais para ler uma arquitetura Docker com segurança.",
+      "category": "DevOps",
+      "date": "15 ago 2026",
+      "readTime": "8 min",
+      "href": "/labs/VisualLabs/VisualDocker.html",
+      "image": "/labs/img/docker.jpg"
+    }
+  ],
+  "news": [
+    {
+      "title": "Novos laboratórios visuais publicados",
+      "summary": "A biblioteca recebeu novas experiências de SQL, SVG, redes e fundamentos de programação.",
+      "category": "Novidade",
+      "date": "20 ago 2026",
+      "href": "/visuallabs"
+    },
+    {
+      "title": "Downloads reorganizados por projeto",
+      "summary": "Os materiais estáticos agora podem ser acessados diretamente pela seção Downloads.",
+      "category": "Aviso",
+      "date": "19 ago 2026",
+      "href": "/downloads"
+    },
+    {
+      "title": "Espaço de dúvidas aberto para a turma",
+      "summary": "Envie perguntas sobre os materiais e acompanhe respostas e orientações no portal.",
+      "category": "Turma",
+      "date": "18 ago 2026",
+      "href": "/#comentarios"
+    }
+  ]
+}
