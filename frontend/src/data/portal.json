@@ -1,13 +1,13 @@
 {
   "site": {
-    "eyebrow": "Portal de Tecnologia e DevOps",
-    "title": "Aprenda construindo.",
+    "eyebrow": "Portal de Aprendizado em Tecnologia",
+    "title": "Seja bem vindo.",
     "description": "Artigos, notícias, laboratórios visuais e projetos práticos para acompanhar a evolução da turma.",
     "featuredLabel": "Em destaque"
   },
   "featured": {
-    "title": "Como transformar uma ideia em um laboratório visual",
-    "summary": "Um roteiro direto para sair do conceito, organizar a experiência e publicar um estudo interativo.",
+    "title": "Em breve conteudo novo e exclusivo",
+    "summary": "Estamos reformulando trodas as seções e implementando novos laboratórios e funcionalidades",
     "category": "Artigo",
     "date": "Atualizado hoje",
     "href": "/visuallabs",

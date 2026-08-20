@@ -13,7 +13,7 @@ export const games: CatalogItem[] = [
   {
     title: "Cyber Dragon",
     description:
-      "Ação e aventura cyberpunk em glass edition: colisões, sprites e loop de jogo em Canvas.",
+      "Jogo com implementação de colisões, sprites e loop de jogo em Canvas.",
     assunto: "Canvas & Animação",
     dificuldade: "Intermediário",
     link: "/labs/Games/GameCyberDragon.html",
@@ -22,7 +22,7 @@ export const games: CatalogItem[] = [
   {
     title: "Cyber Raid",
     description:
-      "Jogo tático de invasão cibernética — estados de jogo, HUD e efeitos liquid fire.",
+      "Lógica do antigo River Raid adaptada — estados de jogo, HUD e efeitos liquid fire.",
     assunto: "Lógica de Jogo",
     dificuldade: "Avançado",
     link: "/labs/Games/GameCyberRaid.html",
@@ -39,7 +39,7 @@ export const games: CatalogItem[] = [
   {
     title: "Keystone Kapers",
     description:
-      "Estratégia e lógica em neon glass — plataformas, temporizador e perseguição.",
+      "Estratégia e lógica, plataformas, temporizador e perseguição.",
     assunto: "Lógica de Jogo",
     dificuldade: "Intermediário",
     link: "/labs/Games/GameKeystone.html",
