@@ -39,13 +39,27 @@ async function request(path: string, init: RequestInit): Promise<string> {
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
   let res: Response;
-  try {
-    res = await fetch(`${LABS_API_URL}${path}`, { ...init, headers });
-  } catch {
-    throw new Error(
-      `Não foi possível conectar à API em ${LABS_API_URL}. Verifique se o backend está no ar.`,
-    );
-  }
+
+  // 1. Recupera o token de autenticação armazenado na sessão do navegador
+const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+
+// 2. Garante a mesclagem dos cabeçalhos preservando o 'Authorization'
+const authenticatedHeaders = {
+  ...headers,
+  'Content-Type': 'application/json',
+  ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+};
+
+try {
+  res = await fetch(`${LABS_API_URL}${path}`, { 
+    ...init, 
+    headers: authenticatedHeaders 
+  });
+} catch {
+  throw new Error(
+    `Não foi possível conectar à API em ${LABS_API_URL}. Verifique se o backend está no ar.`,
+  );
+}
 
   const body = await res.text();
   if (!res.ok) {
