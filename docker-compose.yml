@@ -23,8 +23,10 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: labs_backend
-    volumes:
-      - ./backend:/app
+    ports:
+      - "8081:8081"
+   # volumes:
+      # - ./backend:/app
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
@@ -37,8 +39,6 @@ services:
       FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
       # Repassa os cabeçalhos do Nginx/Proxy para o Spring reconhecer HTTPS
       SERVER_FORWARD_HEADERS_STRATEGY: framework
-    ports:
-      - "8081:8081"
     depends_on:
       postgres:
         condition: service_healthy

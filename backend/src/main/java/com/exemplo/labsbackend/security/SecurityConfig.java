@@ -54,7 +54,7 @@ public class SecurityConfig {
                     // Preflight nunca carrega credenciais e precisa passar antes da autenticacao.
                     auth.requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher
                             .antMatcher(HttpMethod.OPTIONS, "/**")).permitAll();
-                    auth.requestMatchers("/api/auth/**", "/labs/**").permitAll();
+                    auth.requestMatchers("/auth/**", "/api/auth/**", "/labs/**").permitAll();
                     if (publicDocs) {
                         auth.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll();
                     }

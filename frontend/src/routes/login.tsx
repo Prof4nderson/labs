@@ -64,7 +64,7 @@ function LoginPage() {
             {mode === "login" ? "Entrar" : "Criar conta"}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Autenticação JWT pela API do laboratório.
+            Bem vindo ao Labs! 
           </p>
         </div>
 
