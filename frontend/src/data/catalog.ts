@@ -82,6 +82,7 @@ export const visualLabs: CatalogItem[] = [
     assunto: "Front-end",
     dificuldade: "Iniciante",
     link: "/labs/VisualLabs/VisualHTML.html",
+    image: "/labs/img/HTMLlab.png",
   },
   {
     title: "CSS Motion, Transitions & Flexbox",
@@ -89,6 +90,7 @@ export const visualLabs: CatalogItem[] = [
     assunto: "Front-end",
     dificuldade: "Iniciante",
     link: "/labs/VisualLabs/VisualFlexBox.html",
+     image: "/labs/img/CSSlab.png",
   },
   {
     title: "SVG Visual Lab",
@@ -96,6 +98,7 @@ export const visualLabs: CatalogItem[] = [
     assunto: "Front-end",
     dificuldade: "Intermediário",
     link: "/labs/VisualLabs/VisualSVG_v2.html",
+     image: "/labs/img/SVGlab.png",
   },
   {
     title: "Escudos de Futebol SVG",
