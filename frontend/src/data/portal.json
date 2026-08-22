@@ -43,12 +43,12 @@
     },
     {
       "title": "Docker & Containers",
-      "summary": "Camadas, imagens e ciclo de vida: os pontos essenciais para ler uma arquitetura Docker com segurança.",
+      "summary": "Seu app funcionando igual no seu PC e no servidor: A arquitetura de containers.",
       "category": "DevOps",
       "date": "15 ago 2026",
       "readTime": "8 min",
-      "href": "/labs/VisualLabs/VisualDocker.html",
-      "image": "/labs/img/docker.jpg"
+      "href": "/labs/VisualLabs/DockerBasics.html",
+      "image": "/labs/img/Dcker.jpg"
     }
   ],
   "news": [

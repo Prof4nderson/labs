@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docker Fundamentals - Containerização, Imagens, Compose e CLI</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #022c22 0%, #064e3b 35%, #0f172a 70%, #022c22 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #0284c7; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #10b981; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #38bdf8; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 45px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8 0%, #2dd4bf 50%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.15rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .label-title {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-desc {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .section-desc b { color: #38bdf8; }
+
+    .tbl-code {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .code-block {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 24px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+      white-space: pre;
+      overflow-x: auto;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+      margin-top: 15px;
+      tab-size: 4;
+    }
+
+    .code-keyword { color: #f43f5e; font-weight: bold; }
+    .code-annotation { color: #38bdf8; font-weight: bold; }
+    .code-type { color: #2dd4bf; }
+    .code-string { color: #34d399; }
+    .code-comment { color: #64748b; font-style: italic; }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.guide-table th {
+      background: rgba(15, 23, 42, 0.9);
+      color: #38bdf8;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.guide-table td {
+      padding: 14px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+      line-height: 1.6;
+    }
+
+    table.guide-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .flow-step:last-child { border-bottom: none; }
+
+    .flow-number {
+      background: linear-gradient(135deg, #0284c7, #10b981);
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 0.9rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .flow-text {
+      color: #e2e8f0;
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+      font-family: 'Fira Code', monospace;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Docker Fundamentals</h1>
+      <p>Containerização de Aplicações: Imagens, Dockerfile, Docker Compose e Comandos CLI</p>
+    </header>
+
+    <!-- 1. Conceito e Arquitetura do Docker -->
+    <div class="glass-card">
+      <div class="label-title">🐳 1. O que é o Docker e Conceitos Fundamentais</div>
+      <p class="section-desc">
+        O <b>Docker</b> é uma plataforma open-source de containerização que permite empacotar uma aplicação e todas as suas dependências (código, runtime, bibliotecas do sistema e configurações) em uma unidade padronizada chamada <b>Container</b>. Diferente das Máquinas Virtuais (VMs), os containers compartilham o Kernel do sistema operacional do Host, tornando-os extremamente leves, rápidos de inicializar e altamente portáveis.
+      </p>
+
+      <div class="flow-step">
+        <div class="flow-number">1</div>
+        <div class="flow-text">
+          <b>Imagem (Docker Image):</b> Modelo somente leitura (*read-only template*) que contém as instruções para criar um container. Funciona como a classe/blueprint do sistema.
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">2</div>
+        <div class="flow-text">
+          <b>Container:</b> Instância em execução de uma Imagem. Possui seu próprio sistema de arquivos isolado, portas de rede e processos, mas consome recursos diretamente do Kernel do host.
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">3</div>
+        <div class="flow-text">
+          <b>Docker Registry (Docker Hub):</b> Repositório remoto onde imagens públicas ou privadas são armazenadas e distribuídas através de comandos de <span class="tbl-code">pull</span> e <span class="tbl-code">push</span>.
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Anatomia do Dockerfile -->
+    <div class="glass-card">
+      <div class="label-title">📄 2. Anatomia de um Dockerfile (Multi-Stage Build)</div>
+      <p class="section-desc">
+        O <span class="tbl-code">Dockerfile</span> é o script de automação usado para construir uma imagem Docker personalizada. A técnica de **Multi-Stage Build** permite compilar o código em um estágio pesado e copiar apenas o binário/estáticos finais para uma imagem leve em produção.
+      </p>
+
+      <div class="code-block"><span class="code-comment"># --- ESTÁGIO 1: Build da Aplicação ---</span>
+<span class="code-keyword">FROM</span> node:20-alpine <span class="code-keyword">AS</span> builder
+<span class="code-keyword">WORKDIR</span> /app
+
+<span class="code-comment"># Copia os arquivos de pacotes para aproveitar o cache das camadas</span>
+<span class="code-keyword">COPY</span> package*.json ./
+<span class="code-keyword">RUN</span> npm ci
+
+<span class="code-comment"># Copia o código fonte e gera a build de produção</span>
+<span class="code-keyword">COPY</span> . .
+<span class="code-keyword">RUN</span> npm run build
+
+<span class="code-comment"># --- ESTÁGIO 2: Runner de Produção (Imagem Mínima) ---</span>
+<span class="code-keyword">FROM</span> nginx:alpine <span class="code-keyword">AS</span> runner
+
+<span class="code-comment"># Copia apenas os arquivos finais do estágio de build para o servidor Nginx</span>
+<span class="code-keyword">COPY</span> --from=builder /app/dist /usr/share/nginx/html
+
+<span class="code-comment"># Expõe a porta interna do container</span>
+<span class="code-keyword">EXPOSE</span> 80
+
+<span class="code-comment"># Comando executado ao inicializar o container</span>
+<span class="code-keyword">CMD</span> ["nginx", "-g", "daemon off;"]</div>
+    </div>
+
+    <!-- 3. Orquestração com Docker Compose -->
+    <div class="glass-card">
+      <div class="label-title">🐙 3. Orquestração Multi-Container (docker-compose.yml)</div>
+      <p class="section-desc">
+        O <b>Docker Compose</b> permite definir e rodar aplicações multi-container através de um único arquivo declarativo <span class="tbl-code">docker-compose.yml</span>. É ideal para conectar o frontend, backend e banco de dados em uma rede privada isolada.
+      </p>
+
+      <div class="code-block"><span class="code-annotation">version</span>: <span class="code-string">'3.8'</span>
+
+<span class="code-annotation">services</span>:
+  <span class="code-type">web_frontend</span>:
+    <span class="code-annotation">build</span>:
+      <span class="code-annotation">context</span>: .
+      <span class="code-annotation">dockerfile</span>: Dockerfile
+    <span class="code-annotation">container_name</span>: frontend_app
+    <span class="code-annotation">ports</span>:
+      - <span class="code-string">"8080:80"</span> <span class="code-comment"># Mapeamento de portas (Host:Container)</span>
+    <span class="code-annotation">environment</span>:
+      - <span class="code-string">NODE_ENV=production</span>
+    <span class="code-annotation">restart</span>: always
+
+  <span class="code-type">database</span>:
+    <span class="code-annotation">image</span>: postgres:15-alpine
+    <span class="code-annotation">container_name</span>: postgres_db
+    <span class="code-annotation">environment</span>:
+      <span class="code-annotation">POSTGRES_DB</span>: app_db
+      <span class="code-annotation">POSTGRES_USER</span>: admin
+      <span class="code-annotation">POSTGRES_PASSWORD</span>: secret123
+    <span class="code-annotation">volumes</span>:
+      - postgres_data:/var/lib/postgresql/data <span class="code-comment"># Persistência de dados</span>
+
+<span class="code-annotation">volumes</span>:
+  <span class="code-type">postgres_data</span>: <span class="code-comment"># Volume gerenciado pelo Docker</span></div>
+    </div>
+
+    <!-- 4. Guia Rápido de Comandos CLI -->
+    <div class="glass-card">
+      <div class="label-title">💻 4. Guia Rápido de Comandos do Docker CLI</div>
+      <div class="table-wrapper">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Comando</th>
+              <th>Ação Executada</th>
+              <th>Uso Prático</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tbl-code">docker build -t app:1.0 .</span></td>
+              <td>Constroi uma imagem Docker a partir do Dockerfile local e aplica uma tag.</td>
+              <td>Geração da imagem para implantação.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">docker run -d -p 8080:80 app:1.0</span></td>
+              <td>Cria e executa um container em segundo plano (*detached*) com mapeamento de porta.</td>
+              <td>Subir o container em um servidor.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">docker ps -a</span></td>
+              <td>Lista todos os containers ativos e inativos no servidor.</td>
+              <td>Verificar status de execução e portas.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">docker logs -f &lt;id_container&gt;</span></td>
+              <td>Exibe os logs do container em tempo real no terminal.</td>
+              <td>Depuração e monitoramento de erros.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">docker exec -it &lt;id&gt; sh</span></td>
+              <td>Abre um shell interativo dentro do container em execução.</td>
+              <td>Inspeção manual do sistema de arquivos.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">docker compose up -d</span></td>
+              <td>Constrói e inicia todos os serviços definidos no <span class="tbl-code">docker-compose.yml</span>.</td>
+              <td>Subir toda a pilha da aplicação com um comando.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">docker compose down</span></td>
+              <td>Para e remove containers, redes e volumes gerenciados pelo Compose.</td>
+              <td>Encerrar a infraestrutura local com segurança.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Comparativo: Containers vs Máquinas Virtuais -->
+    <div class="glass-card">
+      <div class="label-title">📊 Comparativo: Containers vs Máquinas Virtuais (VMs)</div>
+      <div class="table-wrapper">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Característica</th>
+              <th>Containers (Docker)</th>
+              <th>Máquinas Virtuais (Hypervisor)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Arquitetura</b></td>
+              <td>Compartilham o Kernel do sistema operacional do Host.</td>
+              <td>Cada VM possui um Sistema Operacional completo (Guest OS).</td>
+            </tr>
+            <tr>
+              <td><b>Tamanho do Asset</b></td>
+              <td>Leve (dezenas a centenas de Megabytes).</td>
+              <td>Pesado (dezenas de Gigabytes por SO).</td>
+            </tr>
+            <tr>
+              <td><b>Tempo de Startup</b></td>
+              <td>Instantâneo (milissegundos a segundos).</td>
+              <td>Lento (minutos para dar boot no SO guest).</td>
+            </tr>
+            <tr>
+              <td><b>Isolamento</b></td>
+              <td>Isolamento em nível de processo e namespaces.</td>
+              <td>Isolamento completo em nível de hardware.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      Docker Guide — Modern Infrastructure & Containerization Standards
+    </div>
+  </div>
+
+</body>
+</html>
