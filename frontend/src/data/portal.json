@@ -7,7 +7,7 @@
   },
   "featured": {
     "title": "Chaos App",
-    "summary": "Experiência visual imersiva, com renderização massiva.",
+    "summary": "Experiência visual imersiva, com renderização massiva. Utiliza os poderosos recursos do canvas e manipluação dos eventos do mouse (click, scroll)",
     "category": "Artigo",
     "date": "Atualizado hoje",
     "href": "https://chaos.professor-anderson.com",
