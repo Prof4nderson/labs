@@ -14,6 +14,15 @@
     "image": "/labs/img/chaos.png"
   },
   "articles": [
+     {
+      "title": "devOps Classroom - nossa futura sala de aula virtual",
+      "summary": "A casa tá em obras, mas você pode visitar! ",
+      "category": "Back-end",
+      "date": "20 ago 2026",
+      "readTime": "6 min",
+      "href": "https://devops.professor-anderson.com/",
+      "image": "/labs/img/devopsclassroom.png"
+    },
     {
       "title": "Spring Boot Basics: Estrutura de pastas e componentes padrão",
       "summary": "Aprenda como usar o framework número um em segurança, estabilidade e escalabilidade, unanimidade entre as maiores empresas e instituições governamentais do mundo",
