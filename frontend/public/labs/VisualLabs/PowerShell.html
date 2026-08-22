@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PowerShell Fundamentals - Cmdlets, Pipeline e Automação para Iniciantes</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 35%, #0369a1 70%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #0284c7; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #38bdf8; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #6366f1; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 45px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 50%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.15rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .label-title {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-desc {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .section-desc b { color: #38bdf8; }
+
+    .tbl-code {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .code-block {
+      background: #040914;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 24px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+      white-space: pre;
+      overflow-x: auto;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+      margin-top: 15px;
+      tab-size: 4;
+    }
+
+    .code-prompt { color: #38bdf8; font-weight: bold; }
+    .code-cmd { color: #f8fafc; font-weight: bold; }
+    .code-variable { color: #fbbf24; font-weight: bold; }
+    .code-string { color: #4ade80; }
+    .code-comment { color: #64748b; font-style: italic; }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.guide-table th {
+      background: rgba(15, 23, 42, 0.9);
+      color: #38bdf8;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.guide-table td {
+      padding: 14px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+      line-height: 1.6;
+    }
+
+    table.guide-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .flow-step:last-child { border-bottom: none; }
+
+    .flow-number {
+      background: linear-gradient(135deg, #0284c7, #6366f1);
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 0.9rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .flow-text {
+      color: #e2e8f0;
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+      font-family: 'Fira Code', monospace;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>PowerShell Fundamentals</h1>
+      <p>Cmdlets, Manipulação de Objetos, Pipeline e Scripts para Iniciantes</p>
+    </header>
+
+    <!-- 1. O que é o PowerShell -->
+    <div class="glass-card">
+      <div class="label-title">⚡ 1. O que é o PowerShell e seu Funcionamento Baseado em Objetos</div>
+      <p class="section-desc">
+        O <b>PowerShell</b> é um shell de linha de comando e linguagem de script desenvolvida pela Microsoft (atualmente cross-platform via .NET Core). Diferente do Bash/CMD que operam manipulando <b>texto puro</b>, o PowerShell opera inteiramente manipulando <b>Objetos .NET</b>.
+      </p>
+
+      <div class="flow-step">
+        <div class="flow-number">1</div>
+        <div class="flow-text">
+          <b>Padrão Verbo-Substantivo:</b> Os comandos (chamados de <b>Cmdlets</b>) usam estritamente o formato <span class="tbl-code">Verbo-Substantivo</span> (ex: <span class="tbl-code">Get-Process</span>, <span class="tbl-code">New-Item</span>, <span class="tbl-code">Set-ExecutionPolicy</span>).
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">2</div>
+        <div class="flow-text">
+          <b>Pipeline Orientado a Objetos (|):</b> Ao passar dados pela pipeline, o PowerShell transmite objetos estruturados contendo propriedades e métodos nativos, sem necessidade de parsers complexos de texto.
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">3</div>
+        <div class="flow-text">
+          <b>Aliasing Integrado:</b> Mapeia comandos clássicos do Linux/CMD para Cmdlets equivalentes (ex: <span class="tbl-code">ls</span> e <span class="tbl-code">dir</span> apontam internamente para <span class="tbl-code">Get-ChildItem</span>).
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Cmdlets Básicos e Equivalências -->
+    <div class="glass-card">
+      <div class="label-title">🔷 2. Principal Tabela de Cmdlets Básicos</div>
+      <p class="section-desc">
+        Comandos essenciais para navegação no sistema de arquivos, gestão de serviços e controle de processos.
+      </p>
+
+      <div class="table-wrapper">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Cmdlet Nativo</th>
+              <th>Alias (Linux / CMD)</th>
+              <th>Descrição e Função</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tbl-code">Get-Location</span></td>
+              <td><span class="tbl-code">pwd</span></td>
+              <td>Retorna o objeto correspondente ao diretório de trabalho atual.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">Get-ChildItem</span></td>
+              <td><span class="tbl-code">ls</span> / <span class="tbl-code">dir</span></td>
+              <td>Lista itens e contêineres do diretório ativo.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">Set-Location</span></td>
+              <td><span class="tbl-code">cd</span></td>
+              <td>Altera o diretório ativo para o caminho especificado.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">New-Item</span></td>
+              <td><span class="tbl-code">mkdir</span> / <span class="tbl-code">touch</span></td>
+              <td>Cria novos elementos (arquivos com <span class="tbl-code">-ItemType File</span> ou pastas com <span class="tbl-code">-ItemType Directory</span>).</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">Copy-Item</span></td>
+              <td><span class="tbl-code">cp</span> / <span class="tbl-code">copy</span></td>
+              <td>Copia itens de uma origem para um destino especificado.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">Remove-Item</span></td>
+              <td><span class="tbl-code">rm</span> / <span class="tbl-code">del</span></td>
+              <td>Remove arquivos, diretórios ou chaves do registro do Windows.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">Get-Content</span></td>
+              <td><span class="tbl-code">cat</span> / <span class="tbl-code">type</span></td>
+              <td>Lê o conteúdo de arquivos de texto linha a linha.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">Get-Process</span></td>
+              <td><span class="tbl-code">ps</span> / <span class="tbl-code">tasklist</span></td>
+              <td>Obtém a lista de todos os processos em execução no sistema.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. Filtragem de Objetos e Pipeline -->
+    <div class="glass-card">
+      <div class="label-title">⚙️ 3. Manipulação de Objetos com Where-Object e Select-Object</div>
+      <p class="section-desc">
+        Diferente do texto puro, podemos filtrar propriedades diretas de objetos retornados usando o operador de comparação do PowerShell (<span class="tbl-code">-eq</span>, <span class="tbl-code">-match</span>, <span class="tbl-code">-gt</span>).
+      </p>
+
+      <div class="code-block"><span class="code-comment"># 1. Listar processos que consomem mais de 100MB de memória de trabalho (WorkingSet)</span>
+<span class="code-prompt">PS C:\></span> <span class="code-cmd">Get-Process</span> | <span class="code-cmd">Where-Object</span> { <span class="code-variable">$_</span>.WorkingSet64 -gt 100MB }
+
+<span class="code-comment"># 2. Selecionar apenas as propriedades especificas (Nome e ID) de processos do Chrome</span>
+<span class="code-prompt">PS C:\></span> <span class="code-cmd">Get-Process</span> chrome | <span class="code-cmd">Select-Object</span> Name, Id, CPU
+
+<span class="code-comment"># 3. Ordenar arquivos por tamanho em ordem decrescente</span>
+<span class="code-prompt">PS C:\></span> <span class="code-cmd">Get-ChildItem</span> | <span class="code-cmd">Sort-Object</span> Length -Descending
+
+<span class="code-comment"># 4. Buscar por um texto dentro de arquivos em subpastas</span>
+<span class="code-prompt">PS C:\></span> <span class="code-cmd">Get-ChildItem</span> -Recurse -Filter *.log | <span class="code-cmd">Select-String</span> -Pattern <span class="code-string">"Error"</span></div>
+    </div>
+
+    <!-- 4. Política de Execução e Permissões -->
+    <div class="glass-card">
+      <div class="label-title">🛡️ 4. Política de Execução de Scripts (ExecutionPolicy)</div>
+      <p class="section-desc">
+        Por padrão, o Windows bloqueia a execução de scripts não assinados (<span class="tbl-code">.ps1</span>). Para permitir a execução de scripts locais no seu usuário de desenvolvimento, configure a política para <span class="tbl-code">RemoteSigned</span>.
+      </p>
+
+      <div class="code-block"><span class="code-comment"># Consultar a política de execução atual</span>
+<span class="code-prompt">PS C:\></span> <span class="code-cmd">Get-ExecutionPolicy</span>
+
+<span class="code-comment"># Permitir scripts locais (Executar como Administrador)</span>
+<span class="code-prompt">PS C:\></span> <span class="code-cmd">Set-ExecutionPolicy</span> RemoteSigned -Scope CurrentUser</div>
+    </div>
+
+    <!-- 5. Exemplo Prático de Script (.ps1) -->
+    <div class="glass-card">
+      <div class="label-title">📂 5. Exemplo de Script PowerShell (.ps1)</div>
+      <p class="section-desc">
+        Script declarativo utilizando variáveis com <span class="tbl-code">$</span>, tratamento de exceções com blocos <span class="tbl-code">try/catch</span> e saídas coloridas com <span class="tbl-code">Write-Host</span>.
+      </p>
+
+      <div class="code-block"><span class="code-comment"># Script de Backup Automático em PowerShell</span>
+
+<span class="code-variable">$sourcePath</span> = <span class="code-string">"C:\Projetos\App"</span>
+<span class="code-variable">$destinationPath</span> = <span class="code-string">"C:\Backups"</span>
+<span class="code-variable">$date</span> = <span class="code-cmd">Get-Date</span> -Format <span class="code-string">"yyyy-MM-dd"</span>
+
+<span class="code-cmd">Write-Host</span> <span class="code-string">"Iniciando Backup do Projeto..."</span> -ForegroundColor Cyan
+
+<span class="code-keyword">if</span> (-not (<span class="code-cmd">Test-Path</span> <span class="code-variable">$destinationPath</span>)) {
+    <span class="code-cmd">New-Item</span> -Path <span class="code-variable">$destinationPath</span> -ItemType Directory
+}
+
+<span class="code-keyword">try</span> {
+    <span class="code-cmd">Copy-Item</span> -Path <span class="code-variable">$sourcePath</span> -Destination <span class="code-string">"$destinationPath\Backup_$date"</span> -Recurse -ErrorAction Stop
+    <span class="code-cmd">Write-Host</span> <span class="code-string">"[SUCESSO] Backup concluído com êxito!"</span> -ForegroundColor Green
+}
+<span class="code-keyword">catch</span> {
+    <span class="code-cmd">Write-Host</span> <span class="code-string">"[ERRO] Falha ao realizar backup: $_"</span> -ForegroundColor Red
+}</div>
+    </div>
+
+    <div class="footer-note">
+      PowerShell Guide — Object-Oriented Command Line & Scripting Reference
+    </div>
+  </div>
+
+</body>
+</html>

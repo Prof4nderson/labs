@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bash Shell Fundamentals - Comandos Essenciais para Iniciantes</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #090d16 0%, #1e1b4b 35%, #0f172a 70%, #090d16 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #4ade80; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #38bdf8; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #a855f7; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 45px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #4ade80 0%, #38bdf8 50%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.15rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .label-title {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #4ade80;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-desc {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .section-desc b { color: #4ade80; }
+
+    .tbl-code {
+      background: rgba(74, 222, 128, 0.15);
+      color: #4ade80;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .code-block {
+      background: #050811;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 24px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+      white-space: pre;
+      overflow-x: auto;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+      margin-top: 15px;
+      tab-size: 4;
+    }
+
+    .code-prompt { color: #38bdf8; font-weight: bold; }
+    .code-cmd { color: #f8fafc; font-weight: bold; }
+    .code-string { color: #f59e0b; }
+    .code-comment { color: #64748b; font-style: italic; }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.guide-table th {
+      background: rgba(15, 23, 42, 0.9);
+      color: #4ade80;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.guide-table td {
+      padding: 14px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+      line-height: 1.6;
+    }
+
+    table.guide-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .flow-step:last-child { border-bottom: none; }
+
+    .flow-number {
+      background: linear-gradient(135deg, #22c55e, #38bdf8);
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 0.9rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .flow-text {
+      color: #e2e8f0;
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+      font-family: 'Fira Code', monospace;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Bash Shell Fundamentals</h1>
+      <p>Guia Prático de Navegação, Manipulação de Arquivos e Shell Script para Iniciantes</p>
+    </header>
+
+    <!-- 1. O que é o Bash -->
+    <div class="glass-card">
+      <div class="label-title">💻 1. O que é o Bash e seu Funcionamento</div>
+      <p class="section-desc">
+        O <b>Bash</b> (Bourne Again SHell) é o interpretador de comandos padrão na maioria das distribuições Linux e macOS. Ele opera como uma interface baseada em texto (CLI) que processa instruções digitadas e se comunica com o Kernel do sistema operacional, permitindo navegar por diretórios, executar utilitários e criar scripts de automação.
+      </p>
+
+      <div class="flow-step">
+        <div class="flow-number">1</div>
+        <div class="flow-text">
+          <b>Diretório Atual e Caminhos:</b> O sistema organiza arquivos em árvore. Caminhos relativos iniciam da pasta atual (<span class="tbl-code">./</span>), enquanto caminhos absolutos iniciam da raiz (<span class="tbl-code">/</span>).
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">2</div>
+        <div class="flow-text">
+          <b>Streams de Entrada/Saída:</b> O Bash opera com <b>stdin</b> (entrada padrão: 0), <b>stdout</b> (saída padrão: 1) e <b>stderr</b> (saída de erros: 2).
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">3</div>
+        <div class="flow-text">
+          <b>Encadeamento com Pipes (|):</b> Permite conectar a saída (<span class="tbl-code">stdout</span>) de um comando diretamente na entrada (<span class="tbl-code">stdin</span>) do próximo.
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Navegação e Manipulação -->
+    <div class="glass-card">
+      <div class="label-title">📁 2. Navegação pelo Sistema e Gestão de Arquivos</div>
+      <p class="section-desc">
+        Estes são os comandos fundamentais de movimentação, listagem e alteração da estrutura do disco local.
+      </p>
+
+      <div class="table-wrapper">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Comando</th>
+              <th>Sintaxe Básica</th>
+              <th>Descrição e Aplicação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tbl-code">pwd</span></td>
+              <td><span class="tbl-code">pwd</span></td>
+              <td>Exibe o caminho do diretório de trabalho atual (*Print Working Directory*).</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">ls</span></td>
+              <td><span class="tbl-code">ls -la</span></td>
+              <td>Lista os arquivos e pastas do diretório. A flag <span class="tbl-code">-l</span> mostra detalhes (permissões, tamanho) e <span class="tbl-code">-a</span> exibe arquivos ocultos.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">cd</span></td>
+              <td><span class="tbl-code">cd /pasta/subpasta</span></td>
+              <td>Navega entre diretórios. Use <span class="tbl-code">cd ..</span> para voltar um nível ou <span class="tbl-code">cd ~</span> para ir à home do usuário.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">mkdir</span></td>
+              <td><span class="tbl-code">mkdir -p projetos/app</span></td>
+              <td>Cria novos diretórios. A flag <span class="tbl-code">-p</span> cria pastas pai inexistentes em subníveis.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">touch</span></td>
+              <td><span class="tbl-code">touch script.sh</span></td>
+              <td>Cria um arquivo vazio ou atualiza o timestamp de modificação de um arquivo existente.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">cp</span></td>
+              <td><span class="tbl-code">cp -r orig/ dest/</span></td>
+              <td>Copia arquivos. Use a flag <span class="tbl-code">-r</span> (*recursive*) para copiar pastas completas.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">mv</span></td>
+              <td><span class="tbl-code">mv arq.txt novo.txt</span></td>
+              <td>Move ou renomeia arquivos e diretórios de um local para outro.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">rm</span></td>
+              <td><span class="tbl-code">rm -rf pasta/</span></td>
+              <td>Remove arquivos. A combinação de flags <span class="tbl-code">-rf</span> força a remoção recursiva sem pedir confirmação.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. Leitura e Manipulação de Arquivos -->
+    <div class="glass-card">
+      <div class="label-title">📝 3. Leitura, Filtros e Redirecionamento</div>
+      <p class="section-desc">
+        Exemplos práticos de leitura de arquivos no terminal e envio de resultados para novos documentos usando redirecionadores (<span class="tbl-code">&gt;</span> e <span class="tbl-code">&gt;&gt;</span>).
+      </p>
+
+      <div class="code-block"><span class="code-comment"># 1. Exibir todo o conteúdo de um arquivo no console</span>
+<span class="code-prompt">user@linux:~$</span> <span class="code-cmd">cat</span> /etc/os-release
+
+<span class="code-comment"># 2. Ler apenas as primeiras 5 linhas de um log</span>
+<span class="code-prompt">user@linux:~$</span> <span class="code-cmd">head</span> -n 5 server.log
+
+<span class="code-comment"># 3. Monitorar alterações de um arquivo de log em tempo real</span>
+<span class="code-prompt">user@linux:~$</span> <span class="code-cmd">tail</span> -f /var/log/syslog
+
+<span class="code-comment"># 4. Buscar por uma palavra específica usando grep</span>
+<span class="code-prompt">user@linux:~$</span> <span class="code-cmd">grep</span> -i <span class="code-string">"error"</span> app.log
+
+<span class="code-comment"># 5. Criar um novo arquivo redirecionando a saída (sobrescreve o conteúdo)</span>
+<span class="code-prompt">user@linux:~$</span> <span class="code-cmd">echo</span> <span class="code-string">"Servidor Inicializado"</span> > status.txt
+
+<span class="code-comment"># 6. Adicionar conteúdo ao final de um arquivo existente (append)</span>
+<span class="code-prompt">user@linux:~$</span> <span class="code-cmd">echo</span> <span class="code-string">"Conexão BD OK"</span> >> status.txt
+
+<span class="code-comment"># 7. Usar o Pipe (|) para contar o número de processos do Node rodando</span>
+<span class="code-prompt">user@linux:~$</span> <span class="code-cmd">ps aux</span> | <span class="code-cmd">grep</span> node | <span class="code-cmd">wc -l</span></div>
+    </div>
+
+    <!-- 4. Permissões de Arquivos -->
+    <div class="glass-card">
+      <div class="label-title">🔒 4. Gestão de Permissões (chmod e chown)</div>
+      <p class="section-desc">
+        No modelo POSIX do Linux, cada arquivo tem 3 níveis de acesso: **Usuário Dono (u)**, **Grupo (g)** e **Outros (o)**, divididos em **Leitura (r=4)**, **Escrita (w=2)** e **Execução (x=1)**.
+      </p>
+
+      <div class="code-block"><span class="code-comment"># Tornar um script de shell executável (+x)</span>
+<span class="code-prompt">user@linux:~$</span> <span class="code-cmd">chmod</span> +x deploy.sh
+
+<span class="code-comment"># Aplicar permissão 755 (Dono: rwx | Grupo: r-x | Outros: r-x)</span>
+<span class="code-prompt">user@linux:~$</span> <span class="code-cmd">chmod</span> 755 script.sh
+
+<span class="code-comment"># Alterar o dono e o grupo do arquivo</span>
+<span class="code-prompt">user@linux:~$</span> <span class="code-cmd">sudo chown</span> www-data:www-data /var/www/html/index.html</div>
+    </div>
+
+    <!-- 5. Exemplo Prático de Shell Script -->
+    <div class="glass-card">
+      <div class="label-title">⚙️ 5. Exemplo de Script Bash (.sh) com Condicionais</div>
+      <p class="section-desc">
+        Os scripts em Bash iniciam obrigatoriamente com a linha Shebang (<span class="tbl-code">#!/bin/bash</span>), que define o interpretador do arquivo.
+      </p>
+
+      <div class="code-block"><span class="code-comment">#!/bin/bash</span>
+
+<span class="code-comment"># Definição de Variáveis</span>
+APP_DIR=<span class="code-string">"/var/www/meu-app"</span>
+LOG_FILE=<span class="code-string">"./deploy.log"</span>
+
+<span class="code-cmd">echo</span> <span class="code-string">"=== Iniciando Verificação do Ambiente ==="</span>
+
+<span class="code-comment"># Estrutura Condicional (If/Else)</span>
+<span class="code-keyword">if</span> [ -d <span class="code-string">"$APP_DIR"</span> ]; <span class="code-keyword">then</span>
+    <span class="code-cmd">echo</span> <span class="code-string">"[OK] O diretório $APP_DIR existe."</span> >> <span class="code-string">"$LOG_FILE"</span>
+<span class="code-keyword">else</span>
+    <span class="code-cmd">echo</span> <span class="code-string">"[ALERTA] Diretório não encontrado. Criando..."</span>
+    <span class="code-cmd">mkdir</span> -p <span class="code-string">"$APP_DIR"</span>
+<span class="code-keyword">fi</span>
+
+<span class="code-cmd">echo</span> <span class="code-string">"Processo finalizado com sucesso."</span></div>
+    </div>
+
+    <div class="footer-note">
+      Bash Shell Guide — Standard Linux/Unix Terminal Reference
+    </div>
+  </div>
+
+</body>
+</html>

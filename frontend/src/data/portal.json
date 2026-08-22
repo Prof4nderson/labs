@@ -49,6 +49,33 @@
       "readTime": "8 min",
       "href": "/labs/VisualLabs/DockerBasics.html",
       "image": "/labs/img/Docker.png"
+    },
+    {
+      "title": "Linux Bash Basics: comandos básicos do dia a dia do devOps",
+      "summary": "Conheça os comandos que todo mundo usa todo dia no universo devOps",
+      "category": "DevOps",
+      "date": "21 ago 2026",
+      "readTime": "8 min",
+      "href": "/labs/VisualLabs/BashBasics.html",
+      "image": "/labs/img/Bash.png"
+    },
+    {
+      "title": "Linux Bash Basics: comandos básicos do dia a dia do devOps",
+      "summary": "Conheça os comandos que todo mundo usa todo dia no universo devOps",
+      "category": "DevOps",
+      "date": "21 ago 2026",
+      "readTime": "8 min",
+      "href": "/labs/VisualLabs/BashBasics.html",
+      "image": "/labs/img/Bash.png"
+    },
+     {
+      "title": "Windows Power Shell Basics: comandos básicos do dia a dia do devOps parte II",
+      "summary": "Conheça os comandos que todo mundo usa todo dia no universo devOps, parte II também.",
+      "category": "DevOps",
+      "date": "21 ago 2026",
+      "readTime": "8 min",
+      "href": "/labs/VisualLabs/PowerShellBasics.html",
+      "image": "/labs/img/PowerShell.png"
     }
   ],
   "news": [
