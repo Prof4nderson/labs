@@ -6,12 +6,12 @@
     "featuredLabel": "Em destaque"
   },
   "featured": {
-    "title": "Em breve conteudo novo e exclusivo",
-    "summary": "Estamos reformulando trodas as seções e implementando novos laboratórios e funcionalidades",
+    "title": "Chaos App",
+    "summary": "Experiência visual imersiva, com renderização massiva.",
     "category": "Artigo",
     "date": "Atualizado hoje",
-    "href": "/visuallabs",
-    "image": "/labs/img/work.jpg"
+    "href": "https://chaos.professor-anderson.com",
+    "image": "/labs/img/chaos.jpg"
   },
   "articles": [
     {
