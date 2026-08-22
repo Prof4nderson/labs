@@ -68,6 +68,15 @@
       "readTime": "8 min",
       "href": "/labs/VisualLabs/PowerShell.html",
       "image": "/labs/img/PowerShell.png"
+    },
+    {
+      "title": "TypeScript X JavaScript - O legado do Java na evolução das linguagens de programação.",
+      "summary": "Uma das características mais criticadas do Java vista como essencial para garantir menos erros em produção.",
+      "category": "DevOps",
+      "date": "22 ago 2026",
+      "readTime": "8 min",
+      "href": "/labs/VisualLabs/TypaJavaScript.html",
+      "image": "/labs/img/TypeJavaScript.png"
     }
   ],
   "news": [

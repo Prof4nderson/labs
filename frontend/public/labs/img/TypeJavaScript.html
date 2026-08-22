@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypeScript vs JavaScript - Comparativo e Conceitos</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 35%, #0d2136 70%, #0d1117 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.3;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #3178c6; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #f7df1e; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #007acc; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 28px;
+      padding: 45px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f7df1e 0%, #3178c6 60%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.15rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .label-title {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #60a5fa;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-desc {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .section-desc b { color: #f7df1e; }
+    .section-desc b.ts-text { color: #60a5fa; }
+
+    .tbl-code {
+      background: rgba(49, 120, 198, 0.2);
+      color: #60a5fa;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .code-block {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 24px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+      white-space: pre;
+      overflow-x: auto;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+      margin-top: 15px;
+      tab-size: 4;
+    }
+
+    .code-keyword { color: #f43f5e; font-weight: bold; }
+    .code-type { color: #38bdf8; font-weight: bold; }
+    .code-string { color: #f7df1e; }
+    .code-comment { color: #64748b; font-style: italic; }
+    .code-interface { color: #34d399; font-weight: bold; }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.guide-table th {
+      background: rgba(15, 23, 42, 0.9);
+      color: #38bdf8;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.guide-table td {
+      padding: 14px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+      line-height: 1.6;
+    }
+
+    table.guide-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .flow-step:last-child { border-bottom: none; }
+
+    .flow-number {
+      background: linear-gradient(135deg, #3178c6, #38bdf8);
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 0.9rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .flow-text {
+      color: #e2e8f0;
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+      font-family: 'Fira Code', monospace;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>TypeScript vs JavaScript</h1>
+      <p>A Evolução da Linguagem: Tipagem Estática, Ecossistema e Produtividade</p>
+    </header>
+
+    <!-- 1. O que são e Relação de Superset -->
+    <div class="glass-card">
+      <div class="label-title">🔷 1. Conceito Fundamental e Superset</div>
+      <p class="section-desc">
+        O <b>JavaScript (JS)</b> é uma linguagem interpretada de dinâmica fraca, fundamental para a Web. O <b class="ts-text">TypeScript (TS)</b> é um <b>superset genérico de JavaScript</b> desenvolvido pela Microsoft, adicionando checagem estática de tipos e recursos avançados antes mesmo de serem compilados para JS puro.
+      </p>
+
+      <div class="flow-step">
+        <div class="flow-number">1</div>
+        <div class="flow-text">
+          <b>Superset Válido:</b> Todo código JavaScript é, por definição, um código TypeScript válido. Você pode renomear arquivos de <span class="tbl-code">.js</span> para <span class="tbl-code">.ts</span> sem quebrar a execução.
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">2</div>
+        <div class="flow-text">
+          <b>Processo de Transpilação:</b> Os navegadores e ambientes de execução (como Node.js ou Runtimes WEB) não executam TypeScript diretamente. O compilador <span class="tbl-code">tsc</span> remove todas as anotações de tipo e gera JavaScript puro.
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">3</div>
+        <div class="flow-text">
+          <b>Detecção Erros em Tempo de Compilação:</b> Enquanto o JS identifica erros de tipo apenas durante a execução (<i>runtime</i>), o TS captura falhas no momento da escrita/compilação (<i>compile-time</i>).
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Comparativo de Código na Prática -->
+    <div class="glass-card">
+      <div class="label-title">💻 2. Comparativo de Código: JS vs TS</div>
+      <p class="section-desc">
+        A principal diferença está na definição de contratos explícitos (interfaces e tipos) que evitam comportamentos inesperados ao manipular objetos e funções.
+      </p>
+
+      <div class="code-block"><span class="code-comment">// ==========================================</span>
+<span class="code-comment">// 1. Exemplo em JavaScript (Dinâmico / Sem Tipos)</span>
+<span class="code-comment">// ==========================================</span>
+<span class="code-keyword">function</span> <span class="code-type">calcularTotalJS</span>(preco, quantidade) {
+    <span class="code-keyword">return</span> preco * quantidade;
+}
+
+<span class="code-comment">// Risco: Aceita argumentos inválidos sem avisar na compilação</span>
+<span class="code-keyword">const</span> resultadoJS = calcularTotalJS(<span class="code-string">"100"</span>, <span class="code-type">undefined</span>); <span class="code-comment">// Retorna NaN silenciosamente</span>
+
+
+<span class="code-comment">// ==========================================</span>
+<span class="code-comment">// 2. Exemplo em TypeScript (Estático e Seguro)</span>
+<span class="code-comment">// ==========================================</span>
+<span class="code-interface">interface</span> <span class="code-type">Produto</span> {
+    id: <span class="code-type">number</span>;
+    nome: <span class="code-type">string</span>;
+    preco: <span class="code-type">number</span>;
+}
+
+<span class="code-keyword">function</span> <span class="code-type">calcularTotalTS</span>(produto: <span class="code-type">Produto</span>, quantidade: <span class="code-type">number</span>): <span class="code-type">number</span> {
+    <span class="code-keyword">return</span> produto.preco * quantidade;
+}
+
+<span class="code-comment">// O editor acusa erro imediatamente se os tipos forem violados</span>
+<span class="code-keyword">const</span> item: <span class="code-type">Produto</span> = { id: <span class="code-type">1</span>, nome: <span class="code-string">"Teclado Mechanical"</span>, preco: <span class="code-type">250.00</span> };
+<span class="code-keyword">const</span> total = calcularTotalTS(item, <span class="code-type">2</span>); <span class="code-comment">// Retorna 500 (Segurança garantida)</span></div>
+    </div>
+
+    <!-- 3. Configuração do TypeScript (tsconfig.json) -->
+    <div class="glass-card">
+      <div class="label-title">⚙️ 3. Estrutura de Configuração (tsconfig.json)</div>
+      <p class="section-desc">
+        O arquivo <span class="tbl-code">tsconfig.json</span> é a espinha dorsal de um projeto TypeScript. Ele dita as regras de verificação do compilador, alvo da versão JS emitida e caminhos de importação.
+      </p>
+
+      <div class="code-block">{
+  <span class="code-keyword">"compilerOptions"</span>: {
+    <span class="code-keyword">"target"</span>: <span class="code-string">"ES2022"</span>,                <span class="code-comment">/* Versão do JavaScript gerada no build */</span>
+    <span class="code-keyword">"module"</span>: <span class="code-string">"ESNext"</span>,                <span class="code-comment">/* Sistema de módulos (ESM) */</span>
+    <span class="code-keyword">"strict"</span>: <span class="code-keyword">true</span>,                  <span class="code-comment">/* Ativa checagem rigorosa de tipos (Recomendado) */</span>
+    <span class="code-keyword">"noImplicitAny"</span>: <span class="code-keyword">true</span>,           <span class="code-comment">/* Impede variáveis sem tipo definido implicitamente */</span>
+    <span class="code-keyword">"moduleResolution"</span>: <span class="code-string">"bundler"</span>,    <span class="code-comment">/* Resolução compatível com bundlers modernos (Vite, Webpack) */</span>
+    <span class="code-keyword">"outDir"</span>: <span class="code-string">"./dist"</span>,                <span class="code-comment">/* Pasta de destino dos arquivos JS compilados */</span>
+    <span class="code-keyword">"baseUrl"</span>: <span class="code-string">"."</span>,
+    <span class="code-keyword">"paths"</span>: {
+      <span class="code-string">"@/*"</span>: [<span class="code-string">"src/*"</span>]                <span class="code-comment">/* Mapeamento de Path Aliases */</span>
+    }
+  },
+  <span class="code-keyword">"include"</span>: [<span class="code-string">"src/**/*"</span>]
+}</div>
+    </div>
+
+    <!-- 4. Tabela Comparativa Detalhada -->
+    <div class="glass-card">
+      <div class="label-title">📊 Comparativo Direto: TypeScript vs JavaScript</div>
+      <div class="table-wrapper">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Característica</th>
+              <th>JavaScript</th>
+              <th>TypeScript</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Sistema de Tipos</b></td>
+              <td>Dinâmico e fraco (tipos resolvidos em tempo de execução).</td>
+              <td>Estático e forte (tipos checados em tempo de compilação).</td>
+            </tr>
+            <tr>
+              <td><b>Detecção de Erros</b></td>
+              <td>Apenas em tempo de execução (podendo causar crashes em produção).</td>
+              <td>Em tempo de desenvolvimento/compilação diretamente na IDE.</td>
+            </tr>
+            <tr>
+              <td><b>Autocompletar / Autocompletion</b></td>
+              <td>Limitado ou baseado em inferência básica do editor.</td>
+              <td>Extremamente preciso devido aos contratos explícitos e interfaces.</td>
+            </tr>
+            <tr>
+              <td><b>Refatoração</b></td>
+              <td>Sujeita a erros e dependente de buscas globais manuais no código.</td>
+              <td>Segura e automatizada; alterar uma interface atualiza/avisa todas as referências.</td>
+            </tr>
+            <tr>
+              <td><b>Curva de Aprendizado</b></td>
+              <td>Menor, ideal para prototipagem e scripts rápidos.</td>
+              <td>Moderada, exige aprendizado de sintaxe de tipos, generics e POO.</td>
+            </tr>
+            <tr>
+              <td><b>Suporte do Navegador</b></td>
+              <td>Nativo em todos os navegadores e ambientes de runtime.</td>
+              <td>Requer compilação/transpilação para JavaScript antes da execução.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. Quando Escolher Cada Um -->
+    <div class="glass-card">
+      <div class="label-title">🎯 5. Decisão de Arquitetura: Quando usar qual?</div>
+      <div class="table-wrapper">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Cenário de Aplicação</th>
+              <th>Escolha Indicada</th>
+              <th>Motivação Principal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Projetos Corporativos e Enormes Codebases</b></td>
+              <td><span class="tbl-code">TypeScript</span></td>
+              <td>Previne regressões, facilita o trabalho em grandes equipes e documenta o código nativamente.</td>
+            </tr>
+            <tr>
+              <td><b>APIs / Backends Complexos</b></td>
+              <td><span class="tbl-code">TypeScript</span></td>
+              <td>Garante o cumprimento dos esquemas de dados recebidos e enviados pelo banco/cliente.</td>
+            </tr>
+            <tr>
+              <td><b>Protótipos Rápidos / MVPs Simples</b></td>
+              <td><span class="tbl-code">JavaScript</span></td>
+              <td>Permite validar conceitos rapidamente sem a sobrecarga inicial de configurar tipagens.</td>
+            </tr>
+            <tr>
+              <td><b>Scripts Utilitários Curtos</b></td>
+              <td><span class="tbl-code">JavaScript</span></td>
+              <td>Execução direta no Node.js ou terminal sem necessidade da etapa de compilação.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      TypeScript vs JavaScript Guide — Language Specification & Architectural Comparison
+    </div>
+  </div>
+
+</body>
+</html>
