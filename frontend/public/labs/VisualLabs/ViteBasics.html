@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vite Fundamentals - Características Básicas e Como Usar</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #311042 70%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #bd34fe; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #ffea83; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #41d1ff; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 45px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffea83 0%, #ff7e5f 50%, #bd34fe 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.15rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .label-title {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #41d1ff;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-desc {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .section-desc b { color: #ffea83; }
+
+    .tbl-code {
+      background: rgba(65, 209, 255, 0.15);
+      color: #41d1ff;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .code-block {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 24px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+      white-space: pre;
+      overflow-x: auto;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+      margin-top: 15px;
+      tab-size: 4;
+    }
+
+    .code-keyword { color: #f43f5e; font-weight: bold; }
+    .code-annotation { color: #bd34fe; font-weight: bold; }
+    .code-type { color: #41d1ff; }
+    .code-string { color: #ffea83; }
+    .code-comment { color: #64748b; font-style: italic; }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.guide-table th {
+      background: rgba(15, 23, 42, 0.9);
+      color: #bd34fe;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.guide-table td {
+      padding: 14px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+      line-height: 1.6;
+    }
+
+    table.guide-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .flow-step:last-child { border-bottom: none; }
+
+    .flow-number {
+      background: linear-gradient(135deg, #bd34fe, #41d1ff);
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 0.9rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .flow-text {
+      color: #e2e8f0;
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+      font-family: 'Fira Code', monospace;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Vite Fundamentals</h1>
+      <p>Ferramenta Frontend de Nova Geração: Características, Estrutura e Uso Prático</p>
+    </header>
+
+    <!-- 1. O que é o Vite e Características Básicas -->
+    <div class="glass-card">
+      <div class="label-title">⚡ 1. O que é o Vite e suas Características Básicas</div>
+      <p class="section-desc">
+        O <b>Vite</b> (palavra em francês para "rápido") é um build tool moderno focado em otimizar drasticamente a experiência de desenvolvimento frontend. Ele resolve a lentidão de bundlers tradicionais (como Webpack e Rollup) dividindo o ecossistema em duas fases essenciais:
+      </p>
+
+      <div class="flow-step">
+        <div class="flow-number">1</div>
+        <div class="flow-text">
+          <b>Servidor de Desenvolvimento Ultrarrápido:</b> Utiliza <b>ES Modules (ESM) nativos</b> do navegador para carregar o código sob demanda, além de pré-bundlar dependências via <b>esbuild</b> (escrito em Go, até 100x mais rápido que bundlers JS).
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">2</div>
+        <div class="flow-text">
+          <b>Hot Module Replacement (HMR) Instantâneo:</b> Quando um arquivo é alterado, apenas o módulo modificado é trocado no navegador, mantendo o estado da aplicação sem recarregar a página inteira.
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">3</div>
+        <div class="flow-text">
+          <b>Build de Produção Otimizado:</b> Utiliza <b>Rollup</b> altamente configurado sob o capô para gerar assets estáticos minificados, com splitting de código e tree-shaking eficientes.
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Como Criar e Inicializar um Projeto -->
+    <div class="glass-card">
+      <div class="label-title">🚀 2. Como Usar: Criando um Projeto do Zero</div>
+      <p class="section-desc">
+        A inicialização de um projeto com Vite é feita diretamente pelo CLI usando o gerenciador de pacotes de sua preferência (npm, yarn ou pnpm). O scaffolding permite escolher templates para Vanilla JS, React, Vue, Svelte, Lit ou Solid (com suporte nativo a TypeScript).
+      </p>
+
+      <div class="code-block"><span class="code-comment"># 1. Criar um novo projeto interativo</span>
+npm create vite@latest meu-app-vite
+
+<span class="code-comment"># Ou especificar a tecnologia diretamente pelo comando:</span>
+npm create vite@latest meu-app-react -- --template react-ts
+
+<span class="code-comment"># 2. Acessar o diretório do projeto</span>
+cd meu-app-vite
+
+<span class="code-comment"># 3. Instalar as dependências</span>
+npm install
+
+<span class="code-comment"># 4. Iniciar o servidor de desenvolvimento</span>
+npm run dev</div>
+    </div>
+
+    <!-- 3. Estrutura de Pastas de um Projeto Vite -->
+    <div class="glass-card">
+      <div class="label-title">📂 3. Estrutura Padrão de Diretórios</div>
+      <p class="section-desc">
+        Diferente de bundlers tradicionais onde o arquivo <span class="tbl-code">index.html</span> fica escondido na pasta <span class="tbl-code">public</span>, no Vite o <span class="tbl-code">index.html</span> fica na <b>raiz do projeto</b> e atua como o ponto de entrada principal (<i>entry point</i>) da aplicação.
+      </p>
+
+      <div class="code-block"><span class="code-comment"># Árvore de Diretórios de uma Aplicação Vite (React / TS)</span>
+meu-app-vite/
+ ├── index.html            <span class="code-comment">&lt;-- Entry point principal da aplicação (contém &lt;script type="module" src="/src/main.tsx"&gt;)</span>
+ ├── package.json          <span class="code-comment">&lt;-- Scripts de execução e dependências</span>
+ ├── vite.config.ts        <span class="code-comment">&lt;-- Arquivo central de configuração de plugins, aliases e proxy</span>
+ ├── public/               <span class="code-comment">&lt;-- Assets estáticos não processados servidos na raiz (favicons, robots.txt)</span>
+ └── src/
+      ├── main.tsx         <span class="code-comment">&lt;-- Script inicial que monta a árvore do React/DOM</span>
+      ├── App.tsx          <span class="code-comment">&lt;-- Componente raiz da aplicação</span>
+      ├── App.css          <span class="code-comment">&lt;-- Estilos do componente</span>
+      └── assets/          <span class="code-comment">&lt;-- Imagens e ícones que passam pela pipeline do Vite</span></div>
+    </div>
+
+    <!-- 4. Configuração Básica (vite.config.ts) -->
+    <div class="glass-card">
+      <div class="label-title">⚙️ 4. Configuração e Mapeamentos (vite.config.ts)</div>
+      <p class="section-desc">
+        O arquivo <span class="tbl-code">vite.config.ts</span> centraliza os plugins da framework, atalhos de importação (<i>path aliases</i>) e configurações do servidor dev (como portas e proxies para APIs backend).
+      </p>
+
+      <div class="code-block"><span class="code-keyword">import</span> { defineConfig } <span class="code-keyword">from</span> <span class="code-string">'vite'</span>;
+<span class="code-keyword">import</span> react <span class="code-keyword">from</span> <span class="code-string">'@vitejs/plugin-react'</span>;
+<span class="code-keyword">import</span> path <span class="code-keyword">from</span> <span class="code-string">'path'</span>;
+
+<span class="code-comment">// Configuração do Vite</span>
+<span class="code-keyword">export default</span> defineConfig({
+    plugins: [react()],
+    
+    <span class="code-comment">// Configurações do Servidor de Desenvolvimento</span>
+    server: {
+        port: <span class="code-type">3000</span>,
+        open: <span class="code-keyword">true</span>, <span class="code-comment">// Abre o navegador automaticamente</span>
+        
+        <span class="code-comment">// Redirecionamento de chamadas de API (Proxy para Backend)</span>
+        proxy: {
+            <span class="code-string">'/api'</span>: {
+                target: <span class="code-string">'http://localhost:8080'</span>,
+                changeOrigin: <span class="code-keyword">true</span>,
+            }
+        }
+    },
+
+    <span class="code-comment">// Configuração de Path Aliases (Simplifica imports com '@/')</span>
+    resolve: {
+        alias: {
+            <span class="code-string">'@'</span>: path.resolve(__dirname, <span class="code-string">'./src'</span>),
+        },
+    },
+});</div>
+    </div>
+
+    <!-- 5. Scripts e Variáveis de Ambiente -->
+    <div class="glass-card">
+      <div class="label-title">🔑 5. Variáveis de Ambiente e Scripts do package.json</div>
+      <p class="section-desc">
+        O Vite utiliza o padrão <b>Dotenv</b> para variáveis de ambiente, mas com uma regra de segurança estrita: apenas variáveis prefixadas com <span class="tbl-code">VITE_</span> são expostas ao código do cliente.
+      </p>
+
+      <div class="code-block"><span class="code-comment"># Arquivo: .env (Na raiz do projeto)</span>
+VITE_API_URL=https://api.professor-anderson.com
+VITE_APP_TITLE="Meu App com Vite"
+
+<span class="code-comment"># Arquivo em código TypeScript/JavaScript (Ex: src/App.tsx)</span>
+<span class="code-keyword">const</span> apiUrl = import.meta.env.VITE_API_URL;
+console.log(<span class="code-string">`Conectado em: ${apiUrl}`</span>);</div>
+
+      <div class="table-wrapper" style="margin-top: 20px;">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Comando / Script</th>
+              <th>Ação Executada</th>
+              <th>Uso Prático</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tbl-code">npm run dev</span></td>
+              <td>Inicia o servidor dev local com HMR na porta configurada (padrão <span class="tbl-code">5173</span>).</td>
+              <td>Desenvolvimento diário com reload instantâneo.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">npm run build</span></td>
+              <td>Executa a compilação do Rollup e gera os estáticos minificados na pasta <span class="tbl-code">/dist</span>.</td>
+              <td>Geração da versão final para deploy.</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">npm run preview</span></td>
+              <td>Sobe um servidor local para testar a pasta de produção <span class="tbl-code">/dist</span>.</td>
+              <td>Validação pré-deploy do bundle final.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Comparativo com Ferramentas Clássicas -->
+    <div class="glass-card">
+      <div class="label-title">📊 Comparativo: Vite vs Bundlers Clássicos (Webpack / CRA)</div>
+      <div class="table-wrapper">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Característica</th>
+              <th>Vite</th>
+              <th>Webpack / Create React App</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Inicialização Dev</b></td>
+              <td>Instantânea (servidor levanta sem empacotar tudo antes).</td>
+              <td>Lenta (precisa fazer o bundle de toda a aplicação em memória).</td>
+            </tr>
+            <tr>
+              <td><b>Velocidade de HMR</b></td>
+              <td>Constante (não degrada conforme o projeto cresce).</td>
+              <td>Fica mais lento à medida que o número de módulos aumenta.</td>
+            </tr>
+            <tr>
+              <td><b>Ponto de Entrada</b></td>
+              <td><span class="tbl-code">index.html</span> na raiz tratado como arquivo de código.</td>
+              <td>Scripts JavaScript/TypeScript internos mapeados via config complexa.</td>
+            </tr>
+            <tr>
+              <td><b>Variáveis Globais</b></td>
+              <td>Acessadas via <span class="tbl-code">import.meta.env</span>.</td>
+              <td>Acessadas via <span class="tbl-code">process.env</span>.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      Vite Guide — Modern Next-Generation Frontend Tooling
+    </div>
+  </div>
+
+</body>
+</html>

@@ -33,7 +33,16 @@
       "image": "/labs/img/formatos.jpg"
     },
     {
-      "title": "O que observar em um projeto com containers",
+      "title": "Vite Basics: como funciona e por que é tão rápido?",
+      "summary": "Uma introdução ao Vite, o moderno bundler de aplicações web",
+      "category": "Front-end",
+      "date": "16 ago 2026",
+      "readTime": "5 min",
+      "href": "/labs/VisualLabs/ViteBasics.html",
+      "image": "/labs/img/Vite.jpg"
+    },
+    {
+      "title": "Docker & Containers",
       "summary": "Camadas, imagens e ciclo de vida: os pontos essenciais para ler uma arquitetura Docker com segurança.",
       "category": "DevOps",
       "date": "15 ago 2026",
