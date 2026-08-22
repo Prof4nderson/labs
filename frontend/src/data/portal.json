@@ -15,13 +15,13 @@
   },
   "articles": [
     {
-      "title": "Do layout ao laboratório: uma trilha prática de front-end",
-      "summary": "Estruture a interface, escolha os dados e transforme cada etapa em uma experiência que pode ser explorada.",
-      "category": "Front-end",
+      "title": "Spring Boot Basics: Estrutura de pastas e componentes padrão",
+      "summary": "Aprenda como usar o framework número um em segurança, estabilidade e escalabilidade, unanimidade entre as maiores empresas e instituições governamentais do mundo",
+      "category": "Back-end",
       "date": "20 ago 2026",
       "readTime": "6 min",
-      "href": "/visuallabs",
-      "image": "/labs/img/lista.jpg"
+      "href": "/VisualLabs/SpringBootStructure.html",
+      "image": "/labs/img/SBS.jpg"
     },
     {
       "title": "Formatos de dados mais comuns: como são utilizados?",

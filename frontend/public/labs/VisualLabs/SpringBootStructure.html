@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Boot Architecture Lab - Guia Completo da Arquitetura em Camadas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0b1329 0%, #102a43 35%, #0d2040 70%, #081021 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .background-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+    }
+
+    .shape-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #10b981; }
+    .shape-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #0ea5e9; }
+    .shape-3 { top: 40%; left: 60%; width: 350px; height: 350px; background: #6366f1; }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 45px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    header h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6ee7b7 0%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      color: #94a3b8;
+      font-size: 1.15rem;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .label-title {
+      font-size: 1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-desc {
+      color: #e2e8f0;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .section-desc b { color: #10b981; }
+
+    .tbl-code {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Fira Code', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    /* Estilização melhorada do bloco de código para legibilidade */
+    .code-block {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 24px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.92rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+      white-space: pre;
+      overflow-x: auto;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+      margin-top: 15px;
+      tab-size: 4;
+    }
+
+    .code-keyword { color: #f43f5e; font-weight: bold; }
+    .code-annotation { color: #10b981; font-weight: bold; }
+    .code-type { color: #38bdf8; }
+    .code-string { color: #fbbf24; }
+    .code-comment { color: #64748b; font-style: italic; }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    table.guide-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    table.guide-table th {
+      background: rgba(15, 23, 42, 0.9);
+      color: #10b981;
+      padding: 14px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    table.guide-table td {
+      padding: 14px 16px;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      vertical-align: middle;
+      line-height: 1.6;
+    }
+
+    table.guide-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .flow-step:last-child { border-bottom: none; }
+
+    .flow-number {
+      background: linear-gradient(135deg, #10b981, #0ea5e9);
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 0.9rem;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .flow-text {
+      color: #e2e8f0;
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: #64748b;
+      font-size: 0.85rem;
+      font-family: 'Fira Code', monospace;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1>Spring Boot Basics</h1>
+      <p>Estrutura de Pastas, Controllers, Services, Repositories e Models</p>
+    </header>
+
+    <!-- 1. Estrutura de Pastas -->
+    <div class="glass-card">
+      <div class="label-title">📂 1. Estrutura Padrão de Pastas (Maven / Gradle Layout)</div>
+      <p class="section-desc">
+        O ecossistema Spring Boot adota o padrão de convenção sobre configuração. O projeto é estruturado a partir da raiz do repositório <span class="tbl-code">src/main/java</span>, organizando o código fonte em pacotes específicos de acordo com a responsabilidade arquitetural de cada classe.
+      </p>
+
+      <div class="code-block"><span class="code-comment"># Árvore de Diretórios de uma Aplicação Spring Boot Padrão</span>
+src/
+ └── main/
+      ├── java/
+      │    └── com/app/demo/
+      │         ├── DemoApplication.java   <span class="code-comment">&lt;-- Ponto de entrada anotado com @SpringBootApplication</span>
+      │         ├── controllers/           <span class="code-comment">&lt;-- Camada Web REST (HTTP Requests / Responses)</span>
+      │         ├── services/              <span class="code-comment">&lt;-- Camada de Negócio (Lógica da aplicação, validações)</span>
+      │         ├── repositories/          <span class="code-comment">&lt;-- Camada de Persistência (Spring Data JPA / SQL)</span>
+      │         ├── models/                <span class="code-comment">&lt;-- Camada do Domínio (Entidades mapeadas para o BD)</span>
+      │         └── dtos/                  <span class="code-comment">&lt;-- Data Transfer Objects (Contratos de Entrada e Saída)</span>
+      └── resources/
+           ├── application.properties     <span class="code-comment">&lt;-- Configurações de banco, porta e propriedades</span>
+           ├── static/                     <span class="code-comment">&lt;-- Arquivos estáticos (CSS, JS, Imagens)</span>
+           └── templates/                  <span class="code-comment">&lt;-- Templates HTML (Thymeleaf, caso aplicável)</span></div>
+    </div>
+
+    <!-- 2. Model / Entity -->
+    <div class="glass-card">
+      <div class="label-title">📦 2. Model / Entity (Mapeamento Objeto-Relacional)</div>
+      <p class="section-desc">
+        A camada <b>Model</b> (ou Entity) representa as estruturas de dados do sistema. No Spring Data JPA, essas classes são anotadas com <span class="tbl-code">@Entity</span> para indicar que cada instância da classe corresponde a uma linha de uma tabela no Banco de Dados Relacional.
+      </p>
+
+      <div class="code-block"><span class="code-keyword">package</span> com.app.demo.models;
+
+<span class="code-keyword">import</span> jakarta.persistence.*;
+
+<span class="code-annotation">@Entity</span>
+<span class="code-annotation">@Table</span>(name = <span class="code-string">"tb_produtos"</span>)
+<span class="code-keyword">public class</span> <span class="code-type">Produto</span> {
+
+    <span class="code-annotation">@Id</span>
+    <span class="code-annotation">@GeneratedValue</span>(strategy = <span class="code-type">GenerationType</span>.IDENTITY)
+    <span class="code-keyword">private</span> <span class="code-type">Long</span> id;
+
+    <span class="code-annotation">@Column</span>(nullable = <span class="code-keyword">false</span>)
+    <span class="code-keyword">private</span> <span class="code-type">String</span> nome;
+
+    <span class="code-keyword">private</span> <span class="code-type">Double</span> preco;
+
+    <span class="code-comment">// Construtor padrão exigido pelo JPA</span>
+    <span class="code-keyword">public</span> <span class="code-type">Produto</span>() {}
+
+    <span class="code-comment">// Construtor completo</span>
+    <span class="code-keyword">public</span> <span class="code-type">Produto</span>(<span class="code-type">Long</span> id, 
+                   <span class="code-type">String</span> nome, 
+                   <span class="code-type">Double</span> preco) {
+        <span class="code-keyword">this</span>.id = id;
+        <span class="code-keyword">this</span>.nome = nome;
+        <span class="code-keyword">this</span>.preco = preco;
+    }
+
+    <span class="code-comment">// Getters e Setters</span>
+    <span class="code-keyword">public</span> <span class="code-type">Long</span> getId() {
+        <span class="code-keyword">return</span> id;
+    }
+
+    <span class="code-keyword">public void</span> setId(<span class="code-type">Long</span> id) {
+        <span class="code-keyword">this</span>.id = id;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-type">String</span> getNome() {
+        <span class="code-keyword">return</span> nome;
+    }
+
+    <span class="code-keyword">public void</span> setNome(<span class="code-type">String</span> nome) {
+        <span class="code-keyword">this</span>.nome = nome;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-type">Double</span> getPreco() {
+        <span class="code-keyword">return</span> preco;
+    }
+
+    <span class="code-keyword">public void</span> setPreco(<span class="code-type">Double</span> preco) {
+        <span class="code-keyword">this</span>.preco = preco;
+    }
+}</div>
+    </div>
+
+    <!-- 3. Repository -->
+    <div class="glass-card">
+      <div class="label-title">🗄️ 3. Repository (Acesso a Dados com Spring Data JPA)</div>
+      <p class="section-desc">
+        A camada <b>Repository</b> é composta por interfaces que estendem <span class="tbl-code">JpaRepository</span>. O Spring Data JPA fornece automaticamente implementações em tempo de execução para operações CRUD completas (<span class="tbl-code">save</span>, <span class="tbl-code">findById</span>, <span class="tbl-code">findAll</span>, <span class="tbl-code">deleteById</span>) e suporte a métodos de busca derivados (*Derived Query Methods*).
+      </p>
+
+      <div class="code-block"><span class="code-keyword">package</span> com.app.demo.repositories;
+
+<span class="code-keyword">import</span> com.app.demo.models.Produto;
+<span class="code-keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;
+<span class="code-keyword">import</span> org.springframework.stereotype.Repository;
+<span class="code-keyword">import</span> java.util.List;
+
+<span class="code-annotation">@Repository</span>
+<span class="code-keyword">public interface</span> <span class="code-type">ProdutoRepository</span> <span class="code-keyword">extends</span> <span class="code-type">JpaRepository</span>&lt;<span class="code-type">Produto</span>, <span class="code-type">Long</span>&gt; {
+
+    <span class="code-comment">// O Spring gera automaticamente o SQL correspondente ao nome do método</span>
+    <span class="code-type">List</span>&lt;<span class="code-type">Produto</span>&gt; findByNomeContainingIgnoreCase(<span class="code-type">String</span> nome);
+
+    <span class="code-type">List</span>&lt;<span class="code-type">Produto</span>&gt; findByPrecoLessThan(<span class="code-type">Double</span> preco);
+}</div>
+    </div>
+
+    <!-- 4. Service -->
+    <div class="glass-card">
+      <div class="label-title">⚙️ 4. Service (Lógica de Negócio e Injeção de Dependência)</div>
+      <p class="section-desc">
+        A camada <b>Service</b> concentra as regras de negócio, validações do sistema e controle transacional. É anotada com <span class="tbl-code">@Service</span> para ser reconhecida pelo container Spring como um Bean e injetada onde necessário.
+      </p>
+
+      <div class="code-block"><span class="code-keyword">package</span> com.app.demo.services;
+
+<span class="code-keyword">import</span> com.app.demo.models.Produto;
+<span class="code-keyword">import</span> com.app.demo.repositories.ProdutoRepository;
+<span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<span class="code-keyword">import</span> java.util.List;
+
+<span class="code-annotation">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-type">ProdutoService</span> {
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-type">ProdutoRepository</span> repository;
+
+    <span class="code-keyword">public</span> <span class="code-type">List</span>&lt;<span class="code-type">Produto</span>&gt; listarTodos() {
+        <span class="code-keyword">return</span> repository.findAll();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-type">Produto</span> salvar(<span class="code-type">Produto</span> produto) {
+        <span class="code-comment">// Regra de negócio: Validação do preço do produto</span>
+        <span class="code-keyword">if</span> (produto.getPreco() != <span class="code-keyword">null</span> &amp;&amp; produto.getPreco() &lt; 0) {
+            <span class="code-keyword">throw new</span> <span class="code-type">IllegalArgumentException</span>(
+                <span class="code-string">"O preço do produto não pode ser negativo."</span>
+            );
+        }
+        
+        <span class="code-keyword">return</span> repository.save(produto);
+    }
+}</div>
+    </div>
+
+    <!-- 5. Controller -->
+    <div class="glass-card">
+      <div class="label-title">🌐 5. Controller (Endpoints da API REST e Protocolo HTTP)</div>
+      <p class="section-desc">
+        A camada <b>Controller</b> expõe a aplicação para o mundo externo através de APIs RESTful. Anotada com <span class="tbl-code">@RestController</span>, intercepta requisições HTTP, realiza o parse dos parâmetros de entrada e devolve dados serializados em JSON junto aos códigos de status HTTP apropriados.
+      </p>
+
+      <div class="code-block"><span class="code-keyword">package</span> com.app.demo.controllers;
+
+<span class="code-keyword">import</span> com.app.demo.models.Produto;
+<span class="code-keyword">import</span> com.app.demo.services.ProdutoService;
+<span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span class="code-keyword">import</span> org.springframework.http.HttpStatus;
+<span class="code-keyword">import</span> org.springframework.http.ResponseEntity;
+<span class="code-keyword">import</span> org.springframework.web.bind.annotation.*;
+<span class="code-keyword">import</span> java.util.List;
+
+<span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/api/produtos"</span>)
+<span class="code-keyword">public class</span> <span class="code-type">ProdutoController</span> {
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-type">ProdutoService</span> service;
+
+    <span class="code-annotation">@GetMapping</span>
+    <span class="code-keyword">public</span> <span class="code-type">ResponseEntity</span>&lt;<span class="code-type">List</span>&lt;<span class="code-type">Produto</span>&gt;&gt; listar() {
+        <span class="code-type">List</span>&lt;<span class="code-type">Produto</span>&gt; lista = service.listarTodos();
+        <span class="code-keyword">return</span> <span class="code-type">ResponseEntity</span>.ok(lista);
+    }
+
+    <span class="code-annotation">@PostMapping</span>
+    <span class="code-keyword">public</span> <span class="code-type">ResponseEntity</span>&lt;<span class="code-type">Produto</span>&gt; criar(<span class="code-annotation">@RequestBody</span> <span class="code-type">Produto</span> produto) {
+        <span class="code-type">Produto</span> novo = service.salvar(produto);
+        <span class="code-keyword">return</span> <span class="code-type">ResponseEntity</span>
+                .status(<span class="code-type">HttpStatus</span>.CREATED)
+                .body(novo);
+    }
+}</div>
+    </div>
+
+    <!-- Guia Resumido da Arquitetura -->
+    <div class="glass-card">
+      <div class="label-title">📊 Resumo das Camadas e Mapeamento de Atribuições</div>
+      <div class="table-wrapper">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Camada</th>
+              <th>Anotação Principal</th>
+              <th>Responsabilidade</th>
+              <th>Comunica-se Com</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tbl-code">Controller</span></td>
+              <td><span class="tbl-code">@RestController</span></td>
+              <td>Gerenciamento de rotas, serialização JSON e códigos HTTP.</td>
+              <td>Cliente HTTP $\rightarrow$ Service</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">Service</span></td>
+              <td><span class="tbl-code">@Service</span></td>
+              <td>Regras de negócio, cálculos, validações e transações.</td>
+              <td>Controller $\rightarrow$ Repository</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">Repository</span></td>
+              <td><span class="tbl-code">@Repository</span></td>
+              <td>Execução de instruções SQL / JPQL e persistência.</td>
+              <td>Service $\rightarrow$ Banco de Dados</td>
+            </tr>
+            <tr>
+              <td><span class="tbl-code">Model</span></td>
+              <td><span class="tbl-code">@Entity</span></td>
+              <td>Representação em memória das tabelas e relacionamentos.</td>
+              <td>Mapeada em todas as camadas</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Fluxo End-to-End -->
+    <div class="glass-card">
+      <div class="label-title">🔄 Fluxo de Execução End-to-End (Uma Requisição HTTP)</div>
+      
+      <div class="flow-step">
+        <div class="flow-number">1</div>
+        <div class="flow-text">
+          <b>Client HTTP (Navegador / Postman / Mobile):</b> Envia uma requisição (ex: <span class="tbl-code">POST /api/produtos</span> com um corpo JSON).
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">2</div>
+        <div class="flow-text">
+          <b>Controller:</b> O método anotado com <span class="tbl-code">@PostMapping</span> recebe o JSON, desserializa para a classe <span class="tbl-code">Produto</span> e delega a chamada para a camada de serviço.
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">3</div>
+        <div class="flow-text">
+          <b>Service:</b> Executa os critérios de negócio (valida se o preço é maior que zero). Se aprovado, repassa o objeto para a camada de persistência.
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">4</div>
+        <div class="flow-text">
+          <b>Repository:</b> Invoca o método <span class="tbl-code">save()</span> do <span class="tbl-code">JpaRepository</span>. O Hibernate traduz o método Java em uma instrução SQL <span class="tbl-code">INSERT INTO tb_produtos ...</span>.
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-number">5</div>
+        <div class="flow-text">
+          <b>Banco de Dados & Retorno:</b> O BD persiste os dados, gera a chave primária e retorna ao Controller, que responde ao cliente com o código HTTP <span class="tbl-code">201 Created</span> e o JSON gravado.
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      Spring Boot Architecture Guide — Padrão de Camadas Desacopladas
+    </div>
+  </div>
+
+</body>
+</html>
