@@ -17,7 +17,7 @@ export const games: CatalogItem[] = [
     assunto: "Canvas & Animação",
     dificuldade: "Intermediário",
     link: "/labs/Games/GameCyberDragon.html",
-    image: "/labs/img/dragon.png",
+    image: "/labs/img/cyberdragon.png",
   },
   {
     title: "Cyber Raid",
@@ -26,6 +26,7 @@ export const games: CatalogItem[] = [
     assunto: "Lógica de Jogo",
     dificuldade: "Avançado",
     link: "/labs/Games/GameCyberRaid.html",
+    image: "/labs/img/cyberraid.png",
   },
   {
     title: "Igloo do Ártico",
@@ -43,6 +44,8 @@ export const games: CatalogItem[] = [
     assunto: "Lógica de Jogo",
     dificuldade: "Intermediário",
     link: "/labs/Games/GameKeystone.html",
+    image: "/labs/img/keystone.png",
+
   },
   {
     title: "Magic Dragon",
@@ -51,7 +54,7 @@ export const games: CatalogItem[] = [
     assunto: "Canvas & Animação",
     dificuldade: "Iniciante",
     link: "/labs/Games/GameMagicDragon.html",
-    image: "/labs/img/dragon.png",
+    image: "/labs/img/magicdragon.png",
   },
   {
     title: "Psychodelic Dragon",
